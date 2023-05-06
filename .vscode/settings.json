@@ -3,7 +3,9 @@
         "lib.h": "c",
         "string.h": "c",
         "moduleloader.h": "c",
+        "modulePacker.h": "c",
         "stdint.h": "c",
-        "naiveconsole.h": "c"
-    }
+        "naiveconsole.h": "c",
+        "unistd.h": "c"
+    },
 }

@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 
+typedef int (*EntryPoint)();
+
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -12,24 +14,8 @@ extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
 static const uint64_t pageSize = 0x1000;
-
 static void* const sampleCodeModuleAddress = (void*)0x400000;
 static void* const sampleDataModuleAddress = (void*)0x500000;
-
-typedef int (*EntryPoint)();
-
-void
-writeCharacter(unsigned char c,
-               unsigned char fg,
-               unsigned char bg,
-               int x,
-               int y)
-{
-	uint16_t attrib = (bg << 4) | (fg & 0x0F);
-	volatile uint16_t* where;
-	where = (volatile uint16_t*)0xB8000 + (y * 80 + x);
-	*where = c | (attrib << 8);
-}
 
 void
 clearBSS(void* bssAddress, uint64_t bssSize)
@@ -98,6 +84,13 @@ initializeKernelBinary()
 int
 main()
 {
+	// ejercicio 1
+	ncSetColor(0x2, 0xF);
+	ncPrint("Arquitectura de las Computadoras");
+	ncClearColor();
+	ncNewline();
+	ncNewline();
+
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
@@ -116,13 +109,5 @@ main()
 	ncNewline();
 
 	ncPrint("[Finished]");
-
-	// ejercicio 1
-	const char msg[] = "Arquitectura de las Computadoras";
-	const unsigned int size = sizeof(msg) / sizeof(msg[0]);
-
-	for (int i = 0; i < size; i++)
-		writeCharacter(msg[i], 0x0 + i, 0xF, i, 24);
-
 	return 0;
 }

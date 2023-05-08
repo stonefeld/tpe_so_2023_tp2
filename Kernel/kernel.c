@@ -89,6 +89,8 @@ main()
 	ncPrint("Arquitectura de las Computadoras");
 	ncClearColor();
 	ncNewline();
+
+	ncPrintTime();
 	ncNewline();
 
 	ncPrint("[Kernel Main]");

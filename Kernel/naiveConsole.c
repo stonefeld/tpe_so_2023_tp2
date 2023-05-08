@@ -8,7 +8,18 @@ static uint8_t currentColor = color;
 static const uint32_t width = 80;
 static const uint32_t height = 25;
 
+static enum TIME_FMT {
+	SECONDS = 0,
+	MINUTES = 2,
+	HOURS = 4,
+	WEEKDAY = 6,
+	DAY = 7,
+	MONTH = 8,
+	YEAR = 9
+};
+
 static uint32_t uintToBase(uint64_t value, char* buffer, uint32_t base);
+static int format(int n);
 
 void
 ncPrint(const char* string)
@@ -56,6 +67,24 @@ ncPrintBase(uint64_t value, uint32_t base)
 {
 	uintToBase(value, buffer, base);
 	ncPrint(buffer);
+}
+
+void
+ncPrintTime()
+{
+	ncPrint("Datetime: ");
+	ncPrintDec(format(getTime(YEAR)));
+	ncPrint("/");
+	ncPrintDec(format(getTime(MONTH)));
+	ncPrint("/");
+	ncPrintDec(format(getTime(DAY)));
+	ncPrint(" ");
+	ncPrintDec(format(getTime(HOURS)));
+	ncPrint(":");
+	ncPrintDec(format(getTime(MINUTES)));
+	ncPrint(":");
+	ncPrintDec(format(getTime(SECONDS)));
+	ncNewline();
 }
 
 void
@@ -109,4 +138,12 @@ uintToBase(uint64_t value, char* buffer, uint32_t base)
 	}
 
 	return digits;
+}
+
+static int
+format(int n)
+{
+	int dec = (n & 240) >> 4;
+	int units = n & 15;
+	return dec * 10 + units;
 }

@@ -84,15 +84,6 @@ initializeKernelBinary()
 int
 main()
 {
-	// ejercicio 1
-	ncSetColor(0x2, 0xF);
-	ncPrint("Arquitectura de las Computadoras");
-	ncClearColor();
-	ncNewline();
-
-	ncPrintTime();
-	ncNewline();
-
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
@@ -111,5 +102,16 @@ main()
 	ncNewline();
 
 	ncPrint("[Finished]");
+	ncNewline();
+	ncNewline();
+
+	// ejercicio 1
+	ncSetColor(0x2, 0xF);
+	ncPrint("Arquitectura de las Computadoras");
+	ncClearColor();
+	ncNewline();
+
+	// ejercicio 3
+	ncPrintTime();
 	return 0;
 }

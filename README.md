@@ -1,8 +1,10 @@
-# Trabajo Práctico Especial - Arquitectura de Computadoras - 2023
+<h1 align="center">Trabajo Práctico Especial</h1>
+<h3 align="center">Arquitectura de Computadoras - 2023</h3>
 
-Basado en el proyecto [x64BareBones](https://bitbucket.org/RowDaBoat/x64barebones/)
-
-![](./Extras/x64BareBones.png)
+<p align="center">
+  <img src="./Extras/x64BareBones.png" style="width:15%" alt="x64BareBones Logo"></img><br><br>
+  <a href="https://bitbucket.org/RowDaBoat/x64barebones/">x64BareBones</a>
+</p>
 
 ## Tabla de contenidos
 

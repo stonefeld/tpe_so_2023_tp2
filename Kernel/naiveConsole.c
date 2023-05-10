@@ -7,8 +7,8 @@ static const uint8_t color = 0x07;
 static const uint32_t width = 80;
 static const uint32_t height = 25;
 
-static uint8_t* currentVideo = video;
-static uint8_t currentColor = color;
+static uint8_t* currentVideo = (uint8_t*)0xB8000;
+static uint8_t currentColor = 0x07;
 
 enum timeFmt
 {

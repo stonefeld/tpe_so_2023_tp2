@@ -10,15 +10,15 @@ static const uint32_t height = 25;
 static uint8_t* currentVideo = video;
 static uint8_t currentColor = color;
 
-enum TIME_FMT
+enum timeFmt
 {
 	SECONDS = 0,
 	MINUTES = 2,
 	HOURS = 4,
 	WEEKDAY = 6,
-	DAY = 7,
-	MONTH = 8,
-	YEAR = 9
+	DAY,
+	MONTH,
+	YEAR
 };
 
 static uint32_t uintToBase(uint64_t value, char* buffer, uint32_t base);
@@ -91,6 +91,13 @@ ncPrintTime()
 }
 
 void
+ncBackspace()
+{
+	*(--currentVideo) = color;
+	*(--currentVideo) = ' ';
+}
+
+void
 ncSetColor(unsigned char fg, unsigned char bg)
 {
 	currentColor = (bg << 4) | (fg & 0x0F);
@@ -100,8 +107,10 @@ void
 ncClear()
 {
 	int i;
-	for (i = 0; i < height * width; i++)
+	for (i = 0; i < height * width; i++) {
 		video[i * 2] = ' ';
+		video[i * 2 - 1] = color;
+	}
 	currentVideo = video;
 	ncClearColor();
 }

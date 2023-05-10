@@ -1,11 +1,15 @@
-#Binary Files
+# Binary Files
 *.bin
 *.sys
 
-#The images
+# The images
 *.img
 *.qcow2
 *.vmdk
 
-#Object files
+# Object files
 *.o
+
+# Clangd files
+.cache/
+compile_commands.json

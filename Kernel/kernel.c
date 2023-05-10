@@ -3,6 +3,7 @@
 #include <naiveConsole.h>
 #include <stdint.h>
 #include <string.h>
+#include <keyboard.h>
 
 typedef int (*EntryPoint)();
 
@@ -105,7 +106,7 @@ main()
 	ncNewline();
 	ncNewline();
 
-	// ejercicio 1
+	// ejercicio 2
 	ncSetColor(0x2, 0xF);
 	ncPrint("Arquitectura de las Computadoras");
 	ncClearColor();
@@ -113,5 +114,20 @@ main()
 
 	// ejercicio 3
 	ncPrintTime();
+
+	// ejercicio 4
+	// ncClear();
+	// int i, teclahex = 0, teclahexant = teclahex;
+	// for (int j = 1; j < 1000; j++) {
+	// 	i = getKey();
+	// 	teclahex = i;
+	// 	if (teclahex != teclahexant) {
+	// 		ncPrintHex(teclahex);
+	// 		ncPrint(" ");
+	// 		teclahexant = teclahex;
+	// 	}
+	// }
+	for (int j = 1; j < 1000; j++)
+		printChar();
 	return 0;
 }

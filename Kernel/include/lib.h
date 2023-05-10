@@ -9,5 +9,6 @@ void* memcpy(void* destination, const void* source, uint64_t length);
 // defined in asm/libasm.asm
 extern char* cpuVendor(char* result);
 extern int getTime(int fmt);
+extern int getKey();
 
 #endif

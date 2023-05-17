@@ -1,10 +1,13 @@
+#include "videoDriver.h"
+
+#include <keyboard.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
 #include <string.h>
-#include <keyboard.h>
-#include "videoDriver.h"
+
+#define RENGLON_HEIGHT 32
 
 typedef int (*EntryPoint)();
 
@@ -130,17 +133,48 @@ main()
 	// 	}
 	// }
 	for (int j = 1; j < 1000; j++)
-		printChar();
+	    printChar();
 	return 0;
 	*/
 
-	for (int i = 0; i < vbeModeInfo->width; i++)
-	{
-		for (int j = 0; j <vbeModeInfo->height; j++)
-		{
-			putPixelRGB(255, 255, 255, i, j);
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(255, 0, 0, i, j);
 		}
-		
 	}
-	
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(255, 128, 0, i, RENGLON_HEIGHT + j);
+		}
+	}
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(255, 255, 0, i, RENGLON_HEIGHT * 2 + j);
+		}
+	}
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(0, 255, 0, i, RENGLON_HEIGHT * 3 + j);
+		}
+	}
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(0, 255, 255, i, RENGLON_HEIGHT * 4 + j);
+		}
+	}
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(0, 0, 255, i, RENGLON_HEIGHT * 5 + j);
+		}
+	}
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(153, 51, 255, i, RENGLON_HEIGHT * 6 + j);
+		}
+	}
+	for (int i = 0; i < vbeModeInfo->width; i++) {
+		for (int j = 0; j < RENGLON_HEIGHT; j++) {
+			putPixelRGB(153, 0, 0, i, RENGLON_HEIGHT * 7 + j);
+		}
+	}
 }

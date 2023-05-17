@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <keyboard.h>
+#include "videoDriver.h"
 
 typedef int (*EntryPoint)();
 
@@ -85,6 +86,7 @@ initializeKernelBinary()
 int
 main()
 {
+	/*
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
@@ -130,4 +132,15 @@ main()
 	for (int j = 1; j < 1000; j++)
 		printChar();
 	return 0;
+	*/
+
+	for (int i = 0; i < vbeModeInfo->width; i++)
+	{
+		for (int j = 0; j <vbeModeInfo->height; j++)
+		{
+			putPixelRGB(255, 255, 255, i, j);
+		}
+		
+	}
+	
 }

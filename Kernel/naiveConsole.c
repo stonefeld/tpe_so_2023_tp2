@@ -7,10 +7,10 @@ static const uint8_t color = 0x07;
 static const uint32_t width = 80;
 static const uint32_t height = 25;
 
-static uint8_t* currentVideo = (uint8_t*)0xB8000;
-static uint8_t currentColor = 0x07;
+static uint8_t* curr_video = (uint8_t*)0xB8000;
+static uint8_t curr_color = 0x07;
 
-enum timeFmt
+enum time_fmt
 {
 	SECONDS = 0,
 	MINUTES = 2,
@@ -25,106 +25,106 @@ static uint32_t uintToBase(uint64_t value, char* buffer, uint32_t base);
 static int format(int n);
 
 void
-ncPrint(const char* string)
+nc_print(const char* string)
 {
 	int i;
 	for (i = 0; string[i] != 0; i++)
-		ncPrintChar(string[i]);
+		nc_putchar(string[i]);
 }
 
 void
-ncPrintChar(char character)
+nc_putchar(char character)
 {
-	*currentVideo++ = character;
-	*currentVideo++ = currentColor;
+	*curr_video++ = character;
+	*curr_video++ = curr_color;
 }
 
 void
-ncNewline()
+nc_newline()
 {
 	do {
-		ncPrintChar(' ');
-	} while ((uint64_t)(currentVideo - video) % (width * 2) != 0);
+		nc_putchar(' ');
+	} while ((uint64_t)(curr_video - video) % (width * 2) != 0);
 }
 
 void
-ncPrintDec(uint64_t value)
+nc_print_dec(uint64_t value)
 {
-	ncPrintBase(value, 10);
+	nc_print_base(value, 10);
 }
 
 void
-ncPrintHex(uint64_t value)
+nc_print_hex(uint64_t value)
 {
-	ncPrintBase(value, 16);
+	nc_print_base(value, 16);
 }
 
 void
-ncPrintBin(uint64_t value)
+nc_print_bin(uint64_t value)
 {
-	ncPrintBase(value, 2);
+	nc_print_base(value, 2);
 }
 
 void
-ncPrintBase(uint64_t value, uint32_t base)
+nc_print_base(uint64_t value, uint32_t base)
 {
 	uintToBase(value, buffer, base);
-	ncPrint(buffer);
+	nc_print(buffer);
 }
 
 void
-ncPrintTime()
+nc_print_time()
 {
-	ncPrint("Datetime: ");
-	ncPrintDec(format(getTime(YEAR)));
-	ncPrint("/");
-	ncPrintDec(format(getTime(MONTH)));
-	ncPrint("/");
-	ncPrintDec(format(getTime(DAY)));
-	ncPrint(" ");
-	ncPrintDec(format(getTime(HOURS)));
-	ncPrint(":");
-	ncPrintDec(format(getTime(MINUTES)));
-	ncPrint(":");
-	ncPrintDec(format(getTime(SECONDS)));
-	ncNewline();
+	nc_print("Datetime: ");
+	nc_print_dec(format(gettime(YEAR)));
+	nc_print("/");
+	nc_print_dec(format(gettime(MONTH)));
+	nc_print("/");
+	nc_print_dec(format(gettime(DAY)));
+	nc_print(" ");
+	nc_print_dec(format(gettime(HOURS)));
+	nc_print(":");
+	nc_print_dec(format(gettime(MINUTES)));
+	nc_print(":");
+	nc_print_dec(format(gettime(SECONDS)));
+	nc_newline();
 }
 
 void
-ncBackspace()
+nc_backspace()
 {
-	*(--currentVideo) = color;
-	*(--currentVideo) = ' ';
+	*(--curr_video) = color;
+	*(--curr_video) = ' ';
 }
 
 void
-ncSetColor(unsigned char fg, unsigned char bg)
+nc_set_color(unsigned char fg, unsigned char bg)
 {
-	currentColor = (bg << 4) | (fg & 0x0F);
+	curr_color = (bg << 4) | (fg & 0x0F);
 }
 
 void
-ncClear()
+nc_clear()
 {
 	int i;
 	for (i = 0; i < height * width; i++) {
 		video[i * 2] = ' ';
 		video[i * 2 - 1] = color;
 	}
-	currentVideo = video;
-	ncClearColor();
+	curr_video = video;
+	nc_clear_color();
 }
 
 void
-ncClearColor()
+nc_clear_color()
 {
-	currentColor = color;
+	curr_color = color;
 }
 
 static uint32_t
-uintToBase(uint64_t value, char* buffer, uint32_t base)
+uintToBase(uint64_t value, char* buff, uint32_t base)
 {
-	char* p = buffer;
+	char* p = buff;
 	char *p1, *p2;
 	uint32_t digits = 0;
 
@@ -139,7 +139,7 @@ uintToBase(uint64_t value, char* buffer, uint32_t base)
 	*p = 0;
 
 	// Reverse string in buffer.
-	p1 = buffer;
+	p1 = buff;
 	p2 = p - 1;
 	while (p1 < p2) {
 		char tmp = *p1;

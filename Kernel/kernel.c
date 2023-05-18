@@ -15,75 +15,75 @@ extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
 extern uint8_t bss;
-extern uint8_t endOfKernelBinary;
-extern uint8_t endOfKernel;
+extern uint8_t end_of_kernel_bin;
+extern uint8_t end_of_kernel;
 
-static const uint64_t pageSize = 0x1000;
-static void* const sampleCodeModuleAddress = (void*)0x400000;
-static void* const sampleDataModuleAddress = (void*)0x500000;
+static const uint64_t page_size = 0x1000;
+static void* const sample_code_module_addr = (void*)0x400000;
+static void* const sample_data_module_addr = (void*)0x500000;
 
 void
-clearBSS(void* bssAddress, uint64_t bssSize)
+clear_bss(void* bss_addr, uint64_t bss_size)
 {
-	memset(bssAddress, 0, bssSize);
+	memset(bss_addr, 0, bss_size);
 }
 
 void*
-getStackBase()
+get_stack_base()
 {
-	return (void*)((uint64_t)&endOfKernel +
-	               pageSize * 8        // The size of the stack itself, 32KiB
+	return (void*)((uint64_t)&end_of_kernel +
+	               page_size * 8       // The size of the stack itself, 32KiB
 	               - sizeof(uint64_t)  // Begin at the top of the stack
 	);
 }
 
 void*
-initializeKernelBinary()
+init_kernel_binary()
 {
 	char buffer[10];
 
-	ncPrint("[x64BareBones]");
-	ncNewline();
+	nc_print("[x64BareBones]");
+	nc_newline();
 
-	ncPrint("CPU Vendor: ");
-	ncPrint(cpuVendor(buffer));
-	ncNewline();
+	nc_print("CPU Vendor: ");
+	nc_print(cpu_vendor(buffer));
+	nc_newline();
 
-	ncPrint("[Loading modules]");
-	ncNewline();
+	nc_print("[Loading modules]");
+	nc_newline();
 
-	void* moduleAddresses[] = {
-		sampleCodeModuleAddress,
-		sampleDataModuleAddress,
+	void* module_addrs[] = {
+		sample_code_module_addr,
+		sample_data_module_addr,
 	};
-	loadModules(&endOfKernelBinary, moduleAddresses);
+	load_modules(&end_of_kernel_bin, module_addrs);
 
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
+	nc_print("[Done]");
+	nc_newline();
+	nc_newline();
 
-	ncPrint("[Initializing kernel's binary]");
-	ncNewline();
+	nc_print("[Initializing kernel's binary]");
+	nc_newline();
 
-	clearBSS(&bss, &endOfKernel - &bss);
+	clear_bss(&bss, &end_of_kernel - &bss);
 
-	ncPrint("  text: 0x");
-	ncPrintHex((uint64_t)&text);
-	ncNewline();
-	ncPrint("  rodata: 0x");
-	ncPrintHex((uint64_t)&rodata);
-	ncNewline();
-	ncPrint("  data: 0x");
-	ncPrintHex((uint64_t)&data);
-	ncNewline();
-	ncPrint("  bss: 0x");
-	ncPrintHex((uint64_t)&bss);
-	ncNewline();
+	nc_print("  text: 0x");
+	nc_print_hex((uint64_t)&text);
+	nc_newline();
+	nc_print("  rodata: 0x");
+	nc_print_hex((uint64_t)&rodata);
+	nc_newline();
+	nc_print("  data: 0x");
+	nc_print_hex((uint64_t)&data);
+	nc_newline();
+	nc_print("  bss: 0x");
+	nc_print_hex((uint64_t)&bss);
+	nc_newline();
 
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
-	return getStackBase();
+	nc_print("[Done]");
+	nc_newline();
+	nc_newline();
+	return get_stack_base();
 }
 
 int
@@ -134,47 +134,50 @@ main()
 	// }
 	for (int j = 1; j < 1000; j++)
 	    printChar();
-	return 0;
 	*/
 
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(255, 0, 0, i, j);
+			vd_put_pixel_rgb(255, 0, 0, i, j);
 		}
 	}
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(255, 128, 0, i, RENGLON_HEIGHT + j);
+			vd_put_pixel_rgb(255, 128, 0, i, RENGLON_HEIGHT + j);
 		}
 	}
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(255, 255, 0, i, RENGLON_HEIGHT * 2 + j);
+			vd_put_pixel_rgb(255, 255, 0, i, RENGLON_HEIGHT * 2 + j);
 		}
 	}
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(0, 255, 0, i, RENGLON_HEIGHT * 3 + j);
+			vd_put_pixel_rgb(0, 255, 0, i, RENGLON_HEIGHT * 3 + j);
 		}
 	}
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(0, 255, 255, i, RENGLON_HEIGHT * 4 + j);
+			vd_put_pixel_rgb(0, 255, 255, i, RENGLON_HEIGHT * 4 + j);
 		}
 	}
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(0, 0, 255, i, RENGLON_HEIGHT * 5 + j);
+			vd_put_pixel_rgb(0, 0, 255, i, RENGLON_HEIGHT * 5 + j);
 		}
 	}
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(153, 51, 255, i, RENGLON_HEIGHT * 6 + j);
+			vd_put_pixel_rgb(153, 51, 255, i, RENGLON_HEIGHT * 6 + j);
 		}
 	}
-	for (int i = 0; i < vbeModeInfo->width; i++) {
+	for (int i = 0; i < vbe_mode_info->width; i++) {
 		for (int j = 0; j < RENGLON_HEIGHT; j++) {
-			putPixelRGB(153, 0, 0, i, RENGLON_HEIGHT * 7 + j);
+			vd_put_pixel_rgb(153, 0, 0, i, RENGLON_HEIGHT * 7 + j);
 		}
 	}
+
+	for (int i = 0; i < vbe_mode_info->width; i++)
+		vd_put_pixel(0xFFFFFF, i, RENGLON_HEIGHT * 8 + 32);
+	return 0;
 }

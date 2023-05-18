@@ -1,10 +1,10 @@
-global cpuVendor
-global getTime
-global getKey
+global cpu_vendor
+global gettime
+global getkey
 
 section .text
 
-cpuVendor:
+cpu_vendor:
     push rbp
     mov rbp, rsp
 
@@ -27,7 +27,7 @@ cpuVendor:
     pop rbp
     ret
 
-getTime:
+gettime:
     push rbp
     mov rbp,rsp
 
@@ -38,7 +38,7 @@ getTime:
     leave
     ret
 
-getKey:
+getkey:
     push rbp
     mov rbp,rsp
 

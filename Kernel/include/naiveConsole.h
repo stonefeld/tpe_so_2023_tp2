@@ -3,17 +3,17 @@
 
 #include <stdint.h>
 
-void ncPrint(const char * string);
-void ncPrintChar(char character);
-void ncNewline();
-void ncPrintDec(uint64_t value);
-void ncPrintHex(uint64_t value);
-void ncPrintBin(uint64_t value);
-void ncPrintBase(uint64_t value, uint32_t base);
-void ncPrintTime();
-void ncBackspace();
-void ncSetColor(unsigned char fg, unsigned char bg);
-void ncClear();
-void ncClearColor();
+void nc_print(const char * string);
+void nc_putchar(char character);
+void nc_newline();
+void nc_print_dec(uint64_t value);
+void nc_print_hex(uint64_t value);
+void nc_print_bin(uint64_t value);
+void nc_print_base(uint64_t value, uint32_t base);
+void nc_print_time();
+void nc_backspace();
+void nc_set_color(unsigned char fg, unsigned char bg);
+void nc_clear();
+void nc_clear_color();
 
 #endif

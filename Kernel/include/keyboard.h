@@ -1,6 +1,6 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-char printChar();
+void kb_printkey();
 
 #endif

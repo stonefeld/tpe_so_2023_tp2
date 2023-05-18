@@ -3,11 +3,16 @@
 
 #include <stdint.h>
 
+#define RED 0xFF0000
+#define GREEN 0x00FF00
+#define BLUE 0x0000FF
+#define WHITE RED|GREEN|BLUE
+
 struct vbe_mode_info_structure
 {
-	uint16_t
-	    attributes;  // deprecated, only bit 7 should be of interest to you, and
-	                 // it indicates the mode supports a linear frame buffer.
+	uint16_t attributes;   // deprecated, only bit 7 should be
+	                       // of interest to you, and it indicates the mode
+	                       // supports a linear frame buffer.
 	uint8_t window_a;      // deprecated
 	uint8_t window_b;      // deprecated
 	uint16_t granularity;  // deprecated; used while calculating bank numbers
@@ -49,9 +54,9 @@ struct vbe_mode_info_structure
 } __attribute__((packed));
 
 typedef struct vbe_mode_info_structure* VBEModeInfo;
-static VBEModeInfo vbeModeInfo = (VBEModeInfo)0x5C00;
+static VBEModeInfo vbe_mode_info = (VBEModeInfo)0x5C00;
 
-void putPixel(uint32_t hexColor, uint32_t x, uint32_t y);
-void putPixelRGB(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y);
+void vd_put_pixel(uint32_t hex_color, uint32_t x, uint32_t y);
+void vd_put_pixel_rgb(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y);
 
 #endif

@@ -1,4 +1,5 @@
-#include "videoDriver.h"
+#include <font.h>
+#include <videoDriver.h>
 
 struct vbe_mode_info_structure
 {
@@ -48,10 +49,21 @@ struct vbe_mode_info_structure
 typedef struct vbe_mode_info_structure* VBEModeInfo;
 VBEModeInfo vbe_mode_info = (VBEModeInfo)0x5C00;
 
+struct font_info
+{
+	uint32_t fg, bg;
+};
+
+typedef struct font_info FontInfo;
+FontInfo fontInfo = {
+	.bg = 0x0,
+	.fg = WHITE,
+};
+
 void
 vd_put_pixel(uint32_t hex_color, uint32_t x, uint32_t y)
 {
-	vd_put_pixel_rgb(hex_color & RED, hex_color & GREEN, hex_color & BLUE, x, y);
+	vd_put_pixel_rgb((hex_color & RED) >> 16, (hex_color & GREEN) >> 8, hex_color & BLUE, x, y);
 }
 
 void
@@ -62,4 +74,46 @@ vd_put_pixel_rgb(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y)
 	screen[offset] = b;
 	screen[offset + 1] = g;
 	screen[offset + 2] = r;
+}
+
+void
+vd_put_char(char c, uint32_t x, uint32_t y)
+{
+	uint32_t aux_x = x, aux_y = y;
+	uint8_t* c_bitmap = fnt_get_char_bitmap(c);
+	char is_foreground;
+
+	for (int i = 0; i < CHAR_HEIGHT; i++) {
+		for (int j = 0; j < CHAR_WIDTH; j++) {
+			is_foreground = (1 << (CHAR_WIDTH - j)) & c_bitmap[i];
+			if (is_foreground)
+				vd_put_pixel(fontInfo.fg, aux_x, aux_y);
+			else
+				vd_put_pixel(fontInfo.bg, aux_x, aux_y);
+			aux_x++;
+		}
+		aux_x = x;
+		aux_y++;
+	}
+}
+
+void
+vd_set_color(uint32_t fg, uint32_t bg)
+{
+	fontInfo.fg = fg;
+	fontInfo.bg = bg;
+}
+
+void
+vd_clear()
+{
+	vd_clear_bg(fontInfo.bg);
+}
+
+void
+vd_clear_bg(uint32_t bg)
+{
+	for (int i = 0; i < vbe_mode_info->height; i++)
+		for (int j = 0; j < vbe_mode_info->width; j++)
+			vd_put_pixel(bg, j, i);
 }

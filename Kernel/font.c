@@ -3,7 +3,7 @@
 
 #include <font.h>
 
-static unsigned char __font_bitmap__[] = {
+static uint8_t font_bitmap[] = {
 	//  32 $20 'space'
 	//	width 8, bbx 0, bby -4, bbw 8, bbh 16
 	________,
@@ -1713,11 +1713,13 @@ static unsigned char __font_bitmap__[] = {
 	________,
 	________,
 	________,
-	________};
+	________
+};
 
-unsigned char *charBitmap(int c)
+uint8_t*
+fnt_get_char_bitmap(char c)
 {
-	return (__font_bitmap__ + (c - ' ') * CHAR_HEIGHT);
+	return font_bitmap + (c - ' ') * CHAR_HEIGHT;
 }
 
 #endif

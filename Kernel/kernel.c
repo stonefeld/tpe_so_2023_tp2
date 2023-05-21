@@ -1,3 +1,4 @@
+#include "font.h"
 #include <idtLoader.h>
 #include <keyboard.h>
 #include <lib.h>
@@ -50,5 +51,11 @@ int
 main()
 {
 	load_idt();
+	const char msg[] = "SEXOOOOOOOOOOOOOOOOO";
+	int len = sizeof(msg) / sizeof(msg[0]);
+	vd_set_color(0xf5ebbc, 0x151f42);
+	vd_clear();
+	for (int i = 0; i < len; i++)
+		vd_put_char(msg[i], i * CHAR_WIDTH, 0);
 	return 0;
 }

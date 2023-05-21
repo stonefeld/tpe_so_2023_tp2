@@ -6,6 +6,9 @@
         "modulePacker.h": "c",
         "stdint.h": "c",
         "naiveconsole.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "cstdint": "c",
+        "keyboard.h": "c"
     },
+    "C_Cpp.errorSquiggles": "enabled",
 }

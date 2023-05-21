@@ -1,6 +1,8 @@
 global cpu_vendor
 global gettime
 global getkey
+global interrupt_en
+global interrupt_dis
 
 section .text
 
@@ -53,4 +55,12 @@ getkey:
     in al,60h
 
     leave
+    ret
+
+interrupt_dis:
+    cli
+    ret
+
+interrupt_en:
+    sti
     ret

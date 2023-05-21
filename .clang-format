@@ -10,7 +10,7 @@ BinPackArguments: 'false'
 BinPackParameters: 'false'
 BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: 'true'
-ColumnLimit: '80'
+ColumnLimit: '120'
 CompactNamespaces: 'false'
 ContinuationIndentWidth: '4'
 FixNamespaceComments: 'false'

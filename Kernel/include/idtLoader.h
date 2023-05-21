@@ -5,4 +5,5 @@
 #include <syscalls.h>
 
 void load_idt();
+
 #endif

@@ -10,5 +10,7 @@ void* memcpy(void* destination, const void* source, uint64_t length);
 extern char* cpu_vendor(char* result);
 extern int gettime(int fmt);
 extern int getkey();
+extern void interrupt_en();
+extern void interrupt_dis();
 
 #endif

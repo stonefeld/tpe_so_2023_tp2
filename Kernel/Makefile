@@ -1,23 +1,27 @@
 include Makefile.inc
 
 KERNEL=kernel.bin
-SOURCES=$(wildcard *.c)
-SOURCES_INTERRUPTIONS=$(wildcard interruptions/*.c)
-SOURCES_INTERRUPTIONS_ASM=$(wildcard interruptions/*.asm)
-SOURCES_ASM=$(wildcard asm/*.asm)
-OBJECTS=$(SOURCES:.c=.o)
-OBJECTS_INTERRUPTIONS=$(SOURCES_INTERRUPTIONS:.c=.o)
-OBJECTS_INTERRUPTIONS_ASM=$(SOURCES_INTERRUPTIONS_ASM:.asm=.o)
-OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
-LOADERSRC=loader.asm
 
-LOADEROBJECT=$(LOADERSRC:.asm=.o)
+SOURCES=$(wildcard *.c)
+SOURCES_DRIVERS=$(wildcard drivers/*.c)
+SOURCES_IDT=$(wildcard idt/*.c)
+SOURCES_LIBASM=$(wildcard libasm/*.asm)
+SOURCES_LIBC=$(wildcard libc/*.c)
+
+OBJECTS=$(SOURCES:.c=.o)
+OBJECTS_DRIVERS=$(SOURCES_DRIVERS:.c=.o)
+OBJECTS_IDT=$(SOURCES_IDT:.c=.o)
+OBJECTS_LIBASM=$(SOURCES_LIBASM:.asm=.o)
+OBJECTS_LIBC=$(SOURCES_LIBC:.c=.o)
+
+LOADERSRC=loader.asm
+LOADEROBJ=$(LOADERSRC:.asm=.o)
 STATICLIBS=
 
 all: $(KERNEL)
 
-$(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM) $(OBJECTS_INTERRUPTIONS) $(OBJECTS_INTERRUPTIONS_ASM) 
-	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_INTERRUPTIONS) $(OBJECTS_INTERRUPTIONS_ASM)  $(STATICLIBS)
+$(KERNEL): $(LOADEROBJ) $(STATICLIBS) $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_LIBASM) $(OBJECTS_LIBC)
+	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJ) $(STATICLIBS) $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_LIBASM) $(OBJECTS_LIBC)
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
@@ -25,10 +29,10 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM) $(OBJECTS_INT
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
 
-$(LOADEROBJECT):
-	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT)
+$(LOADEROBJ):
+	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJ)
 
 clean:
-	rm -rf asm/*.o *.o *.bin
+	rm -rf *.bin *.o drivers/*.o idt/*.o libasm/*.o libc/*.o
 
 .PHONY: all clean

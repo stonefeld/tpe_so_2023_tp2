@@ -1,6 +1,6 @@
 #include <font.h>
 #include <idtLoader.h>
-#include <keyboard.h>
+#include <keyboardDriver.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>

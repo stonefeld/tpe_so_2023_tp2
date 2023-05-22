@@ -1,6 +1,7 @@
 #include <font.h>
 #include <videoDriver.h>
 
+// extracted from https://wiki.osdev.org/User:Omarrx024/VESA_Tutorial
 struct vbe_mode_info_structure
 {
 	uint16_t attributes;   // deprecated, only bit 7 should be
@@ -46,16 +47,16 @@ struct vbe_mode_info_structure
 	uint8_t reserved1[206];
 } __attribute__((packed));
 
-typedef struct vbe_mode_info_structure* VBEModeInfo;
-VBEModeInfo vbe_mode_info = (VBEModeInfo)0x5C00;
-
 struct font_info
 {
 	uint32_t fg, bg;
 };
 
+typedef struct vbe_mode_info_structure* VBEModeInfo;
 typedef struct font_info FontInfo;
-FontInfo fontInfo = {
+
+VBEModeInfo vbe_mode_info = (VBEModeInfo)0x5C00;
+FontInfo font_style = {
 	.bg = 0x0,
 	.fg = WHITE,
 };
@@ -87,9 +88,9 @@ vd_put_char(char c, uint32_t x, uint32_t y)
 		for (int j = 0; j < CHAR_WIDTH; j++) {
 			is_foreground = (1 << (CHAR_WIDTH - j)) & c_bitmap[i];
 			if (is_foreground)
-				vd_put_pixel(fontInfo.fg, aux_x, aux_y);
+				vd_put_pixel(font_style.fg, aux_x, aux_y);
 			else
-				vd_put_pixel(fontInfo.bg, aux_x, aux_y);
+				vd_put_pixel(font_style.bg, aux_x, aux_y);
 			aux_x++;
 		}
 		aux_x = x;
@@ -100,14 +101,14 @@ vd_put_char(char c, uint32_t x, uint32_t y)
 void
 vd_set_color(uint32_t fg, uint32_t bg)
 {
-	fontInfo.fg = fg;
-	fontInfo.bg = bg;
+	font_style.fg = fg;
+	font_style.bg = bg;
 }
 
 void
 vd_clear()
 {
-	vd_clear_bg(fontInfo.bg);
+	vd_clear_bg(font_style.bg);
 }
 
 void

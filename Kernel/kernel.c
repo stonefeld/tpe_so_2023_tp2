@@ -1,4 +1,4 @@
-#include "font.h"
+#include <font.h>
 #include <idtLoader.h>
 #include <keyboard.h>
 #include <lib.h>
@@ -31,8 +31,7 @@ void*
 get_stack_base()
 {
 	return (void*)((uint64_t)&end_of_kernel + page_size * 8  // The size of the stack itself, 32KiB
-	               - sizeof(uint64_t)                        // Begin at the top of the stack
-	);
+	               - sizeof(uint64_t));                      // Begin at the top of the stack
 }
 
 void*
@@ -51,7 +50,7 @@ int
 main()
 {
 	load_idt();
-	const char msg[] = "SEXOOOOOOOOOOOOOOOOO";
+	const char msg[] = "hola que tal AH RE LOCO CHE jlkfdsjalkfjalk fjdsalk;jflk ajsf;lkdajflk dsajlkfjdsa;lfj daklfja;lksjf ;lkdsajfdslkfj ;lkajfsd;lkajfld kjsa;lkfdsjaflk jslkfjdlkajflk;dsajfl kdsajlkfdjsalkfja;lkjflksj lkj l;ja;lkj   dsalkjflsaj hola";
 	int len = sizeof(msg) / sizeof(msg[0]);
 	vd_set_color(0xf5ebbc, 0x151f42);
 	vd_clear();

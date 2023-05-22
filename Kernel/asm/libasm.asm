@@ -1,11 +1,13 @@
 global cpu_vendor
-global gettime
-global getkey
+global rtc_gettime
+global keyboard_active
+global keyboard_getkey
 global interrupt_en
 global interrupt_dis
 
 section .text
 
+; devuelve el fabricante del cpu
 cpu_vendor:
     push rbp
     mov rbp, rsp
@@ -29,7 +31,8 @@ cpu_vendor:
     pop rbp
     ret
 
-gettime:
+; devuelve el tiempo en rtc
+rtc_gettime:
     push rbp
     mov rbp,rsp
 
@@ -40,27 +43,35 @@ gettime:
     leave
     ret
 
-getkey:
+; devuelve si hay una tecla presionada o liberada
+keyboard_active:
     push rbp
     mov rbp,rsp
 
     mov rax,0
-
-.loop:
     in al,64h
-    mov cl,al
-    and al,1h
-    cmp al,0
-    je .loop
+    and al,01h
+
+    leave
+    ret
+
+; devuelve el código de una tecla en el teclado (si fue presionada o soltada)
+keyboard_getkey:
+    push rbp
+    mov rbp,rsp
+
+    mov rax,0
     in al,60h
 
     leave
     ret
 
+; deshabilita las interrupciones
 interrupt_dis:
     cli
     ret
 
+; habilita las interrupciones
 interrupt_en:
     sti
     ret

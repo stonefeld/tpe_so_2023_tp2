@@ -1,6 +1,7 @@
 include Makefile.inc
 
 KERNEL=kernel.bin
+KERNEL_ELF=$(KERNEL:.bin=.elf)
 
 SOURCES=$(wildcard *.c)
 SOURCES_DRIVERS=$(wildcard drivers/*.c)
@@ -20,6 +21,9 @@ STATICLIBS=
 
 all: $(KERNEL)
 
+debug: all
+	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o $(KERNEL_ELF) $(LOADEROBJ) $(STATICLIBS) $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_LIBASM) $(OBJECTS_LIBC)
+
 $(KERNEL): $(LOADEROBJ) $(STATICLIBS) $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_LIBASM) $(OBJECTS_LIBC)
 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJ) $(STATICLIBS) $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_LIBASM) $(OBJECTS_LIBC)
 
@@ -33,6 +37,6 @@ $(LOADEROBJ):
 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJ)
 
 clean:
-	rm -rf *.bin *.o drivers/*.o idt/*.o libasm/*.o libc/*.o
+	rm -rf *.bin *.elf *.o drivers/*.o idt/*.o libasm/*.o libc/*.o
 
 .PHONY: all clean

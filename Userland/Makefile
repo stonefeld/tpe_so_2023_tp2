@@ -4,6 +4,9 @@ SAMPLE_DATA=0001-sampleDataModule.bin
 
 all: sampleCodeModule sampleDataModule
 
+debug: all
+	cd SampleCodeModule; make debug
+
 sampleCodeModule:
 	cd SampleCodeModule; make
 

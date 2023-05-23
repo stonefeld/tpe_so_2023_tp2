@@ -50,11 +50,12 @@ int
 main()
 {
 	load_idt();
-	const char msg[] = "hola que tal AH RE LOCO CHE jlkfdsjalkfjalk fjdsalk;jflk ajsf;lkdajflk dsajlkfjdsa;lfj daklfja;lksjf ;lkdsajfdslkfj ;lkajfsd;lkajfld kjsa;lkfdsjaflk jslkfjdlkajflk;dsajfl kdsajlkfdjsalkfja;lkjflksj lkj l;ja;lkj   dsalkjflsaj hola";
+/*	const char msg[] = "Welcome !";
 	int len = sizeof(msg) / sizeof(msg[0]);
 	vd_set_color(0xf5ebbc, 0x151f42);
 	vd_clear();
 	for (int i = 0; i < len; i++)
 		vd_put_char(msg[i], i * CHAR_WIDTH, 0);
+*/
 	return 0;
 }

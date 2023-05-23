@@ -97,6 +97,12 @@ vd_put_char(char c, uint32_t x, uint32_t y)
 		aux_y++;
 	}
 }
+void vd_put_word(char msg[]){
+	int len = sizeof(msg) / sizeof(msg[0]);
+	for (int i = 0; i < len; i++)
+		vd_put_char(msg[i], i * CHAR_WIDTH, i);
+	
+}
 
 void
 vd_set_color(uint32_t fg, uint32_t bg)

@@ -58,6 +58,7 @@ SECTION .text
 %endmacro
 
 %macro irqHandlerMaster 1
+	push rsp
 	pushState
 
 	mov rdi, %1 ; pasaje de parametro
@@ -68,6 +69,7 @@ SECTION .text
 	out 20h, al
 
 	popState
+	pop rsp
 	iretq
 %endmacro
 

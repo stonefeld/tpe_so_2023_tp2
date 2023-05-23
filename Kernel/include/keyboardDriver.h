@@ -13,5 +13,6 @@
 
 int kb_handler();
 uint8_t kb_getkey();
+void keyboard_handler();
 
 #endif

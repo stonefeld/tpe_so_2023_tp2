@@ -8,7 +8,10 @@
         "naiveconsole.h": "c",
         "unistd.h": "c",
         "cstdint": "c",
-        "keyboard.h": "c"
+        "keyboard.h": "c",
+        "videodriver.h": "c",
+        "idtloader.h": "c",
+        "font.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
 }

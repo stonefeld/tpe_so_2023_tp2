@@ -1,57 +1,54 @@
+#include <stdint.h>
 #include <idtLoader.h>
-#include <lib.h>
+#include <defs.h>
+#include <interrupts.h>
 
-/*
-    En Bootloader/Pure64/src/pure64.asm encontramos:
+#pragma pack(push)		/* Push de la alineación actual */
+#pragma pack (1) 		/* Alinear las siguiente estructuras a 1 byte */
 
-    IDTR64:					; Interrupt Descriptor Table Register
-        dw 256*16-1			; limit of IDT (size minus one) (4096 bytes - 1)
-        dq 0x0000000000000000		; linear address of IDT
-    ; -----------------
-*/
-// extracted from https://wiki.osdev.org/IDT
+/* Descriptor de interrupcion */
+typedef struct {
+  uint16_t offset_l, selector;
+  uint8_t cero, access;
+  uint16_t offset_m;
+  uint32_t offset_h, other_cero;
+} DESCR_INT;
 
-struct interrupt_descriptor_64
-{
-	uint16_t offset_1;        // offset bits 0..15
-	uint16_t selector;        // a code segment selector in GDT or LDT
-	uint8_t ist;              // bits 0..2 holds Interrupt Stack Table offset, rest of bits zero.
-	uint8_t type_attributes;  // gate type, dpl, and p fields
-	uint16_t offset_2;        // offset bits 16..31
-	uint32_t offset_3;        // offset bits 32..63
-	uint32_t zero;            // reserved
-};
+#pragma pack(pop)		/* Reestablece la alinceación actual */
 
-typedef struct interrupt_descriptor_64 IDTEntry;
-IDTEntry* idt = (IDTEntry*)0;  // en la direccion lineal 0 se va a encontrar la IDT de 255 entradas.
 
-// func_address es el puntero a la rutina de interrupción.
-static void idt_entry_init(int index, uint64_t func_address);
 
-// here we load the idt index and the pointer to the function we want to call
-// when 'int index' is executed
-void
-load_idt()
-{
-	// deshabilitamos las interrupciones
-	interrupt_dis();
+DESCR_INT * idt = (DESCR_INT *) 0;	// IDT de 255 entradas
 
-	// idt_entry_init(0x00, 1);
-	// registramos 69h para el handler de los syscalls
-	idt_entry_init(0x69, (uint64_t)&syscall_handler);
+static void setup_IDT_entry (int index, uint64_t offset);
 
-	// rehabilitamos las interrupciones
-	interrupt_en();
+void load_idt() {
+
+    setup_IDT_entry (0x20, (uint64_t)&_irq00Handler);
+    setup_IDT_entry (0x21, (uint64_t)&_irq01Handler);
+    setup_IDT_entry (0x69, (uint64_t)&_sysCallHandler);
+
+
+
+    setup_IDT_entry (0x00, (uint64_t)&_exception0Handler);
+  //setup_IDT_entry (0x00, (uint64_t)&_exception1Handler);
+
+
+    
+
+	//Solo interrupcion timer tick habilitadas
+	picMasterMask(0xFE); 
+	picSlaveMask(0xFF);
+        
+	_sti();
 }
 
-static void
-idt_entry_init(int index, uint64_t offset)
-{
-	idt[index].selector = 0x08;
-	idt[index].offset_1 = offset & 0xFFFF;
-	idt[index].offset_2 = (offset >> 16) & 0xFFFF;
-	idt[index].offset_3 = (offset >> 32) & 0xFFFFFFFF;
-	// idt[index].type_attributes = ;
-	idt[index].zero = 0;
-	idt[index].ist = (uint64_t)0;
+static void setup_IDT_entry (int index, uint64_t offset) {
+  idt[index].selector = 0x08;
+  idt[index].offset_l = offset & 0xFFFF;
+  idt[index].offset_m = (offset >> 16) & 0xFFFF;
+  idt[index].offset_h = (offset >> 32) & 0xFFFFFFFF;
+  idt[index].access = ACS_INT;
+  idt[index].cero = 0;
+  idt[index].other_cero = (uint64_t) 0;
 }

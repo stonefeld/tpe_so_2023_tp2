@@ -2,7 +2,9 @@
 <h3 align="center">Arquitectura de Computadoras - 2023</h3>
 
 <p align="center">
-  <img src="./Extras/x64BareBones.png" style="width:15%" alt="x64BareBones Logo"></img><br><br>
+  <a href="https://bitbucket.org/RowDaBoat/x64barebones/">
+    <img src="./Extras/x64BareBones.png" style="width:15%" alt="x64BareBones Logo"></img><br><br>
+  </a>
   <a href="https://bitbucket.org/RowDaBoat/x64barebones/">x64BareBones</a>
 </p>
 
@@ -46,51 +48,46 @@ Con permisos de administrador correr el siguiente comando:
 sudo setsid -f dockerd >/dev/null 2>&1
 ```
 
-Con docker andando ya se pueden correr todos los comandos relacionados con docker
-
-### Creando una imágen para compilar el proyecto
-
-Para el trabajo práctico en teoría debería usarse una imágen dada por la cátedra. Pero al compilar con dicha imágen saltan errores que, en teoría, tienen que ver con una mala instalación de las librerías de **C**. Hasta que lo arreglen lo solucioné así.
-
-Para la imágen de compilación vamos a crear una basada en **Ubuntu LTS** con los utilitarios necesarios para su compilación.
-
-Para ello correr los siguientes comandos (no necesariamente dentro del proyecto, despues se puede borrar la carpeta crada).
-
-```bash
-mkdir ubuntu-essential
-cd ubuntu-essential
-touch Dockerfile
-```
-
-Luego abrir el `Dockerfile` con el editor de texto preferido e ingresar los siguientes contenidos
-
-```dockerfile
-FROM ubuntu
-RUN apt update && apt install -y build-essential git nasm qemu-system-x86
-```
-
-Guardar y cerrar el `Dockerfile` y buildear la imágen:
-
-```bash
-docker build -t ubuntu-essential .
-```
-
-Una vez completado, si se desea, puede eliminarse la carpeta `ubuntu-essential`.
-
-Al correr `docker images` debería estar presente la imágen recién compilada.
-
-### Compilando la imágen del proyecto
-
-El proyecto cuenta ya con un `Dockerfile` pensado para compilar el proyecto.
-
-Una vez finalizados todos los pasos anteriores, clonar el repositorio y correr el siguiente comando:
-
-```bash
-./docker-build.sh
-```
+Con docker andando ya se pueden correr todos los comandos relacionados con docker. El comando `./compile.sh` permitirá realizar el resto del trabajo.
 
 ## Compilando
 
 Listo! El entorno ya está preparado para compilar el proyecto y correrlo.
 
-Con correr `./docker-run.sh`, si iniciará la imágen de docker que compilará el proyecto, y una vez compilado ejecuta el `qemu` con la imágen del sistema operativo.
+El comando `./compile.sh` realizará las siguientes tareas:
+
+* Descargará la imágen de `agodio/itba-so:1.0` de docker donde se compilará el proyecto.
+* Creará un nuevo contenedor preparado para compilar el proyecto como si fuéramos nosotros porque crea un usuario con nuestro mismo **uid** y **gid**.
+* Iniciará el contenedor para que siempre esté corriendo.
+* Enviará los comandos necesarios para limpiar y compilar el proyecto completo.
+
+Esa es la funcionalidad base del comando `./compile.sh`. A su vez, cuenta con dos flags que pueden ser enviados:
+
+* `-d`: Compila el proyecto con información de debugging para poder utilizar gdb y ejecutar paso a paso el código.
+* `-r`: Una vez compilado el proyecto completo, si no ocurrió ningún error durante el proceso, se ejecuta el comando `./run.sh`, es decir, una vez compilado el proyecto, lo ejecuta.
+
+> **Nota:** Si se corre el comando con ambos flags en simultáneo, es decir, `./compile.sh -d -r`, el proyecto se compilará y ejecutará en modo debugging. Si solo se utiliza el flag `-r`, se compilará en modo normal y se ejecutará en modo normal, sin información de debugging.
+
+## Debugging
+
+Para poder ejecutar el código paso a paso debe utilizarse el programa `gdb`.
+
+Para esto hay un archivo de configuración `.gdbinit` que debe copiarse el home del usuario para poder configurarlo apropiadamente.
+
+```sh
+cp .gdbinit $HOME
+```
+
+Una vez realizado esto, para poder funcionarlo se utilizarán dos terminales:
+
+1. En una se ejecutará el programa de compilado y ejecución: `./compile.sh -d -r`
+2. En la otra se ejecutará el `gdb` que se conectará al `qemu` y podrá debuguearse el código.
+
+El `gdb` estará configurado con dos subcomandos para facilitar el debugueo de código en **ASM** y en **C**:
+
+* `src-prof` configura el `gdb` en modo de debugueo para código **C**.
+* `asm-prof` lo mismo pero para código en **ASM**.
+
+> **Nota:** Se puede intercalar en los modos en cualquier momento.
+
+Una vez que está corriendo el `qemu` este se quedará esperando a que se conecte el `gdb`. Para eso correr el comando `gdb`. Una vez abierto si se corre `c` o `continue` correrá el programa de forma normal. Si se quiere hacer un debugueo _step by step_ puede ponerse un breakpoint con `b` o `br` en alguna parte del código (por ejemplo `> b main`) y luego ejecutar `c` para que salte hasta ese punto. Si quiere realizarse un debugueo también _step by step_ desde el principio, una vez abierto el `gdb` comenzar a ejecutar `s` o `si` (no significan lo mismo **OJO**).

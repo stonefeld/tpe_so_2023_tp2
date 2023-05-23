@@ -19,6 +19,7 @@ for i in $@; do
 done
 
 [ "$DEBUG" = true ] && makecmd="clean debug" || makecmd="clean all"
+[ "$DEBUG" = true ] && runcmd="-d"
 
 # if container doesn't exist create it
 if ! docker ps -a | grep "$container_name" >/dev/null 2>&1; then
@@ -35,5 +36,5 @@ docker ps | grep "$container_name" >/dev/null 2>&1 || docker start "$container_n
 # compile the code and run
 docker exec -u user -t "$container_name" \
     /bin/bash -lc "cd /sources/Toolchain && make && cd .. && make $makecmd"
-[ "$?" -eq 0 ] && [ "$RUN" = true ] && ./run.sh
+[ "$?" -eq 0 ] && [ "$RUN" = true ] && ./run.sh $runcmd
 exit 0

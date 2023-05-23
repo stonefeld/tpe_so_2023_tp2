@@ -11,6 +11,9 @@
 # Object files
 *.o
 
+# gdb
+.gdb_history
+
 # Clangd files
 .cache/
 compile_commands.json

@@ -12,7 +12,10 @@
 
 * [Requisitos](#requisitos)
 * [Preparando el entorno](#preparando-el-entorno)
+  * [Agregar mi usuario al grupo de docker](#agregar-mi-usuario-al-grupo-de-docker)
+  * [Iniciar el daemon de docker](#iniciar-el-daemon-de-docker)
 * [Compilando](#compilando)
+* [Debugging](#debugging)
 
 ## Requisitos
 
@@ -90,4 +93,15 @@ El `gdb` estará configurado con dos subcomandos para facilitar el debugueo de c
 
 > **Nota:** Se puede intercalar en los modos en cualquier momento.
 
-Una vez que está corriendo el `qemu` este se quedará esperando a que se conecte el `gdb`. Para eso correr el comando `gdb`. Una vez abierto si se corre `c` o `continue` correrá el programa de forma normal. Si se quiere hacer un debugueo _step by step_ puede ponerse un breakpoint con `b` o `br` en alguna parte del código (por ejemplo `> b main`) y luego ejecutar `c` para que salte hasta ese punto. Si quiere realizarse un debugueo también _step by step_ desde el principio, una vez abierto el `gdb` comenzar a ejecutar `s` o `si` (no significan lo mismo **OJO**).
+Una vez que está corriendo el `qemu` este se quedará esperando a que se conecte el `gdb`.
+
+Para eso correr el comando `gdb`. Una vez abierto si se corre `c` o `continue` correrá el programa de forma normal.
+
+Si se quiere hacer un debugueo _step by step_ puede ponerse un breakpoint con `b` o `br` en alguna parte del código y ejecutar `c` para que salte hasta ese punto.
+
+```gdb
+> b main
+> c
+```
+
+Si quiere realizarse un debugueo también _step by step_ desde el principio, una vez abierto el `gdb` comenzar a ejecutar `s` o `si` (no significan lo mismo **OJO**).

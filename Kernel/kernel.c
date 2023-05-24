@@ -1,11 +1,11 @@
 #include <font.h>
 #include <idtLoader.h>
 #include <keyboardDriver.h>
-#include <lib.h>
+#include <libc.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
 #include <videoDriver.h>
 
 typedef int (*EntryPoint)();
@@ -50,12 +50,11 @@ int
 main()
 {
 	load_idt();
-/*	const char msg[] = "Welcome !";
-	int len = sizeof(msg) / sizeof(msg[0]);
-	vd_set_color(0xf5ebbc, 0x151f42);
-	vd_clear();
-	for (int i = 0; i < len; i++)
-		vd_put_char(msg[i], i * CHAR_WIDTH, 0);
-*/
+	while (1) {
+		uint8_t c = kb_getkey();
+		if (c) {
+			putchar(c);
+		}
+	}
 	return 0;
 }

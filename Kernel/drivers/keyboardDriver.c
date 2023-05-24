@@ -1,12 +1,8 @@
+#include <font.h>
 #include <keyboardDriver.h>
-#include <lib.h>
+#include <libc.h>
 #include <naiveConsole.h>
 #include <videoDriver.h>
-#include <font.h>
-
-/*
-este driver hay que adaptarlo para que funcione con interrupciones
-*/
 
 static const uint8_t scancodes[][2] = {
 	{ 0, 0 },       { KC_ESC, KC_ESC }, { '1', '!' }, { '2', '@' }, { '3', '#' }, { '4', '$' },  { '5', '%' },
@@ -14,10 +10,10 @@ static const uint8_t scancodes[][2] = {
 	{ '\b', '\b' }, { '\t', '\t' },     { 'q', 'Q' }, { 'w', 'W' }, { 'e', 'E' }, { 'r', 'R' },  { 't', 'T' },
 	{ 'y', 'Y' },   { 'u', 'U' },       { 'i', 'I' }, { 'o', 'O' }, { 'p', 'P' }, { '[', '{' },  { ']', '}' },
 	{ '\n', '\n' }, { 0, 0 },           { 'a', 'A' }, { 's', 'S' }, { 'd', 'D' }, { 'f', 'F' },  { 'g', 'G' },
-	{ 'h', 'H' },   { 'j', 'J' },       { 'k', 'K' }, { 'l', 'L' }, { ';', ':' }, { '\'', '"' }, { 0, 0 },
-	{ '\\', '|' },  { 'z', 'Z' },       { 'x', 'X' }, { 'c', 'C' }, { 'v', 'V' }, { 'b', 'B' },  { 'n', 'N' },
-	{ 'm', 'M' },   { ',', '<' },       { '.', '>' }, { '/', '?' }, { 0, 0 },     { 0, 0 },      { 0, 0 },
-	{ ' ', ' ' },
+	{ 'h', 'H' },   { 'j', 'J' },       { 'k', 'K' }, { 'l', 'L' }, { ';', ':' }, { '\'', '"' }, { '`', '~' },
+	{ 0, 0 },       { '\\', '|' },      { 'z', 'Z' }, { 'x', 'X' }, { 'c', 'C' }, { 'v', 'V' },  { 'b', 'B' },
+	{ 'n', 'N' },   { 'm', 'M' },       { ',', '<' }, { '.', '>' }, { '/', '?' }, { 0, 0 },      { 0, 0 },
+	{ 0, 0 },       { ' ', ' ' },
 };
 static const uint32_t keys = sizeof(scancodes) / sizeof(scancodes[0]);
 
@@ -28,25 +24,12 @@ static uint32_t buffer_size = 0;
 static uint8_t get_scancode(uint8_t key);
 static void put_buffer(uint8_t code);
 
-static uint16_t keyboard_count = 0;
-
-void keyboard_handler(){
-	// should perform sys_read and then print to screen for testing
-	const char msg[] = "Welcome !";
-	int len = sizeof(msg) / sizeof(msg[0]);
-	vd_set_color(0xf5ebbc, 0x151f42);
-	vd_clear();
-	for (int i = 0; i < len; i++)
-		vd_put_char(msg[i], i * CHAR_WIDTH, 0);
-	vd_put_char((char) (keyboard_count % 255), 0, 0);
-}
-
 int
-kb_handler()
+keyboard_handler()
 {
 	int key;
-	while (keyboard_active()) {
-		key = keyboard_getkey();
+	while (_keyboardActive()) {
+		key = _keyboardGetkey();
 		if (key == KC_L_SHIFT || key == KC_R_SHIFT)
 			shift = 1;
 		else if (key == KC_L_SHIFT_RELEASE || key == KC_R_SHIFT_REREASE)

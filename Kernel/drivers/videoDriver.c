@@ -61,6 +61,18 @@ FontInfo font_style = {
 	.fg = WHITE,
 };
 
+uint16_t
+vd_get_winwidth()
+{
+	return vbe_mode_info->width;
+}
+
+uint16_t
+vd_get_winheight()
+{
+	return vbe_mode_info->height;
+}
+
 void
 vd_put_pixel(uint32_t hex_color, uint32_t x, uint32_t y)
 {
@@ -101,7 +113,7 @@ void vd_put_word(char msg[]){
 	int len = sizeof(msg) / sizeof(msg[0]);
 	for (int i = 0; i < len; i++)
 		vd_put_char(msg[i], i * CHAR_WIDTH, i);
-	
+
 }
 
 void

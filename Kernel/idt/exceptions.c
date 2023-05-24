@@ -1,20 +1,14 @@
-
 #define ZERO_EXCEPTION_ID 0
 
 static void zero_division();
 
 void
-exceptionDispatcher(int exception)
+exception_dispatcher(int exception)
 {
 	switch (exception) {
-		case ZERO_EXCEPTION_ID:
+		case ZERO_EXCEPTION_ID: {
 			zero_division();
-			break;
-
-		// ...
-
-		default:
-			break;
+		} break;
 	}
 }
 

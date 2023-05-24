@@ -1,4 +1,4 @@
-#include <lib.h>
+#include <libc.h>
 #include <naiveConsole.h>
 
 static char buffer[64] = { '0' };
@@ -76,17 +76,17 @@ void
 nc_print_time()
 {
 	nc_print("Datetime: ");
-	nc_print_dec(format(rtc_gettime(YEAR)));
+	nc_print_dec(format(_rtcGettime(YEAR)));
 	nc_print("/");
-	nc_print_dec(format(rtc_gettime(MONTH)));
+	nc_print_dec(format(_rtcGettime(MONTH)));
 	nc_print("/");
-	nc_print_dec(format(rtc_gettime(DAY)));
+	nc_print_dec(format(_rtcGettime(DAY)));
 	nc_print(" ");
-	nc_print_dec(format(rtc_gettime(HOURS)));
+	nc_print_dec(format(_rtcGettime(HOURS)));
 	nc_print(":");
-	nc_print_dec(format(rtc_gettime(MINUTES)));
+	nc_print_dec(format(_rtcGettime(MINUTES)));
 	nc_print(":");
-	nc_print_dec(format(rtc_gettime(SECONDS)));
+	nc_print_dec(format(_rtcGettime(SECONDS)));
 	nc_newline();
 }
 

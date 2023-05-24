@@ -1,4 +1,4 @@
-#include <lib.h>
+#include <libc.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>

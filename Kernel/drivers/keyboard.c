@@ -1,9 +1,9 @@
 #include <font.h>
-#include <keyboardDriver.h>
+#include <keyboard.h>
 #include <libasm.h>
 #include <libc.h>
 #include <naiveConsole.h>
-#include <videoDriver.h>
+#include <video.h>
 
 static const uint8_t scancodes[][2] = {
 	{ 0, 0 },       { KC_ESC, KC_ESC }, { '1', '!' }, { '2', '@' }, { '3', '#' }, { '4', '$' },  { '5', '%' },
@@ -63,7 +63,15 @@ kb_getkey()
 static uint8_t
 get_scancode(uint8_t key)
 {
-	return scancodes[key][shift || caps_lock];
+	uint8_t c;
+	if (caps_lock && !shift) {
+		c = scancodes[key][0];
+		if (c >= 'A' && c <= 'z')
+			c = scancodes[key][1];
+	} else {
+		c = scancodes[key][shift];
+	}
+	return c;
 }
 
 static void

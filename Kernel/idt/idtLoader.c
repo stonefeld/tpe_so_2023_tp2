@@ -3,8 +3,8 @@
 #include <interrupts.h>
 #include <stdint.h>
 
-#pragma pack(push) // pushea la alineación actual
-#pragma pack(1)    // alinea todas las estructuras a un byte
+#pragma pack(push)  // pushea la alineación actual
+#pragma pack(1)     // alinea todas las estructuras a un byte
 
 // descriptor de una interrupcion
 struct interrupt_descriptor_64
@@ -15,7 +15,7 @@ struct interrupt_descriptor_64
 	uint32_t offset_h, other_cero;
 };
 
-#pragma pack(pop) // reestablece la alineación previa
+#pragma pack(pop)  // reestablece la alineación previa
 
 typedef struct interrupt_descriptor_64* IDTEntry;
 
@@ -28,14 +28,19 @@ load_idt()
 {
 	_cli();
 
+	// irqs
 	setup_idt_entry(0x20, (uint64_t)&_irq00Handler);
 	// in -> Bootloader/Pure64/src/interrupt.asm:
 	// kbd interrupt. IRQ 0x01, INT 0x21
 	// runs whenever there's input on the kbd
 	setup_idt_entry(0x21, (uint64_t)&_irq01Handler);
+
+	// exceptions
+	setup_idt_entry(0x00, (uint64_t)&_exception0Handler);
+	// setup_idt_entry(0x00, (uint64_t)&_exception1Handler);
+
+	// syscall handler
 	setup_idt_entry(0x69, (uint64_t)&_sysCallHandler);
-	// setup_IDT_entry(0x00, (uint64_t)&_exception0Handler);
-	// setup_IDT_entry(0x00, (uint64_t)&_exception1Handler);
 
 	// Solo interrupcion timer tick habilitadas
 	_picMasterMask(0xFC);

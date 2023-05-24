@@ -1,6 +1,8 @@
 #include <font.h>
 #include <libc.h>
-#include <videoDriver.h>
+#include <video.h>
+
+#define PIXEL vbe_mode_info->bpp / 8
 
 // extracted from https://wiki.osdev.org/User:Omarrx024/VESA_Tutorial
 struct vbe_mode_info_structure
@@ -126,6 +128,16 @@ vd_draw_cursor(uint32_t x, uint32_t y)
 }
 
 void
+vd_scroll_up()
+{
+	uint32_t len = vbe_mode_info->width * PIXEL * (vbe_mode_info->height - CHAR_HEIGHT);
+	uint8_t* dest = (uint8_t*)(uint64_t)vbe_mode_info->framebuffer;
+	uint8_t* src = dest + vbe_mode_info->width * PIXEL * CHAR_HEIGHT;
+	memcpy(dest, src, len);
+	vd_clear_line(vbe_mode_info->height / CHAR_HEIGHT - 1);
+}
+
+void
 vd_set_color(uint32_t fg, uint32_t bg)
 {
 	font_style.fg = fg;
@@ -136,6 +148,13 @@ void
 vd_clear()
 {
 	vd_clear_bg(font_style.bg);
+}
+
+void
+vd_clear_line(uint32_t y)
+{
+	for (int i = 0; i < vbe_mode_info->width / CHAR_WIDTH; i++)
+		vd_put_char(' ', i * CHAR_WIDTH, y * CHAR_HEIGHT);
 }
 
 void

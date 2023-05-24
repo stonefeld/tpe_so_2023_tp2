@@ -1,6 +1,7 @@
+#include <stdint.h>
 #include <time.h>
 
-static unsigned long ticks = 0;
+static uint64_t ticks = 0;
 
 void
 timer_handler()

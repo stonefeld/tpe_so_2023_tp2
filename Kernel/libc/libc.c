@@ -29,8 +29,7 @@ memcpy(void* destination, const void* source, uint64_t length)
 	 */
 	uint64_t i;
 
-	if ((uint64_t)destination % sizeof(uint32_t) == 0 &&
-	    (uint64_t)source % sizeof(uint32_t) == 0 &&
+	if ((uint64_t)destination % sizeof(uint32_t) == 0 && (uint64_t)source % sizeof(uint32_t) == 0 &&
 	    length % sizeof(uint32_t) == 0) {
 		uint32_t* d = (uint32_t*)destination;
 		const uint32_t* s = (const uint32_t*)source;
@@ -52,6 +51,6 @@ int
 strlen(char* str)
 {
 	int len = 0;
-	while (str[len++] != 0);
+	while (str[len++] != 0) {}
 	return len - 1;
 }

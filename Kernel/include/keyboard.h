@@ -11,7 +11,7 @@
 #define KC_CAPS_LOCK 58
 #define BUFFER_MAX 10
 
-uint8_t kb_getkey();
 int keyboard_handler();
+uint8_t kb_getkey();
 
 #endif

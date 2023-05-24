@@ -1,12 +1,12 @@
 #include <font.h>
 #include <idtLoader.h>
-#include <keyboardDriver.h>
+#include <keyboard.h>
 #include <libc.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <videoDriver.h>
+#include <text.h>
+#include <video.h>
 
 typedef int (*EntryPoint)();
 
@@ -52,9 +52,8 @@ main()
 	load_idt();
 	while (1) {
 		uint8_t c = kb_getkey();
-		if (c) {
-			putchar(c);
-		}
+		if (c)
+			tx_put_char(c);
 	}
 	return 0;
 }

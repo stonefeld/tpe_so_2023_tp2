@@ -1,4 +1,5 @@
 #include <font.h>
+#include <libc.h>
 #include <videoDriver.h>
 
 // extracted from https://wiki.osdev.org/User:Omarrx024/VESA_Tutorial
@@ -90,6 +91,14 @@ vd_put_pixel_rgb(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y)
 }
 
 void
+vd_put_word(char* msg)
+{
+	int len = strlen(msg);
+	for (int i = 0; i < len; i++)
+		vd_put_char(msg[i], i * CHAR_WIDTH, i);
+}
+
+void
 vd_put_char(char c, uint32_t x, uint32_t y)
 {
 	uint32_t aux_x = x, aux_y = y;
@@ -109,11 +118,11 @@ vd_put_char(char c, uint32_t x, uint32_t y)
 		aux_y++;
 	}
 }
-void vd_put_word(char msg[]){
-	int len = sizeof(msg) / sizeof(msg[0]);
-	for (int i = 0; i < len; i++)
-		vd_put_char(msg[i], i * CHAR_WIDTH, i);
 
+void
+vd_draw_cursor(uint32_t x, uint32_t y)
+{
+	vd_put_char('_', x, y);
 }
 
 void

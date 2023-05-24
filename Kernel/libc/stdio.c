@@ -6,7 +6,7 @@
 #define WIDTH vd_get_winwidth() / CHAR_WIDTH
 #define HEIGHT vd_get_winheight() / CHAR_HEIGHT
 
-static void backspace();
+static void cursor(uint32_t x, uint32_t y);
 static void enter();
 
 static uint32_t curr_x = 0, curr_y = 0;
@@ -25,10 +25,18 @@ putchar(char c)
 {
 	switch (c) {
 		case '\b': {
-			backspace();
+			if (curr_x == 0 && curr_y == 0)
+				return;
+			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+			if (curr_x == 0) {
+				curr_x = WIDTH;
+				curr_y--;
+			}
+			curr_x--;
 		} break;
 
 		case '\n': {
+			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
 			enter();
 		} break;
 
@@ -39,6 +47,7 @@ putchar(char c)
 				enter();
 		} break;
 	}
+	cursor(curr_x, curr_y);
 }
 
 void
@@ -48,17 +57,11 @@ puts(char* str)
 }
 
 static void
-backspace()
+cursor(uint32_t x, uint32_t y)
 {
-	if (curr_x == 0 && curr_y == 0)
+	if (x >= WIDTH || x < 0 || y >= HEIGHT || y < 0)
 		return;
-	if (curr_x == 0) {
-		curr_x = WIDTH;
-		curr_y--;
-	}
-	curr_x--;
-	putchar(' ');
-	curr_x--;
+	vd_draw_cursor(x * CHAR_WIDTH, y * CHAR_HEIGHT);
 }
 
 static void

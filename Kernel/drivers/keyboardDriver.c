@@ -1,5 +1,6 @@
 #include <font.h>
 #include <keyboardDriver.h>
+#include <libasm.h>
 #include <libc.h>
 #include <naiveConsole.h>
 #include <videoDriver.h>

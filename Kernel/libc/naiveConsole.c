@@ -1,3 +1,4 @@
+#include <libasm.h>
 #include <libc.h>
 #include <naiveConsole.h>
 

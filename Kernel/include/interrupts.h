@@ -4,23 +4,23 @@
 #include <idtLoader.h>
 
 // defined in libasm/interrupts.asm
-void _cli();
-void _sti();
-void _hlt();
+extern void _cli();
+extern void _sti();
+extern void _hlt();
 
-void _picMasterMask(uint8_t mask);
-void _picSlaveMask(uint8_t mask);
+extern void _picMasterMask(uint8_t mask);
+extern void _picSlaveMask(uint8_t mask);
 
-void _haltcpu();
+extern void _haltcpu();
 
-void _irq00Handler();
-void _irq01Handler();
-void _irq02Handler();
-void _irq03Handler();
-void _irq04Handler();
-void _irq05Handler();
+extern void _irq00Handler();
+extern void _irq01Handler();
+extern void _irq02Handler();
+extern void _irq03Handler();
+extern void _irq04Handler();
+extern void _irq05Handler();
 
-void _sysCallHandler();
-void _exception0Handler();
+extern void _sysCallHandler();
+extern void _exception0Handler();
 
 #endif

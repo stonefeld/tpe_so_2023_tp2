@@ -31,6 +31,7 @@ keyboard_handler()
 	int key;
 	while (_keyboardActive()) {
 		key = _keyboardGetkey();
+		
 		if (key == KC_L_SHIFT || key == KC_R_SHIFT)
 			shift = 1;
 		else if (key == KC_L_SHIFT_RELEASE || key == KC_R_SHIFT_REREASE)
@@ -46,8 +47,9 @@ keyboard_handler()
 	return 0;
 }
 
+
 uint8_t
-kb_getkey()
+kb_getkey(uint64_t hola)
 {
 	if (buffer_size <= 0)
 		return 0;

@@ -101,6 +101,14 @@ vd_put_word(char* msg)
 }
 
 void
+vd_put_wordn(char* msg, int size)
+{
+	for (int i = 0; i < size; i++)
+		vd_put_char(msg[i], i * CHAR_WIDTH, i);
+}
+
+
+void
 vd_put_char(char c, uint32_t x, uint32_t y)
 {
 	uint32_t aux_x = x, aux_y = y;

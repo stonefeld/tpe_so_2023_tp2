@@ -33,6 +33,7 @@ asm_time:
 
     leave
     ret
+
 asm_clear:
     push rbp
     mov rbp,rsp
@@ -41,4 +42,4 @@ asm_clear:
     int 69h
 
     leave 
-    rets
+    ret

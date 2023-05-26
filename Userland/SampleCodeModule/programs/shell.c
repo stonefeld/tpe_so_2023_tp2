@@ -97,6 +97,7 @@ exit()
 	running = 0;
 	return 0;
 }
+
 static uint32_t
 clear()
 {

@@ -12,7 +12,8 @@
         "videodriver.h": "c",
         "idtloader.h": "c",
         "font.h": "c",
-        "shell.h": "c"
+        "shell.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
 }

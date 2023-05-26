@@ -14,7 +14,7 @@ typedef struct command Command;
 
 static Command commands[MAX_COMMANDS];
 static uint32_t commands_len = 0;
-static uint8_t* input_buffer[INPUT_SIZE];
+static uint8_t input_buffer[INPUT_SIZE];
 
 static void load_commands();
 static void load_command(uint32_t (*fn)(), uint8_t* name, uint8_t* desc);

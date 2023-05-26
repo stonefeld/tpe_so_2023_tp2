@@ -14,6 +14,7 @@ void vd_put_pixel(uint32_t hex_color, uint32_t x, uint32_t y);
 void vd_put_pixel_rgb(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y);
 void vd_put_char(char c, uint32_t x, uint32_t y);
 void vd_draw_cursor(uint32_t x, uint32_t y);
+void vd_draw_figure(uint8_t fig, uint32_t x, uint32_t y, uint32_t w, uint32_t h);
 void vd_scroll_up();
 void vd_set_color(uint32_t fg, uint32_t bg);
 void vd_clear();

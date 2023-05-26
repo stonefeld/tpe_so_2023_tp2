@@ -4,7 +4,6 @@ global asm_kbd_active
 global asm_kbd_getkey
 global asm_print_regs
 
-
 extern tx_put_int
 extern tx_put_word
 extern tx_put_char

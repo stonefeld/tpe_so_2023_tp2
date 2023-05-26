@@ -1,5 +1,7 @@
+#include <libasm.h>
 #include <rtc.h>
 #include <text.h>
+
 #define ARG_TIMEZONE -3
 
 enum time_fmt
@@ -13,17 +15,12 @@ enum time_fmt
 	YEAR
 };
 
-static int
-format(int n)
-{
-	int dec = (n & 240) >> 4;
-	int units = n & 15;
-	return dec * 10 + units;
-}
+static int format(int n);
 
-void rtc_datetime()
+void
+rtc_datetime()
 {
-    tx_put_word("Datetime: ");
+	tx_put_word((uint8_t*)"Datetime: ");
 	tx_put_int(format(asm_rtc_gettime(DAY)));
 	tx_put_char('/');
 	tx_put_int(format(asm_rtc_gettime(MONTH)));
@@ -36,4 +33,12 @@ void rtc_datetime()
 	tx_put_char(':');
 	tx_put_int(format(asm_rtc_gettime(SECONDS)));
 	tx_put_char('\n');
+}
+
+static int
+format(int n)
+{
+	int dec = (n & 240) >> 4;
+	int units = n & 15;
+	return dec * 10 + units;
 }

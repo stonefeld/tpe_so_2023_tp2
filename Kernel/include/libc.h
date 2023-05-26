@@ -11,6 +11,6 @@ void* memcpy(void* destination, const void* source, uint64_t length);
 int strlen(uint8_t* str);
 
 // int manipulation
-char* int_to_str(uint64_t num);
+char* int_to_str(uint64_t num, uint8_t* buff, uint32_t len);
 
 #endif

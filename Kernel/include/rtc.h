@@ -1,7 +1,8 @@
 #ifndef RTC_H
 #define RTC_H
 
-static int format(int n);
+#define DATE_SIZE 4
+
 void rtc_datetime();
 
 #endif

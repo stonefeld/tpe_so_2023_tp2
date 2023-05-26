@@ -10,11 +10,13 @@ gets(uint8_t* buff, uint32_t size)
 
 	while ((c = getchar()) != '\n' && len < size - 1) {
 		if (c) {
-			putchar(c);
-			if (c != '\b')
+			if (c != '\b') {
+				putchar(c);
 				buff[len++] = c;
-			else if (len > 0)
+			} else if (len > 0) {
+				putchar(c);
 				len--;
+			}
 		}
 	}
 	putchar('\n');

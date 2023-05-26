@@ -120,6 +120,14 @@ vd_draw_cursor(uint32_t x, uint32_t y)
 }
 
 void
+vd_draw_figure(uint8_t fig, uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+{
+	for (int i = y; i < y + h; i++)
+		for (int j = x; j < x + w; j++)
+			vd_put_pixel(font_style.fg, j, i);
+}
+
+void
 vd_scroll_up()
 {
 	uint32_t len = vbe_mode_info->width * PIXEL * (vbe_mode_info->height - CHAR_HEIGHT);

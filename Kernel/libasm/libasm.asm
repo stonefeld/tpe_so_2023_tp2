@@ -4,7 +4,6 @@ global asm_kbd_active
 global asm_kbd_getkey
 global asm_print_regs
 
-
 extern tx_put_int
 extern tx_put_word
 extern tx_put_char
@@ -90,7 +89,7 @@ asm_print_regs:
         call tx_put_char
 
         cmp r10, length
-        
+
         jne .loop
 
     leave
@@ -115,5 +114,5 @@ section .data
     _R14 db " R14 = ", 0
     _R15 db " R15 = ", 0
 
-    REGS dq _RIP, _RAX, _RBX, _RCX, _RDX, _RBP, _RDI, _RSI, _R8, _R9, _R10, _R11, _R12, _R13, _R14, _R15, 0  
+    REGS dq _RIP, _RAX, _RBX, _RCX, _RDX, _RBP, _RDI, _RSI, _R8, _R9, _R10, _R11, _R12, _R13, _R14, _R15, 0
     length equ $-REGS

@@ -50,7 +50,5 @@ int
 main()
 {
 	load_idt();
-	int c = ((EntryPoint)sample_code_module_addr)();
-	tx_put_char(c);
-	return 0;
+	return ((EntryPoint)sample_code_module_addr)();
 }

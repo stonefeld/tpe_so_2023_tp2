@@ -1,5 +1,6 @@
 #include <font.h>
 #include <libc.h>
+#include <rtc.h>
 #include <text.h>
 #include <video.h>
 
@@ -10,6 +11,7 @@ static void cursor();
 static void enter();
 
 static uint32_t curr_x = 0, curr_y = 0;
+static uint8_t datetime[DATE_SIZE];
 
 void
 tx_write_buff(uint8_t* buff, uint64_t size)
@@ -80,16 +82,16 @@ void
 tx_clear()
 {
 	vd_clear();
-	curr_x=0;
-	curr_y=0;
-	cursor();	
+	curr_x = 0;
+	curr_y = 0;
+	cursor();
 }
 
 void
 tx_put_int(uint64_t x)
 {
-	char* str = int_to_str(x);
-	tx_put_word(str);
+	int_to_str(x, datetime, DATE_SIZE);
+	tx_put_word(datetime);
 }
 
 static void

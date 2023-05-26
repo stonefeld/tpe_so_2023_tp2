@@ -3,12 +3,12 @@
 extern char bss;
 extern char endOfBinary;
 
-extern int main(void);
+extern int main();
 
 void* memset(void* destiny, int32_t c, uint64_t length);
 
 int
-_start(void)
+_start()
 {
 	// Clean BSS
 	memset(&bss, 0, &endOfBinary - &bss);

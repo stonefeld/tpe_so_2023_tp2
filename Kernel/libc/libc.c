@@ -54,3 +54,7 @@ strlen(uint8_t* str)
 	while (str[len++] != 0) {}
 	return len - 1;
 }
+
+
+
+

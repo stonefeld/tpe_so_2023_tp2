@@ -19,7 +19,7 @@ global asm_exception01_handler
 extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
-
+extern asm_print_regs
 section .text
 
 %macro push_state 0
@@ -85,6 +85,7 @@ section .text
 %macro exceptionHandler 1
    push_state_full
 
+   call asm_print_regs
    mov rdi,%1 ; pasaje de parametro
    call exception_dispatcher
 

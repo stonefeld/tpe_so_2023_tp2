@@ -55,6 +55,25 @@ strlen(uint8_t* str)
 	return len - 1;
 }
 
+char*
+int_to_str(uint64_t num)
+{
+	int i, resto, len = 0, n;
+ 
+    n = num;
+    while (n != 0)
+    {
+        len++;
+        n /= 10;
+    }
 
-
-
+	char str[n+1];
+    for (i = 0; i < len; i++)
+    {
+        resto = num % 10;
+        num = num / 10;
+        str[len - (i + 1)] = resto + '0';
+    }
+    str[len] = '\0';
+	return (uint8_t*)str;
+}

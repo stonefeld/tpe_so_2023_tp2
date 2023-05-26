@@ -2,6 +2,7 @@
 #include <syscalls.h>
 #include <text.h>
 #include <video.h>
+#include <rtc.h>
 
 enum SYSCALLS
 {
@@ -43,15 +44,19 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_CLEAR: {
 
 		} break;
+		
 		case SYS_RTC: {
-
+			rtc_datetime();
 		} break;
+
 		case SYS_COLOR: {
 
 		} break;
+
 		case SYS_DRAW: {
 
 		} break;
+
 		case SYS_MINWIDTH: {
 
 		} break;

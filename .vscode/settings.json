@@ -13,7 +13,13 @@
         "idtloader.h": "c",
         "font.h": "c",
         "shell.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "typeinfo": "c",
+        "cstdio": "c",
+        "*.tcc": "c",
+        "video.h": "c",
+        "text.h": "c",
+        "syscalls.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
 }

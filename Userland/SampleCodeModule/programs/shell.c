@@ -15,6 +15,7 @@ typedef struct command Command;
 static Command commands[MAX_COMMANDS];
 static uint32_t commands_len = 0;
 static uint8_t input_buffer[INPUT_SIZE];
+static uint8_t running = 1;
 
 static void load_commands();
 static void load_command(uint32_t (*fn)(), uint8_t* name, uint8_t* desc);
@@ -22,27 +23,33 @@ static uint32_t process_input(uint8_t* buff, uint32_t size);
 
 // commands
 static uint32_t help();
+static uint32_t time();
+static uint32_t clear();
+static uint32_t exit();
+
 
 uint32_t
 shell_init()
 {
 	load_commands();
 
-	uint8_t error = 0;
-	uint32_t len;
+	uint32_t len, status = 0;
 
-	while (!error) {
+	while (running) {
 		len = gets((uint8_t*)input_buffer, INPUT_SIZE);
-		process_input((uint8_t*)input_buffer, len);
+		status = process_input((uint8_t*)input_buffer, len);
 	}
 
-	return error;
+	return status;
 }
 
 static void
 load_commands()
 {
 	load_command(help, (uint8_t*)"help", (uint8_t*)"Displays this help message");
+	load_command(time, (uint8_t*)"time", (uint8_t*)"");
+	load_command(clear, (uint8_t*)"clear", (uint8_t*)"");
+	load_command(exit, (uint8_t*)"exit", (uint8_t*)"");
 }
 
 static void
@@ -71,5 +78,25 @@ static uint32_t
 help()
 {
 	puts((uint8_t*)"Este es un mensaje de ayuda\n");
+	return 0;
+}
+
+static uint32_t
+time()
+{
+	asm_time();
+	return 0;
+}
+
+static uint32_t
+clear()
+{
+	return 0;
+}
+
+static uint32_t
+exit()
+{
+	running = 0;
 	return 0;
 }

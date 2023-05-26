@@ -77,6 +77,13 @@ tx_set_cursor(uint32_t x, uint32_t y)
 	cursor();
 }
 
+void
+tx_put_int(uint64_t x)
+{
+	char* str = int_to_str(x);
+	tx_put_word(str);
+}
+
 static void
 cursor()
 {

@@ -1,5 +1,6 @@
 global asm_getchar
 global asm_putchar
+global asm_time
 
 asm_getchar:
     push rbp
@@ -17,6 +18,16 @@ asm_putchar:
 
     mov rsi,rdi
     mov rdi,2
+    int 69h
+
+    leave
+    ret
+
+asm_time:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi, 5
     int 69h
 
     leave

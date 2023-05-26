@@ -34,7 +34,7 @@ load_idt()
 
 	// exceptions
 	setup_idt_entry(0x00, (uint64_t)&asm_exception00_handler);
-	setup_idt_entry(0x00, (uint64_t)&asm_exception01_handler);
+	setup_idt_entry(0x01, (uint64_t)&asm_exception01_handler);
 
 	// syscall handler
 	setup_idt_entry(0x69, (uint64_t)&asm_syscall_handler);

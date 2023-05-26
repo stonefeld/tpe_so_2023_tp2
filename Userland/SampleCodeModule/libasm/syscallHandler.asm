@@ -5,7 +5,7 @@ asm_getchar:
     push rbp
     mov rbp,rsp
 
-    mov rdi,4
+    mov rdi,1
     int 69h
 
     leave
@@ -16,7 +16,7 @@ asm_putchar:
     mov rbp,rsp
 
     mov rsi,rdi
-    mov rdi,1
+    mov rdi,2
     int 69h
 
     leave

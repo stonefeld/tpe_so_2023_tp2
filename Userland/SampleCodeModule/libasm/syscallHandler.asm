@@ -1,10 +1,7 @@
 global asm_getchar
 global asm_putchar
-<<<<<<< Updated upstream
 global asm_time
-=======
 global asm_clear
->>>>>>> Stashed changes
 
 asm_getchar:
     push rbp

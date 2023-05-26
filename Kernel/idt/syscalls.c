@@ -6,7 +6,7 @@
 enum SYSCALLS
 {
 	SYS_WRITE = 1,
-	INFO_REG,
+	SYS_REGS,
 	SYS_READ = 4
 };
 
@@ -18,7 +18,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 			tx_put_char(rsi);
 		} break;
 
-		case INFO_REG: {
+		case SYS_REGS: {
 		} break;
 
 		case SYS_READ: {

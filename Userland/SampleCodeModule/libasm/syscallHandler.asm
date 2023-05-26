@@ -1,6 +1,10 @@
 global asm_getchar
 global asm_putchar
+<<<<<<< Updated upstream
 global asm_time
+=======
+global asm_clear
+>>>>>>> Stashed changes
 
 asm_getchar:
     push rbp
@@ -32,3 +36,12 @@ asm_time:
 
     leave
     ret
+asm_clear:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi,4
+    int 69h
+
+    leave 
+    rets

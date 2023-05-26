@@ -76,6 +76,14 @@ tx_set_cursor(uint32_t x, uint32_t y)
 	curr_y = y;
 	cursor();
 }
+void
+tx_clear()
+{
+	vd_clear();
+	curr_x=0;
+	curr_y=0;
+	cursor();	
+}
 
 void
 tx_put_int(uint64_t x)

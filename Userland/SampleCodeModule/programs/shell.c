@@ -1,5 +1,6 @@
 #include <shell.h>
 #include <stdlib.h>
+#include <syscallHandler.h>
 
 #define MAX_COMMANDS 20
 #define INPUT_SIZE 36
@@ -88,15 +89,17 @@ time()
 	return 0;
 }
 
-static uint32_t
-clear()
-{
-	return 0;
-}
+
 
 static uint32_t
 exit()
 {
 	running = 0;
+	return 0;
+}
+static uint32_t
+clear()
+{
+	asm_clear();
 	return 0;
 }

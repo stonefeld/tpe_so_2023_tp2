@@ -90,10 +90,11 @@ asm_print_regs:
         call tx_put_char
 
         cmp r10, length
-        
+
         jne .loop
 
-    leave
+    mov rsp, rbp
+    pop rbp
     ret
 
 section .data
@@ -115,5 +116,5 @@ section .data
     _R14 db " R14 = ", 0
     _R15 db " R15 = ", 0
 
-    REGS dq _RIP, _RAX, _RBX, _RCX, _RDX, _RBP, _RDI, _RSI, _R8, _R9, _R10, _R11, _R12, _R13, _R14, _R15, 0  
+    REGS dq _RIP, _RAX, _RBX, _RCX, _RDX, _RBP, _RDI, _RSI, _R8, _R9, _R10, _R11, _R12, _R13, _R14, _R15 
     length equ $-REGS

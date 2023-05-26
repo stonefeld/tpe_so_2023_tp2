@@ -16,6 +16,8 @@ enum SYSCALLS
 	SYS_DRAW,
 	SYS_WINWIDTH,
 	SYS_WINHEIGHT,
+	SYS_ZERO_DIV,
+	SYS_INV_OP
 
 };
 
@@ -66,6 +68,11 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_WINHEIGHT: {
+			return vd_get_winheight();
+
+		} break;
+
+		case SYS_ZERO_DIV: {
 			return vd_get_winheight();
 
 		} break;

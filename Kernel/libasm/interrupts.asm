@@ -83,14 +83,19 @@ section .text
 %endmacro
 
 %macro exceptionHandler 1
+ 
    push_state_full
-
+   
    call asm_print_regs
+
+
    mov rdi,%1 ; pasaje de parametro
    call exception_dispatcher
 
    pop_state_full
-   iretq
+
+   ;iretq
+   ret
 %endmacro
 
 

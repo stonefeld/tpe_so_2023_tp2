@@ -13,7 +13,8 @@ global asm_irq04_handler
 global asm_irq05_handler
 
 global asm_syscall_handler
-global asm_exception_handler
+global asm_exception00_handler
+global asm_exception01_handler
 
 extern irq_dispatcher
 extern exception_dispatcher
@@ -150,8 +151,12 @@ asm_irq05_handler:
    irqHandlerMaster 5
 
 ; Zero Division Exception
-asm_exception_handler:
+asm_exception00_handler:
    exceptionHandler 0
+
+; Invalid Operator Exception
+asm_exception01_handler:
+   exceptionHandler 1
 
 ; Calls the syscall handler
 asm_syscall_handler:

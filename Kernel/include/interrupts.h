@@ -19,6 +19,7 @@ extern void asm_irq04_handler();
 extern void asm_irq05_handler();
 
 extern void asm_syscall_handler();
-extern void asm_exception_handler();
+extern void asm_exception00_handler();
+extern void asm_exception01_handler();
 
 #endif

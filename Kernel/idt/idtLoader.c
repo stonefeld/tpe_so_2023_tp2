@@ -33,7 +33,8 @@ load_idt()
 	setup_idt_entry(0x21, (uint64_t)&asm_irq01_handler);  // keyboard handler
 
 	// exceptions
-	setup_idt_entry(0x00, (uint64_t)&asm_exception_handler);
+	setup_idt_entry(0x00, (uint64_t)&asm_exception00_handler);
+	setup_idt_entry(0x00, (uint64_t)&asm_exception01_handler);
 
 	// syscall handler
 	setup_idt_entry(0x69, (uint64_t)&asm_syscall_handler);

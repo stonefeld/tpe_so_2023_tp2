@@ -2,9 +2,9 @@
 #define LIBASM_H
 
 // defined in asm/libasm.asm
-extern char* _cpuVendor(char* result);
-extern int _rtcGettime(int fmt);
-extern char _keyboardActive();
-extern int _keyboardGetkey();
+extern char* asm_cpu_vendor(char* result);
+extern int asm_rtc_gettime(int fmt);
+extern char asm_kbd_active();
+extern int asm_kbd_getkey();
 
 #endif

@@ -50,10 +50,7 @@ int
 main()
 {
 	load_idt();
-	while (1) {
-		uint8_t c = kb_getkey();
-		if (c)
-			tx_put_char(c);
-	}
+	int c = ((EntryPoint)sample_code_module_addr)();
+	tx_put_char(c);
 	return 0;
 }

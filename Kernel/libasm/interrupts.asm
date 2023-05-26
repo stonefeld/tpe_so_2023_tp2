@@ -1,20 +1,19 @@
-global _cli
-global _sti
-global _hlt
+global asm_cli
+global asm_sti
+global asm_hlt
 
-global _picMasterMask
-global _picSlaveMask
-global _haltcpu
+global asm_pic_master_mask
+global asm_pic_slave_mask
 
-global _irq00Handler
-global _irq01Handler
-global _irq02Handler
-global _irq03Handler
-global _irq04Handler
-global _irq05Handler
+global asm_irq00_handler
+global asm_irq01_handler
+global asm_irq02_handler
+global asm_irq03_handler
+global asm_irq04_handler
+global asm_irq05_handler
 
-global _sysCallHandler
-global _exception0Handler
+global asm_syscall_handler
+global asm_exception_handler
 
 extern irq_dispatcher
 extern exception_dispatcher
@@ -22,7 +21,7 @@ extern syscall_dispatcher
 
 section .text
 
-%macro pushState 0
+%macro push_state 0
    push rbx
    push rcx
    push rdx
@@ -37,11 +36,14 @@ section .text
    push r13
    push r14
    push r15
-   push rax
 %endmacro
 
-%macro popState 0
-   pop rax
+%macro push_state_full 0
+   push rax
+   push_state
+%endmacro
+
+%macro pop_state 0
    pop r15
    pop r14
    pop r13
@@ -58,9 +60,14 @@ section .text
    pop rbx
 %endmacro
 
+%macro pop_state_full 0
+    pop_state
+    pop rax
+%endmacro
+
 %macro irqHandlerMaster 1
    push rsp
-   pushState
+   push_state_full
 
    mov rdi,%1 ; pasaje de parametro
    call irq_dispatcher
@@ -69,36 +76,36 @@ section .text
    mov al,20h
    out 20h,al
 
-   popState
+   pop_state_full
    pop rsp
    iretq
 %endmacro
 
 %macro exceptionHandler 1
-   pushState
+   push_state_full
 
    mov rdi,%1 ; pasaje de parametro
    call exception_dispatcher
 
-   popState
+   pop_state_full
    iretq
 %endmacro
 
 
-_hlt:
+asm_hlt:
     sti
     hlt
     ret
 
-_cli:
+asm_cli:
     cli
     ret
 
-_sti:
+asm_sti:
     sti
     ret
 
-_picMasterMask:
+asm_pic_master_mask:
     push rbp
     mov rbp,rsp
 
@@ -108,7 +115,7 @@ _picMasterMask:
     pop rbp
     retn
 
-_picSlaveMask:
+asm_pic_slave_mask:
     push rbp
     mov rbp,rsp
 
@@ -119,42 +126,38 @@ _picSlaveMask:
     retn
 
 ; 8254 Timer (Timer Tick)
-_irq00Handler:
+asm_irq00_handler:
     irqHandlerMaster 0
 
 ; Keyboard interrupt. IRQ 0x01, INT 0x21
-_irq01Handler:
+asm_irq01_handler:
     irqHandlerMaster 1
 
 ;Cascade pic never called
-_irq02Handler:
+asm_irq02_handler:
    irqHandlerMaster 2
 
 ;Serial Port 2 and 4
-_irq03Handler:
+asm_irq03_handler:
    irqHandlerMaster 3
 
 ;Serial Port 1 and 3
-_irq04Handler:
+asm_irq04_handler:
    irqHandlerMaster 4
 
 ; USB
-_irq05Handler:
+asm_irq05_handler:
    irqHandlerMaster 5
 
 ; Zero Division Exception
-_exception0Handler:
+asm_exception_handler:
    exceptionHandler 0
 
-_sysCallHandler:
-   pushState
-   pop rax
-   call syscall_dispatcher
-   push rax
-   popState
-   iretq
+; Calls the syscall handler
+asm_syscall_handler:
+   push_state
 
-_haltcpu:
-   cli
-   hlt
-   ret
+   call syscall_dispatcher
+
+   pop_state
+   iretq

@@ -1,12 +1,12 @@
-global _cpuVendor
-global _rtcGettime
-global _keyboardActive
-global _keyboardGetkey
+global asm_cpu_vendor
+global asm_rtc_gettime
+global asm_kbd_active
+global asm_kbd_getkey
 
 section .text
 
 ; devuelve el fabricante del cpu
-_cpuVendor:
+asm_cpu_vendor:
     push rbp
     mov rbp, rsp
 
@@ -30,7 +30,7 @@ _cpuVendor:
     ret
 
 ; devuelve el tiempo en rtc
-_rtcGettime:
+asm_rtc_gettime:
     push rbp
     mov rbp,rsp
 
@@ -42,7 +42,7 @@ _rtcGettime:
     ret
 
 ; devuelve si hay una tecla presionada o liberada
-_keyboardActive:
+asm_kbd_active:
     push rbp
     mov rbp,rsp
 
@@ -54,7 +54,7 @@ _keyboardActive:
     ret
 
 ; devuelve el código de una tecla en el teclado (si fue presionada o soltada)
-_keyboardGetkey:
+asm_kbd_getkey:
     push rbp
     mov rbp,rsp
 

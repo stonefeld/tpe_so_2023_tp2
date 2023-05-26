@@ -86,27 +86,11 @@ void
 vd_put_pixel_rgb(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y)
 {
 	uint8_t* screen = (uint8_t*)(uint64_t)vbe_mode_info->framebuffer;
-	int offset = y * vbe_mode_info->pitch + x * vbe_mode_info->bpp / 8;
+	int offset = y * vbe_mode_info->pitch + x * PIXEL;
 	screen[offset] = b;
 	screen[offset + 1] = g;
 	screen[offset + 2] = r;
 }
-
-void
-vd_put_word(char* msg)
-{
-	int len = strlen(msg);
-	for (int i = 0; i < len; i++)
-		vd_put_char(msg[i], i * CHAR_WIDTH, i);
-}
-
-void
-vd_put_wordn(char* msg, int size)
-{
-	for (int i = 0; i < size; i++)
-		vd_put_char(msg[i], i * CHAR_WIDTH, i);
-}
-
 
 void
 vd_put_char(char c, uint32_t x, uint32_t y)

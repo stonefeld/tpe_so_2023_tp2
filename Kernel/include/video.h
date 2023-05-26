@@ -12,8 +12,6 @@ uint16_t vd_get_winwidth();
 uint16_t vd_get_winheight();
 void vd_put_pixel(uint32_t hex_color, uint32_t x, uint32_t y);
 void vd_put_pixel_rgb(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y);
-void vd_put_word(char* msg);
-void vd_put_wordn(char* msg, int size);
 void vd_put_char(char c, uint32_t x, uint32_t y);
 void vd_draw_cursor(uint32_t x, uint32_t y);
 void vd_scroll_up();

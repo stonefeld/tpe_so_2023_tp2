@@ -48,7 +48,7 @@ memcpy(void* destination, const void* source, uint64_t length)
 }
 
 int
-strlen(char* str)
+strlen(uint8_t* str)
 {
 	int len = 0;
 	while (str[len++] != 0) {}

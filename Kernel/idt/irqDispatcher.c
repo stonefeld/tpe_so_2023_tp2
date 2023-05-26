@@ -14,5 +14,4 @@ irq_dispatcher(uint64_t irq)
 			keyboard_handler();
 		} break;
 	}
-	return;
 }

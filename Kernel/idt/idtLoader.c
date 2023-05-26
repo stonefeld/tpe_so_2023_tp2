@@ -26,27 +26,23 @@ static void setup_idt_entry(int index, uint64_t offset);
 void
 load_idt()
 {
-	_cli();
+	asm_cli();
 
 	// irqs
-	setup_idt_entry(0x20, (uint64_t)&_irq00Handler);
-	// in -> Bootloader/Pure64/src/interrupt.asm:
-	// kbd interrupt. IRQ 0x01, INT 0x21
-	// runs whenever there's input on the kbd
-	setup_idt_entry(0x21, (uint64_t)&_irq01Handler);
+	setup_idt_entry(0x20, (uint64_t)&asm_irq00_handler);  // tick handler
+	setup_idt_entry(0x21, (uint64_t)&asm_irq01_handler);  // keyboard handler
 
 	// exceptions
-	setup_idt_entry(0x00, (uint64_t)&_exception0Handler);
-	// setup_idt_entry(0x00, (uint64_t)&_exception1Handler);
+	setup_idt_entry(0x00, (uint64_t)&asm_exception_handler);
 
 	// syscall handler
-	setup_idt_entry(0x69, (uint64_t)&_sysCallHandler);
+	setup_idt_entry(0x69, (uint64_t)&asm_syscall_handler);
 
-	// Solo interrupcion timer tick habilitadas
-	_picMasterMask(0xFC);
-	_picSlaveMask(0xFF);
+	// solo interrupción timer tick habilitadas
+	asm_pic_master_mask(0xFC);
+	asm_pic_slave_mask(0xFF);
 
-	_sti();
+	asm_sti();
 }
 
 static void

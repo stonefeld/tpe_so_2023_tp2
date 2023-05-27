@@ -12,7 +12,7 @@ exception_dispatcher(int exception)
 	switch (exception) {
 		case ZERO_EXCEPTION_ID: {
 
-			exception_handler((uint8_t*)"Zero Division Exception\n");
+			exception_handler((uint8_t*)" Zero Division Exception\n");
 		} break;
 
 		case INV_OP_EXCEPTION_ID: {

@@ -114,6 +114,9 @@ section .data
     _R13 db " R13 = ", 0
     _R14 db " R14 = ", 0
     _R15 db " R15 = ", 0
+    _CS db " CS = ", 0
+    _FLAGS db " FLAGS = ", 0
+    _SS db " SS = ", 0
 
-    REGS dq _RIP, _RAX, _RBX, _RCX, _RDX, _RBP, _RDI, _RSI, _R8, _R9, _R10, _R11, _R12, _R13, _R14, _R15 
+    REGS dq _R15, _R14, _R13, _R12, _R11, _R10, _R9, _R8, _RSI, _RDI, _RBP, _RDX, _RCX, _RBX, _RIP, _RAX,_CS, _FLAGS, _RSP, _SS  
     length equ $-REGS

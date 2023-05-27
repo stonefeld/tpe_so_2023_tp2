@@ -20,7 +20,7 @@ static int format(int n);
 void
 rtc_datetime()
 {
-	tx_put_word((uint8_t*)"Datetime: ");
+	tx_put_word("Datetime: ");
 	tx_put_int(format(asm_rtc_gettime(DAY)));
 	tx_put_char('/');
 	tx_put_int(format(asm_rtc_gettime(MONTH)));

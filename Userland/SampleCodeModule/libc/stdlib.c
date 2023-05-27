@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
-#include <syscallHandler.h>
+#include <syscalls.h>
 
 uint32_t
 gets(char* buff, uint32_t size)

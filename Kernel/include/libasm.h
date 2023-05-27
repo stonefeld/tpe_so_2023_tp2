@@ -11,6 +11,4 @@ extern int asm_kbd_getkey();
 extern uint64_t asm_getsp();
 extern void asm_printreg();
 
-void give_control_to_user();
-
 #endif

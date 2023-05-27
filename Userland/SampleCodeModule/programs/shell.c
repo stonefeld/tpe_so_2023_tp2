@@ -1,6 +1,7 @@
+#include <libasm.h>
 #include <shell.h>
 #include <stdlib.h>
-#include <syscallHandler.h>
+#include <syscalls.h>
 
 #define MAX_COMMANDS 20
 #define MAX_ARGS 3
@@ -31,6 +32,7 @@ static uint32_t datetime();
 static uint32_t clear();
 static uint32_t exit();
 static uint32_t printreg();
+static uint32_t testioe();
 static uint32_t testzde();
 
 uint32_t
@@ -58,7 +60,8 @@ load_commands()
 	load_command(clear, "clear", "      Clears the screen");
 	load_command(exit, "exit", "       Exits the shell");
 	load_command(printreg, "printreg", "   Prints all the registers values");
-	load_command(testzde, "testzde", "    Simply divides by zero to test the 'Zero Division Error Exception'");
+	load_command(testioe, "testioe", "    Tests the 'Invalid Opcode Exception'");
+	load_command(testzde, "testzde", "    Tests the 'Zero Division Error Exception'");
 }
 
 static void
@@ -106,7 +109,6 @@ prompt()
 static uint32_t
 help()
 {
-	puts("This are all the available commands:\n");
 	for (int i = 0; i < commands_len; i++) {
 		puts(commands[i].name);
 		puts(commands[i].desc);
@@ -144,8 +146,15 @@ printreg()
 }
 
 static uint32_t
+testioe()
+{
+	asm_testioe();
+	return 0;
+}
+
+static uint32_t
 testzde()
 {
-	int i = 10 / 0;
+	asm_testzde();
 	return 0;
 }

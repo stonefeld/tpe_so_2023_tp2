@@ -8,7 +8,7 @@
 enum exceptions
 {
 	ZERO_DIVISION = 0,
-	INVALID_OPERATOR = 6
+	INVALID_OPCODE = 6
 };
 
 struct restore_point
@@ -37,8 +37,8 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 			exception_handler("Zero Division Error Exception");
 		} break;
 
-		case INVALID_OPERATOR: {
-			exception_handler("Invalid Operand Exception");
+		case INVALID_OPCODE: {
+			exception_handler("Invalid Opcode Exception");
 		} break;
 	}
 	exc_printreg(stack);

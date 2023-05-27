@@ -98,7 +98,6 @@ section .text
    call exception_dispatcher
 
    pop_state_full
-
    iretq
    ;ret  ; UNA VEZ QUE TERMINEMOS EL TESTING VOLVER A IRETQ
 %endmacro
@@ -165,9 +164,9 @@ asm_irq05_handler:
 asm_exception00_handler:
    excepction_handler 0
 
-; Invalid Operator Exception
+; Invalid Opcode Exception
 asm_exception01_handler:
-   excepction_handler 1
+   excepction_handler 6
 
 ; Calls the syscall handler
 asm_syscall_handler:

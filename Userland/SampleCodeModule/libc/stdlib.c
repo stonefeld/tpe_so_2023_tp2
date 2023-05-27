@@ -3,7 +3,7 @@
 #include <syscallHandler.h>
 
 uint32_t
-gets(uint8_t* buff, uint32_t size)
+gets(char* buff, uint32_t size)
 {
 	uint8_t c;
 	uint32_t len = 0;
@@ -31,7 +31,7 @@ getchar()
 }
 
 void
-puts(uint8_t* str)
+puts(char* str)
 {
 	uint64_t len = strlen(str);
 	for (int i = 0; i < len; i++)
@@ -39,13 +39,13 @@ puts(uint8_t* str)
 }
 
 void
-putchar(uint8_t c)
+putchar(char c)
 {
 	asm_putchar(c);
 }
 
 uint64_t
-strlen(uint8_t* buff)
+strlen(char* buff)
 {
 	uint64_t len = 0;
 	while (buff[len++] != 0) {}
@@ -53,7 +53,7 @@ strlen(uint8_t* buff)
 }
 
 uint32_t
-strtok(uint8_t* buff, uint8_t token, uint8_t** args, uint32_t size)
+strtok(char* buff, uint8_t token, char** args, uint32_t size)
 {
 	int args_len = 0;
 	if (*buff != token && *buff != 0)
@@ -73,7 +73,7 @@ strtok(uint8_t* buff, uint8_t token, uint8_t** args, uint32_t size)
 }
 
 uint32_t
-strcmp(uint8_t* s1, uint8_t* s2)
+strcmp(char* s1, char* s2)
 {
 	while (*s1 != 0 && *s2 != 0 && *s1 == *s2) {
 		s1++;

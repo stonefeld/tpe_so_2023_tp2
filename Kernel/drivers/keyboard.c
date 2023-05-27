@@ -3,6 +3,7 @@
 #include <libasm.h>
 #include <libc.h>
 #include <naiveConsole.h>
+#include <stdint.h>
 #include <video.h>
 
 static const uint8_t scancodes[][2] = {
@@ -47,7 +48,7 @@ keyboard_handler()
 	return 0;
 }
 
-uint8_t
+char
 kb_getkey()
 {
 	if (buffer_size <= 0)

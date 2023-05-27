@@ -2,15 +2,21 @@
 #include <stdint.h>
 #include <time.h>
 
+enum irq
+{
+	TIMER = 0,
+	KEYBOARD
+};
+
 void
 irq_dispatcher(uint64_t irq)
 {
 	switch (irq) {
-		case 0: {
+		case TIMER: {
 			timer_handler();
 		} break;
 
-		case 1: {
+		case KEYBOARD: {
 			keyboard_handler();
 		} break;
 	}

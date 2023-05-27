@@ -3,6 +3,7 @@ global asm_putchar
 global asm_datetime
 global asm_clear
 global asm_setcolor
+global asm_printreg
 
 asm_getchar:
     push rbp
@@ -25,11 +26,31 @@ asm_putchar:
     leave
     ret
 
+asm_printreg:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi,3
+    int 69h
+
+    leave
+    ret
+
 asm_clear:
     push rbp
     mov rbp,rsp
 
     mov rdi,4
+    int 69h
+
+    leave
+    ret
+
+asm_datetime:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi, 5
     int 69h
 
     leave
@@ -42,16 +63,6 @@ asm_setcolor:
     mov rdx,rsi
     mov rsi,rdi
     mov rdi,6
-    int 69h
-
-    leave
-    ret
-
-asm_datetime:
-    push rbp
-    mov rbp,rsp
-
-    mov rdi, 5
     int 69h
 
     leave

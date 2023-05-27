@@ -20,6 +20,7 @@ extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
 extern asm_print_regs
+
 section .text
 
 %macro push_state 0
@@ -66,7 +67,7 @@ section .text
     pop rax
 %endmacro
 
-%macro irqHandlerMaster 1
+%macro irq_handler 1
    push rsp
    push_state_full
 
@@ -82,8 +83,7 @@ section .text
    iretq
 %endmacro
 
-%macro exceptionHandler 1
-  
+%macro excepction_handler 1
    ;mov rdi,1
    ;mov rsi,2
    ;mov rdx,3
@@ -92,16 +92,14 @@ section .text
    ;mov r8,6
    ; TEST PARA LA EXCEPTION
    push_state_full
-   
-   call asm_print_regs
 
-
-   mov rdi,%1 ; pasaje de parametro
+   mov rdi,%1   ; pasaje de parametro
+   mov rsi,rsp  ; paso el stack-pointer para imprimir los registros
    call exception_dispatcher
 
    pop_state_full
-   
-   iretq  
+
+   iretq
    ;ret  ; UNA VEZ QUE TERMINEMOS EL TESTING VOLVER A IRETQ
 %endmacro
 
@@ -141,41 +139,39 @@ asm_pic_slave_mask:
 
 ; 8254 Timer (Timer Tick)
 asm_irq00_handler:
-    irqHandlerMaster 0
+    irq_handler 0
 
 ; Keyboard interrupt. IRQ 0x01, INT 0x21
 asm_irq01_handler:
-    irqHandlerMaster 1
+    irq_handler 1
 
-;Cascade pic never called
+; Cascade pic never called
 asm_irq02_handler:
-   irqHandlerMaster 2
+   irq_handler 2
 
-;Serial Port 2 and 4
+; Serial Port 2 and 4
 asm_irq03_handler:
-   irqHandlerMaster 3
+   irq_handler 3
 
-;Serial Port 1 and 3
+; Serial Port 1 and 3
 asm_irq04_handler:
-   irqHandlerMaster 4
+   irq_handler 4
 
 ; USB
 asm_irq05_handler:
-   irqHandlerMaster 5
+   irq_handler 5
 
 ; Zero Division Exception
 asm_exception00_handler:
-   exceptionHandler 0
+   excepction_handler 0
 
 ; Invalid Operator Exception
 asm_exception01_handler:
-   exceptionHandler 1
+   excepction_handler 1
 
 ; Calls the syscall handler
 asm_syscall_handler:
    push_state
-
    call syscall_dispatcher
-
    pop_state
    iretq

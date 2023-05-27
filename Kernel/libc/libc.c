@@ -1,3 +1,5 @@
+#include "libc.h"
+
 #include <stdint.h>
 
 void*
@@ -47,16 +49,47 @@ memcpy(void* destination, const void* source, uint64_t length)
 	return destination;
 }
 
-int
-strlen(uint8_t* str)
+uint32_t
+strlen(char* str)
 {
 	int len = 0;
 	while (str[len++] != 0) {}
 	return len - 1;
 }
 
+uint32_t
+uint_to_base(uint64_t value, char* buff, uint32_t base)
+{
+	char* p = buff;
+	char *p1, *p2;
+	uint32_t digits = 0;
+
+	// Calculate characters for each digit
+	do {
+		uint32_t remainder = value % base;
+		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+		digits++;
+	} while (value /= base);
+
+	// Terminate string in buffer.
+	*p = 0;
+
+	// Reverse string in buffer.
+	p1 = buff;
+	p2 = p - 1;
+	while (p1 < p2) {
+		char tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+		p1++;
+		p2--;
+	}
+
+	return digits;
+}
+
 void
-int_to_str(uint64_t num, uint8_t* buff, uint32_t size)
+int_to_str(uint64_t num, char* buff, uint32_t size)
 {
 	int i, resto, len = 0, n;
 

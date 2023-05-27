@@ -11,10 +11,10 @@ static void cursor();
 static void enter();
 
 static uint32_t curr_x = 0, curr_y = 0;
-static uint8_t datetime[DATE_SIZE];
+static char datetime[DATE_SIZE];
 
 void
-tx_write_buff(uint8_t* buff, uint64_t size)
+tx_write_buff(char* buff, uint64_t size)
 {
 	while (size-- && *buff != 0) {
 		tx_put_char(*buff);
@@ -23,7 +23,7 @@ tx_write_buff(uint8_t* buff, uint64_t size)
 }
 
 void
-tx_put_char(uint8_t c)
+tx_put_char(char c)
 {
 	switch (c) {
 		case '\b': {
@@ -63,7 +63,7 @@ tx_put_char(uint8_t c)
 }
 
 void
-tx_put_word(uint8_t* str)
+tx_put_word(char* str)
 {
 	tx_write_buff(str, strlen(str));
 }

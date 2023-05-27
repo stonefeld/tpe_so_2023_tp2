@@ -3,13 +3,13 @@
 
 #include <stdint.h>
 
-uint32_t gets(uint8_t* buff, uint32_t size);
+uint32_t gets(char* buff, uint32_t size);
 uint8_t getchar();
-void puts(uint8_t* str);
-void putchar(uint8_t c);
+void puts(char* str);
+void putchar(char c);
 
-uint64_t strlen(uint8_t* buff);
-uint32_t strtok(uint8_t* buff, uint8_t token, uint8_t** args, uint32_t size);
-uint32_t strcmp(uint8_t* s1, uint8_t* s2);
+uint64_t strlen(char* buff);
+uint32_t strtok(char* buff, uint8_t token, char** args, uint32_t size);
+uint32_t strcmp(char* s1, char* s2);
 
 #endif

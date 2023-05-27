@@ -4,25 +4,25 @@
 
 #define MAX_COMMANDS 20
 #define MAX_ARGS 3
-#define INPUT_SIZE 36
+#define INPUT_SIZE 200
 
 struct command
 {
 	uint32_t (*fn)();
-	uint8_t *name, *desc;
+	char *name, *desc;
 };
 
 typedef struct command Command;
 
 static Command commands[MAX_COMMANDS];
 static uint32_t commands_len = 0;
-static uint8_t* args[MAX_ARGS];
-static uint8_t input_buffer[INPUT_SIZE];
+static char* args[MAX_ARGS];
+static char input_buffer[INPUT_SIZE];
 static uint8_t running = 1;
 
 static void load_commands();
-static void load_command(uint32_t (*fn)(), uint8_t* name, uint8_t* desc);
-static uint32_t process_input(uint8_t* buff, uint32_t size);
+static void load_command(uint32_t (*fn)(), char* name, char* desc);
+static uint32_t process_input(char* buff, uint32_t size);
 static void prompt();
 
 // commands
@@ -30,19 +30,21 @@ static uint32_t help();
 static uint32_t datetime();
 static uint32_t clear();
 static uint32_t exit();
+static uint32_t printreg();
+static uint32_t testzde();
 
 uint32_t
 shell_init()
 {
+	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n");
 	load_commands();
 
 	uint32_t len, status = 0;
-	int s = 1/0;
 	while (running) {
 		prompt();
 		len = gets(input_buffer, INPUT_SIZE);
 		asm_setcolor(0xA8A8A8, 0x000000);
-		process_input(input_buffer, len);
+		status = process_input(input_buffer, len);
 	}
 
 	return status;
@@ -51,14 +53,16 @@ shell_init()
 static void
 load_commands()
 {
-	load_command(help, (uint8_t*)"help", (uint8_t*)"Displays this help message\n");
-	load_command(datetime, (uint8_t*)"datetime", (uint8_t*)"Prints the current datetime\n");
-	load_command(clear, (uint8_t*)"clear", (uint8_t*)"Clears the screen\n");
-	load_command(exit, (uint8_t*)"exit", (uint8_t*)"Exits the shell\n");
+	load_command(help, "help", "       Displays this help message");
+	load_command(datetime, "datetime", "   Prints the current datetime");
+	load_command(clear, "clear", "      Clears the screen");
+	load_command(exit, "exit", "       Exits the shell");
+	load_command(printreg, "printreg", "   Prints all the registers values");
+	load_command(testzde, "testzde", "    Simply divides by zero to test the 'Zero Division Error Exception'");
 }
 
 static void
-load_command(uint32_t (*fn)(), uint8_t* name, uint8_t* desc)
+load_command(uint32_t (*fn)(), char* name, char* desc)
 {
 	if (commands_len >= MAX_COMMANDS)
 		return;
@@ -69,21 +73,20 @@ load_command(uint32_t (*fn)(), uint8_t* name, uint8_t* desc)
 }
 
 static uint32_t
-process_input(uint8_t* buff, uint32_t size)
+process_input(char* buff, uint32_t size)
 {
 	int args_len = strtok(buff, ' ', args, MAX_ARGS);
 	if (args_len <= 0 || args_len > MAX_ARGS) {
-		puts((uint8_t*)"Wrong ammount of arguments\n");
+		puts("Wrong ammount of arguments\n");
 		return -1;
 	}
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name))
 			return commands[i].fn();
 	}
-	puts((uint8_t*)"Command '");
+	puts("Command not found: ");
 	puts(args[0]);
-	puts((uint8_t*)"' is not valid.\n\n");
-	help();
+	putchar('\n');
 	return -1;
 }
 
@@ -91,24 +94,23 @@ static void
 prompt()
 {
 	asm_setcolor(0x00ff00, 0x000000);
-	puts((uint8_t*)"user@qemu");
+	puts("user@qemu");
 	asm_setcolor(0xffffff, 0x000000);
 	putchar(':');
 	asm_setcolor(0x0000ff, 0x000000);
 	putchar('~');
 	asm_setcolor(0xffffff, 0x000000);
-	puts((uint8_t*)"$ ");
+	puts("$ ");
 }
 
 static uint32_t
 help()
 {
-	puts((uint8_t*)"This are all the available commands:\n");
+	puts("This are all the available commands:\n");
 	for (int i = 0; i < commands_len; i++) {
-		putchar('\t');
 		puts(commands[i].name);
-		puts((uint8_t*)": ");
 		puts(commands[i].desc);
+		putchar('\n');
 	}
 	return 0;
 }
@@ -131,5 +133,19 @@ static uint32_t
 clear()
 {
 	asm_clear();
+	return 0;
+}
+
+static uint32_t
+printreg()
+{
+	asm_printreg();
+	return 0;
+}
+
+static uint32_t
+testzde()
+{
+	int i = 10 / 0;
 	return 0;
 }

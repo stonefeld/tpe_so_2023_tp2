@@ -1,13 +1,16 @@
+#include <exceptions.h>
 #include <font.h>
 #include <idtLoader.h>
+#include <interrupts.h>
 #include <keyboard.h>
+#include <libasm.h>
 #include <libc.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
 #include <text.h>
 #include <video.h>
-#include <interrupts.h>
+
 typedef int (*EntryPoint)();
 
 extern uint8_t text;
@@ -50,8 +53,8 @@ int
 main()
 {
 	load_idt();
-	//asm_exception00_handler();  TEST DE EXCEPCIONES.
-	int c = ((EntryPoint)sample_code_module_addr)();
-	tx_put_char(c);
-	return 0;
+	// asm_exception00_handler();
+	// tx_put_word((uint8_t*)"HOLAS");
+	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp());
+	return ((EntryPoint)sample_code_module_addr)();
 }

@@ -1,10 +1,11 @@
 #include <keyboard.h>
+#include <libasm.h>
 #include <rtc.h>
 #include <syscalls.h>
 #include <text.h>
 #include <video.h>
 
-enum SYSCALLS
+enum syscalls
 {
 	SYS_READ = 1,
 	SYS_WRITE,
@@ -15,9 +16,6 @@ enum SYSCALLS
 	SYS_DRAW,
 	SYS_WINWIDTH,
 	SYS_WINHEIGHT,
-	SYS_ZERO_DIV,
-	SYS_INV_OP
-
 };
 
 uint64_t
@@ -33,6 +31,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_REGS: {
+			asm_printreg();
 		} break;
 
 		case SYS_CLEAR: {
@@ -57,11 +56,6 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 
 		case SYS_WINHEIGHT: {
 			return vd_get_winheight();
-		} break;
-
-		case SYS_ZERO_DIV: {
-			return vd_get_winheight();
-
 		} break;
 	}
 	return 0;

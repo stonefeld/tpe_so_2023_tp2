@@ -1,8 +1,6 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <stdint.h>
-
 #define KC_ESC 27
 #define KC_L_SHIFT 42
 #define KC_R_SHIFT 54
@@ -12,6 +10,6 @@
 #define BUFFER_MAX 10
 
 int keyboard_handler();
-uint8_t kb_getkey();
+char kb_getkey();
 
 #endif

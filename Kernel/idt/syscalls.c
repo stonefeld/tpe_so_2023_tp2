@@ -4,9 +4,10 @@
 #include <syscalls.h>
 #include <text.h>
 #include <video.h>
-
+#include <time.h>
 enum syscalls
 {
+	
 	SYS_READ = 1,
 	SYS_WRITE,
 	SYS_REGS,
@@ -16,6 +17,7 @@ enum syscalls
 	SYS_DRAW,
 	SYS_WINWIDTH,
 	SYS_WINHEIGHT,
+	SYS_TICKS
 };
 
 uint64_t
@@ -57,6 +59,9 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_WINHEIGHT: {
 			return vd_get_winheight();
 		} break;
+		case SYS_TICKS: {
+			return ticks_elapsed();
+		}
 	}
 	return 0;
 }

@@ -2,6 +2,9 @@
 #include <shell.h>
 #include <stdlib.h>
 #include <syscalls.h>
+#include <pong.h>
+
+
 
 #define MAX_COMMANDS 20
 #define MAX_ARGS 3
@@ -29,11 +32,11 @@ static void prompt();
 // commands
 static uint32_t help();
 static uint32_t datetime();
-static uint32_t clear();
 static uint32_t exit();
 static uint32_t printreg();
 static uint32_t testioe();
 static uint32_t testzde();
+static uint32_t pong();
 
 uint32_t
 shell_init()
@@ -62,6 +65,8 @@ load_commands()
 	load_command(printreg, "printreg", "   Prints all the registers values");
 	load_command(testioe, "testioe", "    Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "    Tests the 'Zero Division Error Exception'");
+	load_command(pong, "pong", "    Pong (The Game)");
+
 }
 
 static void
@@ -132,13 +137,6 @@ exit()
 }
 
 static uint32_t
-clear()
-{
-	asm_clear();
-	return 0;
-}
-
-static uint32_t
 printreg()
 {
 	asm_printreg();
@@ -157,4 +155,10 @@ testzde()
 {
 	asm_testzde();
 	return 0;
+}
+
+static uint32_t
+pong()
+{
+	return start_game();
 }

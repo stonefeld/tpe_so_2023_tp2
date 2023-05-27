@@ -139,30 +139,5 @@ asm_printreg:
 
     ret
 
-; section .data
-;     _RIP db " RIP = ", 0
-;     _RAX db " RAX = ", 0
-;     _RBX db " RBX = ", 0
-;     _RCX db " RCX = ", 0
-;     _RDX db " RDX = ", 0
-;     _RBP db " RBP = ", 0
-;     _RDI db " RDI = ", 0
-;     _RSI db " RSI = ", 0
-;     _RSP db " RSP = ", 0
-;     _R8 db  " R8 = ", 0
-;     _R9 db  " R9 = ", 0
-;     _R10 db " R10 = ", 0
-;     _R11 db " R11 = ", 0
-;     _R12 db " R12 = ", 0
-;     _R13 db " R13 = ", 0
-;     _R14 db " R14 = ", 0
-;     _R15 db " R15 = ", 0
-;     _CS db " CS = ", 0
-;     _FLAGS db " FLAGS = ", 0
-;     _SS db " SS = ", 0
-;
-;     REGS dq _R15, _R14, _R13, _R12, _R11, _R10, _R9, _R8, _RSI, _RDI, _RBP, _RDX, _RCX, _RBX, _RIP, _RAX,_CS, _FLAGS, _RSP, _SS
-;     length equ $-REGS
-
 section .bss
 regs_stack resb 17*8

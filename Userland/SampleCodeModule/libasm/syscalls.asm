@@ -4,6 +4,8 @@ global asm_datetime
 global asm_clear
 global asm_setcolor
 global asm_printreg
+global asm_get_ticks
+global asm_draw_rectangle
 
 asm_getchar:
     push rbp
@@ -63,6 +65,31 @@ asm_setcolor:
     mov rdx,rsi
     mov rsi,rdi
     mov rdi,6
+    int 69h
+
+    leave
+    ret
+asm_draw_rectangle:
+    push rbp
+    mov rbp,rsp
+
+    mov r9, r8
+    mov r8, rcx
+    mov rcx, rdx
+    mov rdx,rsi
+    mov rsi,rdi
+
+    mov rdi,7
+    int 69h
+
+    leave
+    ret
+
+asm_get_ticks:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi, 10
     int 69h
 
     leave

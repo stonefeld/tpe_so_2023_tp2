@@ -19,7 +19,16 @@
         "*.tcc": "c",
         "video.h": "c",
         "text.h": "c",
-        "syscalls.h": "c"
+        "syscalls.h": "c",
+        "cstring": "c",
+        "libasm.h": "c",
+        "deque": "c",
+        "list": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "system_error": "c",
+        "pong.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
 }

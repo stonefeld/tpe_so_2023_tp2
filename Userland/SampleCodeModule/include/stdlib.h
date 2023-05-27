@@ -12,4 +12,6 @@ uint64_t strlen(char* buff);
 uint32_t strtok(char* buff, uint8_t token, char** args, uint32_t size);
 uint32_t strcmp(char* s1, char* s2);
 
+uint32_t clear();
+uint64_t get_ticks();
 #endif

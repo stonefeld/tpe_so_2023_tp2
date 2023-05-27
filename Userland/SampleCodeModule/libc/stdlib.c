@@ -81,21 +81,3 @@ strcmp(char* s1, char* s2)
 	}
 	return *s1 == 0 && *s2 == 0;
 }
-
-
-
-uint32_t
-clear()
-{
-	asm_clear();
-	return 0;
-}
-
-
-uint64_t
-get_ticks()
-{
-	asm_get_ticks();
-	return 0;
-}
-

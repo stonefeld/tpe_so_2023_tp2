@@ -3,11 +3,11 @@
 #include <rtc.h>
 #include <syscalls.h>
 #include <text.h>
-#include <video.h>
 #include <time.h>
+#include <video.h>
+
 enum syscalls
 {
-	
 	SYS_READ = 1,
 	SYS_WRITE,
 	SYS_REGS,
@@ -17,7 +17,9 @@ enum syscalls
 	SYS_DRAW,
 	SYS_WINWIDTH,
 	SYS_WINHEIGHT,
-	SYS_TICKS
+	SYS_TICKS,
+	SYS_CURSOR,
+	SYS_RELEASED
 };
 
 uint64_t
@@ -25,7 +27,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 {
 	switch (rdi) {
 		case SYS_READ: {
-			return kb_getkey();
+			return kb_getpressed();
 		} break;
 
 		case SYS_WRITE: {
@@ -49,7 +51,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_DRAW: {
-			vd_draw_figure(rsi, rdx, rcx, r8, r9);
+			vd_draw_figure(rsi, rdx, rcx, r8);
 		} break;
 
 		case SYS_WINWIDTH: {
@@ -59,9 +61,18 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_WINHEIGHT: {
 			return vd_get_winheight();
 		} break;
+
 		case SYS_TICKS: {
 			return ticks_elapsed();
-		}
+		} break;
+
+		case SYS_CURSOR: {
+			tx_set_cursor(rsi, rdx);
+		} break;
+
+		case SYS_RELEASED: {
+			return kb_getreleased();
+		} break;
 	}
 	return 0;
 }

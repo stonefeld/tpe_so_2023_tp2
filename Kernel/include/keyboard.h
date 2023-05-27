@@ -10,6 +10,7 @@
 #define BUFFER_MAX 10
 
 int keyboard_handler();
-char kb_getkey();
+char kb_getpressed();
+char kb_getreleased();
 
 #endif

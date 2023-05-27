@@ -4,8 +4,12 @@ global asm_datetime
 global asm_clear
 global asm_setcolor
 global asm_printreg
-global asm_get_ticks
-global asm_draw_rectangle
+global asm_draw
+global asm_winwidth
+global asm_winheight
+global asm_getticks
+global asm_cursor
+global asm_kreleased
 
 asm_getchar:
     push rbp
@@ -69,13 +73,13 @@ asm_setcolor:
 
     leave
     ret
-asm_draw_rectangle:
+
+asm_draw
     push rbp
     mov rbp,rsp
 
-    mov r9, r8
-    mov r8, rcx
-    mov rcx, rdx
+    mov r8,rcx
+    mov rcx,rdx
     mov rdx,rsi
     mov rsi,rdi
 
@@ -85,11 +89,53 @@ asm_draw_rectangle:
     leave
     ret
 
-asm_get_ticks:
+asm_winwidth:
     push rbp
     mov rbp,rsp
 
-    mov rdi, 10
+    mov rdi,8
+    int 69h
+
+    leave
+    ret
+
+asm_winheight:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi,9
+    int 69h
+
+    leave
+    ret
+
+asm_getticks:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi,10
+    int 69h
+
+    leave
+    ret
+
+asm_cursor:
+    push rbp
+    mov rbp,rsp
+
+    mov rdx,rsi
+    mov rsi,rdi
+    mov rdi,11
+    int 69h
+
+    leave
+    ret
+
+asm_kreleased:
+    push rbp
+    mov rbp,rsp
+
+    mov rdi,12
     int 69h
 
     leave

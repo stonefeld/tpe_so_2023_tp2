@@ -1,3 +1,5 @@
+#include "text.h"
+
 #include <font.h>
 #include <keyboard.h>
 #include <libasm.h>
@@ -20,11 +22,14 @@ static const uint8_t scancodes[][2] = {
 static const uint32_t keys = sizeof(scancodes) / sizeof(scancodes[0]);
 
 static uint8_t shift = 0, caps_lock = 0;
-static uint8_t buffer[BUFFER_MAX];
-static uint32_t buffer_size = 0;
+static uint8_t buffer_pressed[BUFFER_MAX];
+static uint8_t buffer_released[BUFFER_MAX];
+static uint32_t buffer_pressed_size = 0;
+static uint32_t buffer_released_size = 0;
 
 static uint8_t get_scancode(uint8_t key);
-static void put_buffer(uint8_t code);
+static void put_buffer(uint8_t code, uint8_t* buff, uint32_t* buff_size);
+static uint8_t get_buffer(uint8_t* buff, uint32_t* size);
 
 int
 keyboard_handler()
@@ -39,27 +44,31 @@ keyboard_handler()
 			shift = 0;
 		else if (key == KC_CAPS_LOCK)
 			caps_lock = !caps_lock;
-		uint8_t code = get_scancode(key);
-		if (key >= 0 && key < keys && code != 0) {
-			put_buffer(code);
-			return 1;
+
+		uint8_t code;
+		if (key & 0x80) {
+			code = get_scancode(key - 128);
+			if (key >= 0 && key - 128 < keys && code != 0)
+				put_buffer(code, buffer_released, &buffer_released_size);
+		} else {
+			code = get_scancode(key);
+			if (key >= 0 && key < keys && code != 0)
+				put_buffer(code, buffer_pressed, &buffer_pressed_size);
 		}
 	}
 	return 0;
 }
 
 char
-kb_getkey()
+kb_getpressed()
 {
-	if (buffer_size <= 0)
-		return 0;
+	return get_buffer(buffer_pressed, &buffer_pressed_size);
+}
 
-	// agarramos el primero agregado (como una queue)
-	uint8_t key = buffer[0];
-	for (int i = 1; i < buffer_size; i++)
-		buffer[i - 1] = buffer[i];
-	buffer_size--;
-	return key;
+char
+kb_getreleased()
+{
+	return get_buffer(buffer_released, &buffer_released_size);
 }
 
 static uint8_t
@@ -77,8 +86,22 @@ get_scancode(uint8_t key)
 }
 
 static void
-put_buffer(uint8_t code)
+put_buffer(uint8_t code, uint8_t* buff, uint32_t* size)
 {
-	if (buffer_size < BUFFER_MAX)
-		buffer[buffer_size++] = code;
+	if (*size < BUFFER_MAX)
+		buff[(*size)++] = code;
+}
+
+static uint8_t
+get_buffer(uint8_t* buff, uint32_t* size)
+{
+	if (*size <= 0)
+		return 0;
+
+	// agarramos el primero agregado (como una queue)
+	uint8_t key = buff[0];
+	for (int i = 1; i < *size; i++)
+		buff[i - 1] = buff[i];
+	(*size)--;
+	return key;
 }

@@ -120,7 +120,7 @@ vd_draw_cursor(uint32_t x, uint32_t y)
 }
 
 void
-vd_draw_figure(uint8_t fig, uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+vd_draw_figure(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 {
 	for (int i = y; i < y + h; i++)
 		for (int j = x; j < x + w; j++)

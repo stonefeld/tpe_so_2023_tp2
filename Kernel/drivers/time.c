@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <time.h>
 
 static uint64_t ticks = 0;
@@ -9,13 +8,13 @@ timer_handler()
 	ticks++;
 }
 
-int
+uint64_t
 ticks_elapsed()
 {
 	return ticks;
 }
 
-int
+uint64_t
 seconds_elapsed()
 {
 	return ticks / 18;

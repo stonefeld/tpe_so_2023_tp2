@@ -2,59 +2,154 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-#define TICK_RATE 18
+#define BAR_WIDTH 10
+#define BAR_HEIGHT 80
+#define BORDER 4
+#define MOV_DIFF 20
+#define TICK_RATE 1
+#define BG 0x151f42
+#define FG 0xf5ebbc
 
-uint32_t start_game(){
-    main_menu();
-    main_loop();
+struct player
+{
+	uint32_t x, y;
+	int8_t movement;
+	uint32_t score;
+};
 
+typedef struct player Player;
+
+static uint8_t running = 1;
+static Player p1, p2;
+
+static void main_menu();
+static void game_loop();
+static void draw_window();
+static void init_players();
+static void draw_players();
+static void draw_player(Player* p);
+static uint8_t process_key(uint8_t pressed, uint8_t released);
+
+uint32_t
+start_game()
+{
+	main_menu();
+	game_loop();
+	return 0;
 }
 
-void main_menu(){
-    clear();
-    puts("\t \t   PONG - MAIN MENU \n \n \n \n \n");
-    uint8_t c;
-    puts("\t \t PRESS ENTER TO START \n");
-    while( (c = getchar()) != ' ' );
+static void
+main_menu()
+{
+	asm_setcolor(0xf5ebbc, 0x151f42);
+	asm_clear();
 
-    return;
+	char title[] = "PONG - MAIN MENU";
+	char subtitle[] = "PRESS ENTER TO START";
+	uint32_t title_len = sizeof(title) / sizeof(title[0]);
+	uint32_t subtitle_len = sizeof(subtitle) / sizeof(subtitle[0]);
+
+	asm_cursor((asm_winwidth() / 8 - title_len) / 2, asm_winheight() / (2 * 16) - 1);
+	puts(title);
+	asm_cursor((asm_winwidth() / 8 - subtitle_len) / 2, asm_winheight() / (2 * 16) + 1);
+	puts(subtitle);
+
+	while (getchar() != '\n') {}
 }
 
-void main_loop(){
-    clear();
-    int64_t ref_tick = get_ticks();
+static void
+game_loop()
+{
+	asm_clear();
+	draw_window();
+	init_players();
 
-    uint8_t input;
-    int8_t exit_flag = 0;
-    asm_draw_rectangle(0, 10,90, 10,100);  // testing todo magic numbers
+	uint64_t ref_tick;
+	uint8_t pressed, released;
 
-    while(!exit_flag){
-        if(ref_tick % TICK_RATE == 0){
-            input = getchar();
-            if(input != 0) process_key(input);
-        }
-    } 
-
-    
+	while (running) {
+		if ((ref_tick = asm_getticks()) % TICK_RATE == 0) {
+			pressed = getchar();
+			released = asm_kreleased();
+			if (pressed || released) {
+				process_key(pressed, released);
+				draw_players();
+			}
+		}
+	}
 }
 
-void process_key(uint8_t key){
-    switch (key)
-    {
-    case 'w':
-        puts("ARRIBA  1\t");
-        break;
-    case 's':
-        puts("ABAJO  1\t");
+static void
+draw_window()
+{
+	asm_draw(0, 0, BORDER, asm_winheight());
+	asm_draw(BORDER, 0, asm_winwidth() - BORDER, BORDER);
+	asm_draw(asm_winwidth() - BORDER, 0, BORDER, asm_winheight());
+	asm_draw(BORDER, asm_winheight() - BORDER, asm_winwidth() - BORDER, BORDER);
+}
 
-        break;
-    case 'k':  // UP KEY
-        puts("ARRIBA  2\t");
+static void
+init_players()
+{
+	p1.x = 20;
+	p2.x = asm_winwidth() - BAR_WIDTH - p1.x;
+	p1.y = p2.y = (asm_winheight() - BAR_HEIGHT) / 2;
+	p1.movement = p2.movement = 0;
+	asm_draw(p1.x, p1.y, BAR_WIDTH, BAR_HEIGHT);
+	asm_draw(p2.x, p2.y, BAR_WIDTH, BAR_HEIGHT);
+}
 
-        break;
-    case 'i': // DOWN KEY
-        puts("ABAJO  2\t");
+static void
+draw_players()
+{
+	draw_player(&p1);
+	draw_player(&p2);
+}
 
-        break;
-    }
+static void
+draw_player(Player* p)
+{
+	if (p->movement == 1) {
+		if (p->y + BAR_HEIGHT >= asm_winheight() - MOV_DIFF)
+			return;
+		asm_setcolor(BG, BG);
+		asm_draw(p->x, p->y, BAR_WIDTH, MOV_DIFF);
+		asm_setcolor(FG, BG);
+		asm_draw(p->x, p->y + BAR_HEIGHT, BAR_WIDTH, MOV_DIFF);
+	} else if (p->movement == -1) {
+		if (p->y < MOV_DIFF)
+			return;
+		asm_setcolor(BG, BG);
+		asm_draw(p->x, p->y + BAR_HEIGHT - MOV_DIFF, BAR_WIDTH, MOV_DIFF);
+		asm_setcolor(FG, BG);
+		asm_draw(p->x, p->y - MOV_DIFF, BAR_WIDTH, MOV_DIFF);
+	}
+	p->y += MOV_DIFF * p->movement;
+}
+
+static uint8_t
+process_key(uint8_t pressed, uint8_t released)
+{
+	if (pressed == 'q' || released == 'q') {
+		running = 0;
+		return 0;
+	}
+
+	if (pressed == 'w')
+		p1.movement = -1;
+	else if (pressed == 's')
+		p1.movement = 1;
+
+	if (released == 'w' || released == 's')
+		p1.movement = 0;
+
+	if (pressed == 'i')
+		p2.movement = -1;
+	else if (pressed == 'k')
+		p2.movement = 1;
+
+	if (released == 'i' || released == 'k')
+		p2.movement = 0;
+
+	return p1.movement || p2.movement;
 }

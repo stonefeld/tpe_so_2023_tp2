@@ -3,11 +3,13 @@ global asm_rtc_gettime
 global asm_kbd_active
 global asm_kbd_getkey
 global asm_print_regs
+global give_control_to_user
 
 extern tx_put_int
 extern tx_put_word
 extern tx_put_char
-
+extern get_stack_base
+extern main
 
 section .text
 
@@ -96,6 +98,10 @@ asm_print_regs:
     pop rbp
     ret
 
+    give_control_to_user:
+        call get_stack_base	        ; Get thet stack address
+        mov rsp, rax				; Set up the stack with the returned address
+        call main
 section .data
     _RIP db " RIP = ", 0
     _RAX db " RAX = ", 0

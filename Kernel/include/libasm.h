@@ -7,4 +7,6 @@ extern int asm_rtc_gettime(int fmt);
 extern char asm_kbd_active();
 extern int asm_kbd_getkey();
 
+void give_control_to_user();
+
 #endif

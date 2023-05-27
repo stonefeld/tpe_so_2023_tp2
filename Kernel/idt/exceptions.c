@@ -1,6 +1,7 @@
 #include <libc.h>
 #include <text.h>
-
+#include <libasm.h>
+#include <interrupts.h>
 #define ZERO_EXCEPTION_ID 0
 #define INV_OP_EXCEPTION_ID 1
 
@@ -26,4 +27,11 @@ exception_handler(uint8_t* msg)
 {
 	// REGISTERS ALREADY PRINTED
 	tx_put_word(msg);
+	tx_put_word("\n Presione enter para continuar: ");
+	int c;
+	do{
+		asm_hlt();		// halt
+	} while((c=kb_getkey()) != '\n');
+	tx_clear();
+	give_control_to_user();
 }

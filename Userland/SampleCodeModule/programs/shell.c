@@ -37,7 +37,7 @@ shell_init()
 	load_commands();
 
 	uint32_t len, status = 0;
-
+	int s = 1/0;
 	while (running) {
 		prompt();
 		len = gets(input_buffer, INPUT_SIZE);

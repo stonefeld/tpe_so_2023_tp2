@@ -5,15 +5,15 @@
 uint32_t
 gets(char* buff, uint32_t size)
 {
-	uint8_t c;
+	uint8_t c, state;
 	uint32_t len = 0;
 
-	while ((c = getchar()) != '\n' && len < size - 1) {
-		if (c) {
+	while (!((c = getchar(&state)) == '\n' && state == PRESSED) && len < size - 1) {
+		if (c && state == PRESSED) {
 			if (c != '\b') {
 				putchar(c);
 				buff[len++] = c;
-			} else if (len > 0) {
+			} else if (len > 0 && c != '\n') {
 				putchar(c);
 				len--;
 			}
@@ -25,9 +25,9 @@ gets(char* buff, uint32_t size)
 }
 
 uint8_t
-getchar()
+getchar(uint8_t* state)
 {
-	return asm_getchar();
+	return asm_getchar(state);
 }
 
 void
@@ -80,4 +80,35 @@ strcmp(char* s1, char* s2)
 		s2++;
 	}
 	return *s1 == 0 && *s2 == 0;
+}
+
+uint32_t
+uint_to_base(uint64_t value, char* buff, uint32_t base)
+{
+	char* p = buff;
+	char *p1, *p2;
+	uint32_t digits = 0;
+
+	// Calculate characters for each digit
+	do {
+		uint32_t remainder = value % base;
+		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+		digits++;
+	} while (value /= base);
+
+	// Terminate string in buffer.
+	*p = 0;
+
+	// Reverse string in buffer.
+	p1 = buff;
+	p2 = p - 1;
+	while (p1 < p2) {
+		char tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+		p1++;
+		p2--;
+	}
+
+	return digits;
 }

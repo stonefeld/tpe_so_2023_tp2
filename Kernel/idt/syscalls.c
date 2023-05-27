@@ -19,7 +19,6 @@ enum syscalls
 	SYS_WINHEIGHT,
 	SYS_TICKS,
 	SYS_CURSOR,
-	SYS_RELEASED
 };
 
 uint64_t
@@ -27,7 +26,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 {
 	switch (rdi) {
 		case SYS_READ: {
-			return kb_getpressed();
+			return kb_getchar((uint8_t*)rsi);
 		} break;
 
 		case SYS_WRITE: {
@@ -63,15 +62,11 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_TICKS: {
-			return ticks_elapsed();
+			return ti_ticked();
 		} break;
 
 		case SYS_CURSOR: {
 			tx_set_cursor(rsi, rdx);
-		} break;
-
-		case SYS_RELEASED: {
-			return kb_getreleased();
 		} break;
 	}
 	return 0;

@@ -7,7 +7,7 @@ global asm_printreg
 global asm_draw
 global asm_winwidth
 global asm_winheight
-global asm_getticks
+global asm_ticked
 global asm_cursor
 global asm_kreleased
 
@@ -15,6 +15,7 @@ asm_getchar:
     push rbp
     mov rbp,rsp
 
+    mov rsi,rdi
     mov rdi,1
     int 69h
 
@@ -109,7 +110,7 @@ asm_winheight:
     leave
     ret
 
-asm_getticks:
+asm_ticked:
     push rbp
     mov rbp,rsp
 

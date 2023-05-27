@@ -14,7 +14,7 @@ global asm_irq05_handler
 
 global asm_syscall_handler
 global asm_exception00_handler
-global asm_exception01_handler
+global asm_exception06_handler
 
 extern irq_dispatcher
 extern exception_dispatcher
@@ -165,7 +165,7 @@ asm_exception00_handler:
    excepction_handler 0
 
 ; Invalid Opcode Exception
-asm_exception01_handler:
+asm_exception06_handler:
    excepction_handler 6
 
 ; Calls the syscall handler

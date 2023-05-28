@@ -1,7 +1,6 @@
 #include <time.h>
 
-static uint64_t ticks = 0;
-static uint64_t last_ticks = 0;
+static uint64_t ticks = 0, last_ticks = 0;
 
 void
 timer_handler()
@@ -10,7 +9,7 @@ timer_handler()
 }
 
 uint64_t
-ticks_elapsed()
+ti_ticks()
 {
 	return ticks;
 }
@@ -25,7 +24,7 @@ ti_ticked()
 }
 
 uint64_t
-seconds_elapsed()
+ti_seconds()
 {
 	return ticks / 18;
 }

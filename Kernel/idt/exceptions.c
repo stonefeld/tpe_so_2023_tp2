@@ -11,12 +11,10 @@ enum exceptions
 	INVALID_OPCODE = 6
 };
 
-struct restore_point
+typedef struct
 {
 	uint64_t ip, sp;
-};
-
-typedef struct restore_point RestorePoint;
+} RestorePoint;
 
 static char* registers[] = {
 	"R15: 0x", "R14: 0x", "R13: 0x", "R12: 0x", "R11: 0x", "R10: 0x", "R9:  0x", "R8:  0x", "RSI: 0x",

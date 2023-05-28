@@ -8,13 +8,11 @@
 #define MAX_ARGS 3
 #define INPUT_SIZE 200
 
-struct command
+typedef struct
 {
 	uint32_t (*fn)();
 	char *name, *desc;
-};
-
-typedef struct command Command;
+} Command;
 
 static Command commands[MAX_COMMANDS];
 static uint32_t commands_len = 0;

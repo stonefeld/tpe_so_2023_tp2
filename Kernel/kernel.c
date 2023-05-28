@@ -6,7 +6,6 @@
 #include <libasm.h>
 #include <libc.h>
 #include <moduleLoader.h>
-#include <naiveConsole.h>
 #include <stdint.h>
 #include <text.h>
 #include <video.h>
@@ -52,9 +51,7 @@ init_kernel_binary()
 int
 main()
 {
-	load_idt();
-	// asm_exception00_handler();
-	// tx_put_word((uint8_t*)"HOLAS");
+	idt_loader();
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp());
 	return ((EntryPoint)sample_code_module_addr)();
 }

@@ -24,7 +24,7 @@ IDTEntry idt = (IDTEntry)0x0;  // IDT de 255 entradas
 static void setup_idt_entry(int index, uint64_t offset);
 
 void
-load_idt()
+idt_loader()
 {
 	asm_cli();
 

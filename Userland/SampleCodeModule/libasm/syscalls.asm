@@ -1,143 +1,86 @@
+; i/o interaction
 global asm_getchar
 global asm_putchar
-global asm_datetime
+sys_read       equ 1
+sys_write      equ 2
+
+; drawing
+global asm_draw
 global asm_clear
 global asm_setcolor
-global asm_printreg
-global asm_draw
+global asm_cursor
+sys_draw       equ 3
+sys_clear      equ 4
+sys_color      equ 5
+sys_cursor     equ 6
+
+; properties
 global asm_winwidth
 global asm_winheight
+global asm_fontwidth
+global asm_fontheight
+sys_winwidth   equ 7
+sys_winheight  equ 8
+sys_fontwidth  equ 9
+sys_fontheight equ 10
+
+; system
 global asm_ticked
-global asm_cursor
-global asm_kreleased
+global asm_printreg
+global asm_datetime
+sys_ticks      equ 11
+sys_regs       equ 12
+sys_rtc        equ 13
 
-asm_getchar:
+%macro syscall_handler 1
     push rbp
     mov rbp,rsp
-
-    mov rsi,rdi
-    mov rdi,1
-    int 69h
-
-    leave
-    ret
-
-asm_putchar:
-    push rbp
-    mov rbp,rsp
-
-    mov rsi,rdi
-    mov rdi,2
-    int 69h
-
-    leave
-    ret
-
-asm_printreg:
-    push rbp
-    mov rbp,rsp
-
-    mov rdi,3
-    int 69h
-
-    leave
-    ret
-
-asm_clear:
-    push rbp
-    mov rbp,rsp
-
-    mov rdi,4
-    int 69h
-
-    leave
-    ret
-
-asm_datetime:
-    push rbp
-    mov rbp,rsp
-
-    mov rdi, 5
-    int 69h
-
-    leave
-    ret
-
-asm_setcolor:
-    push rbp
-    mov rbp,rsp
-
-    mov rdx,rsi
-    mov rsi,rdi
-    mov rdi,6
-    int 69h
-
-    leave
-    ret
-
-asm_draw
-    push rbp
-    mov rbp,rsp
-
+    mov r9,r8
     mov r8,rcx
     mov rcx,rdx
     mov rdx,rsi
     mov rsi,rdi
-
-    mov rdi,7
+    mov rdi,%1
     int 69h
-
     leave
     ret
+%endmacro
 
-asm_winwidth:
-    push rbp
-    mov rbp,rsp
+asm_getchar:
+    syscall_handler sys_read
 
-    mov rdi,8
-    int 69h
+asm_putchar:
+    syscall_handler sys_write
 
-    leave
-    ret
+asm_draw
+    syscall_handler sys_draw
 
-asm_winheight:
-    push rbp
-    mov rbp,rsp
+asm_clear:
+    syscall_handler sys_clear
 
-    mov rdi,9
-    int 69h
-
-    leave
-    ret
-
-asm_ticked:
-    push rbp
-    mov rbp,rsp
-
-    mov rdi,10
-    int 69h
-
-    leave
-    ret
+asm_setcolor:
+    syscall_handler sys_color
 
 asm_cursor:
-    push rbp
-    mov rbp,rsp
+    syscall_handler sys_cursor
 
-    mov rdx,rsi
-    mov rsi,rdi
-    mov rdi,11
-    int 69h
+asm_winwidth:
+    syscall_handler sys_winwidth
 
-    leave
-    ret
+asm_winheight:
+    syscall_handler sys_winheight
 
-asm_kreleased:
-    push rbp
-    mov rbp,rsp
+asm_fontwidth:
+    syscall_handler sys_fontwidth
 
-    mov rdi,12
-    int 69h
+asm_fontheight:
+    syscall_handler sys_fontheight
 
-    leave
-    ret
+asm_ticked:
+    syscall_handler sys_ticks
+
+asm_printreg:
+    syscall_handler sys_regs
+
+asm_datetime:
+    syscall_handler sys_rtc

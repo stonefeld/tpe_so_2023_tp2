@@ -36,5 +36,6 @@ docker ps | grep "$container_name" >/dev/null 2>&1 || docker start "$container_n
 # compile the code and run
 docker exec -u user -t "$container_name" \
     /bin/bash -lc "cd /sources/Toolchain && make && cd .. && make $makecmd"
-[ "$?" -eq 0 ] && [ "$RUN" = true ] && ./run.sh $runcmd
-exit 0
+status="$?"
+[ "$status" -eq 0 ] && [ "$RUN" = true ] && ./run.sh $runcmd
+exit $status

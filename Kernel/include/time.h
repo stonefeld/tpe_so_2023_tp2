@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 void timer_handler();
-uint64_t ticks_elapsed();
-uint64_t seconds_elapsed();
+uint64_t ti_ticks();
 uint8_t ti_ticked();
+uint64_t ti_seconds();
 
 #endif

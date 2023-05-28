@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-void tx_write_buff(char* buff, uint64_t size);
 void tx_put_char(char c);
 void tx_put_word(char* str);
 void tx_set_cursor(uint32_t x, uint32_t y);

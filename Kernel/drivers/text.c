@@ -7,20 +7,11 @@
 #define WIDTH vd_get_winwidth() / CHAR_WIDTH
 #define HEIGHT vd_get_winheight() / CHAR_HEIGHT
 
-static void cursor();
-static void enter();
-
 static uint32_t curr_x = 0, curr_y = 0;
 static char datetime[DATE_SIZE];
 
-void
-tx_write_buff(char* buff, uint64_t size)
-{
-	while (size-- && *buff != 0) {
-		tx_put_char(*buff);
-		buff++;
-	}
-}
+static void cursor();
+static void enter();
 
 void
 tx_put_char(char c)
@@ -65,7 +56,8 @@ tx_put_char(char c)
 void
 tx_put_word(char* str)
 {
-	tx_write_buff(str, strlen(str));
+	while (*str != 0)
+		tx_put_char(*str++);
 }
 
 void
@@ -90,7 +82,7 @@ tx_clear()
 void
 tx_put_int(uint64_t x)
 {
-	int_to_str(x, datetime, DATE_SIZE);
+	uint_to_base(x, datetime, DEC);
 	tx_put_word(datetime);
 }
 

@@ -64,17 +64,13 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	char *p1, *p2;
 	uint32_t digits = 0;
 
-	// Calculate characters for each digit
 	do {
 		uint32_t remainder = value % base;
 		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
 		digits++;
 	} while (value /= base);
 
-	// Terminate string in buffer.
 	*p = 0;
-
-	// Reverse string in buffer.
 	p1 = buff;
 	p2 = p - 1;
 	while (p1 < p2) {
@@ -86,23 +82,4 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	}
 
 	return digits;
-}
-
-void
-int_to_str(uint64_t num, char* buff, uint32_t size)
-{
-	int i, resto, len = 0, n;
-
-	n = num;
-	while (n != 0) {
-		len++;
-		n /= 10;
-	}
-
-	for (i = 0; i < len; i++) {
-		resto = num % 10;
-		num = num / 10;
-		buff[len - (i + 1)] = resto + '0';
-	}
-	buff[len] = '\0';
 }

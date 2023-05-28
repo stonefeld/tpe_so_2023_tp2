@@ -50,13 +50,12 @@ struct vbe_mode_info_structure
 	uint8_t reserved1[206];
 } __attribute__((packed));
 
-struct font_info
+typedef struct
 {
 	uint32_t fg, bg;
-};
+} FontInfo;
 
 typedef struct vbe_mode_info_structure* VBEModeInfo;
-typedef struct font_info FontInfo;
 
 VBEModeInfo vbe_mode_info = (VBEModeInfo)0x5C00;
 FontInfo font_style = {

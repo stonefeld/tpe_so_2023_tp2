@@ -19,6 +19,7 @@
 typedef struct
 {
 	uint32_t width, height;
+	uint32_t font_width, font_height;
 } Window;
 
 typedef struct
@@ -28,7 +29,7 @@ typedef struct
 	uint32_t score;
 } Player;
 
-static uint8_t running = 1;
+static uint8_t running;
 static Window window;
 static Player p1, p2;
 static uint8_t buttons[4] = { 0 };
@@ -58,6 +59,8 @@ main_menu()
 
 	window.width = asm_winwidth();
 	window.height = asm_winheight();
+	window.font_width = asm_fontwidth();
+	window.font_height = asm_fontheight();
 
 	char title[] = "PONG - MAIN MENU";
 	char subtitle[] = "PRESS ENTER TO START";
@@ -81,6 +84,7 @@ game_loop()
 	draw_window();
 	init_players();
 
+	running = 1;
 	uint8_t c, state;
 
 	while (running) {
@@ -176,6 +180,10 @@ process_key(uint8_t key, uint8_t state)
 
 		case 'k': {
 			buttons[P2_DOWN] = state;
+		} break;
+
+		case 'q': {
+			running = 0;
 		} break;
 	}
 }

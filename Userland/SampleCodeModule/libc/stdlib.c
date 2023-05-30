@@ -8,12 +8,17 @@ gets(char* buff, uint32_t size)
 	uint8_t c, state;
 	uint32_t len = 0;
 
-	while (!((c = getchar(&state)) == '\n' && state == PRESSED) && len < size - 1) {
+	while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
 		if (c && state == PRESSED) {
 			if (c != '\b') {
-				putchar(c);
-				buff[len++] = c;
+				if (len < size - 1) {
+					putchar(c);
+					buff[len++] = c;
+				}
 			} else if (len > 0 && c != '\n') {
+				if (buff[len - 1] == '\t')
+					for (int i = 0; i < 7; i++)
+						putchar(c);
 				putchar(c);
 				len--;
 			}

@@ -117,3 +117,46 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 
 	return digits;
 }
+
+uint32_t 
+hex_to_uint(char* hexCode) 
+{
+    uint32_t uint32Code = 0;
+    
+    if (hexCode[0] == '0' && hexCode[1] == 'x') {
+        hexCode += 2;
+    }
+    
+    for (int i = 0; hexCode[i] != '\0'; i++) {
+        char c = hexCode[i];
+        
+        uint32_t value = 0;
+        if (c >= '0' && c <= '9') {
+            value = c - '0';
+        } else if (c >= 'A' && c <= 'F') {
+            value = 10 + (c - 'A');
+        } else if (c >= 'a' && c <= 'f') {
+            value = 10 + (c - 'a');
+        } else {
+            return 0;
+        }
+        
+        uint32Code = (uint32Code << 4) | value;
+    }
+    
+    return uint32Code;
+}
+uint8_t is_hex_color_code(char* code) {
+    if (strlen(code) != 8 || code[0] != '0' || code[1] != 'x') {
+        return 0;
+    }
+    
+    for (int i = 2; i < 7; i++) {
+        char c = code[i];
+        if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) {
+            return 0;
+        }
+    }
+    
+    return 1;
+}

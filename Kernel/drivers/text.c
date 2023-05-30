@@ -8,6 +8,7 @@
 #define HEIGHT vd_get_winheight() / CHAR_HEIGHT
 
 static uint32_t curr_x = 0, curr_y = 0;
+static uint8_t show_cursor = 1;
 static char datetime[DATE_SIZE];
 
 static void cursor();
@@ -66,11 +67,19 @@ tx_set_cursor(uint32_t x, uint32_t y)
 {
 	if (x >= WIDTH || x < 0 || y >= HEIGHT || y < 0)
 		return;
-	vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+	if (show_cursor)
+		vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
 	curr_x = x;
 	curr_y = y;
 	cursor();
 }
+
+void
+tx_show_cursor(uint8_t show)
+{
+	show_cursor = show;
+}
+
 void
 tx_clear()
 {
@@ -90,7 +99,8 @@ tx_put_int(uint64_t x)
 static void
 cursor()
 {
-	vd_draw_cursor(curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+	if (show_cursor)
+		vd_draw_cursor(curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
 }
 
 static void

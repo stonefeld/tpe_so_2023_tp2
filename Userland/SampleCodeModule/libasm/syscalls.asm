@@ -1,36 +1,38 @@
 ; i/o interaction
 global asm_getchar
 global asm_putchar
-sys_read       equ 1
-sys_write      equ 2
+sys_read         equ 1
+sys_write        equ 2
 
 ; drawing
 global asm_draw
 global asm_clear
 global asm_setcolor
 global asm_cursor
-sys_draw       equ 3
-sys_clear      equ 4
-sys_color      equ 5
-sys_cursor     equ 6
+global asm_show_cursor
+sys_draw         equ 3
+sys_clear        equ 4
+sys_color        equ 5
+sys_cursor       equ 6
+sys_show_cursor  equ 7
 
 ; properties
 global asm_winwidth
 global asm_winheight
 global asm_fontwidth
 global asm_fontheight
-sys_winwidth   equ 7
-sys_winheight  equ 8
-sys_fontwidth  equ 9
-sys_fontheight equ 10
+sys_winwidth     equ 8
+sys_winheight    equ 9
+sys_fontwidth    equ 10
+sys_fontheight   equ 11
 
 ; system
 global asm_ticked
 global asm_printreg
 global asm_datetime
-sys_ticks      equ 11
-sys_regs       equ 12
-sys_rtc        equ 13
+sys_ticks        equ 12
+sys_regs         equ 13
+sys_rtc          equ 14
 
 %macro syscall_handler 1
     push rbp
@@ -63,6 +65,9 @@ asm_setcolor:
 
 asm_cursor:
     syscall_handler sys_cursor
+
+asm_show_cursor:
+    syscall_handler sys_show_cursor
 
 asm_winwidth:
     syscall_handler sys_winwidth

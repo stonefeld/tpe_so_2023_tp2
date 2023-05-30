@@ -52,12 +52,6 @@ exc_printreg(uint64_t* stack)
 		tx_put_word(buff);
 		tx_put_char('\n');
 	}
-
-	// solo queda imprimir el rsp
-	tx_put_word(registers[registers_len - 1]);
-	uint_to_base(stack[registers_len - 1], buff, HEX);
-	tx_put_word(buff);
-	tx_put_char('\n');
 }
 
 void

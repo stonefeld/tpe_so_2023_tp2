@@ -17,6 +17,7 @@ void
 tx_put_char(char c)
 {
 	switch (c) {
+		
 		case '\b': {
 			if (curr_x == 0 && curr_y == 0)
 				return;
@@ -32,8 +33,7 @@ tx_put_char(char c)
 			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
 			enter();
 		} break;
-
-		case '\t': {
+	case '\t': {
 			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
 			curr_x += 8;
 			if (curr_x >= WIDTH) {
@@ -43,6 +43,7 @@ tx_put_char(char c)
 			}
 		} break;
 
+	
 		default: {
 			vd_put_char(c, curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
 			curr_x++;

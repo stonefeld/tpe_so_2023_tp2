@@ -5,7 +5,10 @@
 
 #define BAR_WIDTH 10
 #define BAR_HEIGHT 80
+#define BALL_SIZE 10
+#define INIT_SPEED 10
 #define BORDER 4
+#define HIT_BAG 40
 #define MOV_DIFF 20
 #define TICK_RATE 1
 #define BG 0x151f42
@@ -29,9 +32,19 @@ typedef struct
 	uint32_t score;
 } Player;
 
+typedef struct
+{
+	uint32_t x,y;
+	int8_t movement_x, movement_y;
+	int8_t hit;
+	
+} Ball;
+
 static uint8_t running;
 static Window window;
 static Player p1, p2;
+static Ball ball;
+
 static uint8_t buttons[4] = { 0 };
 
 static void main_menu();
@@ -42,6 +55,9 @@ static void update_players();
 static void draw_players();
 static void draw_player(Player* p);
 static void process_key(uint8_t key, uint8_t state);
+static void init_ball();
+static void check_hit();
+static void draw_ball();
 
 uint32_t
 start_game()
@@ -54,7 +70,7 @@ start_game()
 static void
 main_menu()
 {
-	asm_setcolor(0xf5ebbc, 0x151f42);
+	asm_setcolor(FG, BG);
 	asm_clear();
 
 	window.width = asm_winwidth();
@@ -83,7 +99,7 @@ game_loop()
 	asm_clear();
 	draw_window();
 	init_players();
-
+	init_ball();
 	running = 1;
 	uint8_t c, state;
 
@@ -93,6 +109,7 @@ game_loop()
 		if (asm_ticked()) {
 			update_players();
 			draw_players();
+			draw_ball();
 		}
 	}
 }
@@ -133,7 +150,59 @@ init_players()
 	asm_draw(p1.x, p1.y, BAR_WIDTH, BAR_HEIGHT);
 	asm_draw(p2.x, p2.y, BAR_WIDTH, BAR_HEIGHT);
 }
+static void 
+init_ball(){
+	ball.x = window.width/2;
+	ball.y = window.height/2;
+	/*
+		TODO: randomizar el disparo inicial
+	*/
+	ball.movement_x = INIT_SPEED;
+	ball.movement_y = INIT_SPEED;
+	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
+}
 
+/*
+	Check for hits, handle and update movement directions.
+*/
+
+static void 
+check_hit(){
+	// sin el 25 se rompia el borde inferior, mero ajuste
+	if(ball.y + ball.movement_y >= window.height + ball.movement_y - HIT_BAG || ball.y + ball.movement_y <= HIT_BAG){ // Hit en el eje Y
+		ball.movement_y = - ball.movement_y;
+	}
+	if(ball.x <= HIT_BAG + BAR_WIDTH || ball.x >= window.width - HIT_BAG - BAR_WIDTH){ // Hit en el eje X
+
+		if( (ball.y >= p1.y && ball.y <= p1.y + BAR_HEIGHT) || (ball.y >= p2.y && ball.y <= p2.y + BAR_HEIGHT) ){   //  Hit con la barra
+
+
+			/*
+			TODO: el angulo de salida debería depender de la parte de la barra con la que impacta la bola
+			*/
+			ball.movement_x = - ball.movement_x;
+			ball.movement_y = - ball.movement_y;
+		}
+		else{
+			asm_setcolor(BG, BG);
+			asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE);  // Hit con las paredes laterales
+			asm_setcolor(FG, BG);
+			init_ball();
+
+			// update score
+		}
+	}
+}
+static void
+draw_ball(){
+	check_hit();
+	asm_setcolor(BG, BG);
+	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
+	asm_setcolor(FG, BG);
+	asm_draw(ball.x + ball.movement_x, ball.y + ball.movement_y, BALL_SIZE, BALL_SIZE);
+	ball.x += ball.movement_x;
+	ball.y += ball.movement_y;
+}
 static void
 draw_players()
 {
@@ -144,6 +213,7 @@ draw_players()
 static void
 draw_player(Player* p)
 {
+	
 	if (p->movement == 1) {
 		if (p->y + BAR_HEIGHT >= window.height - MOV_DIFF)
 			return;
@@ -159,6 +229,7 @@ draw_player(Player* p)
 		asm_setcolor(FG, BG);
 		asm_draw(p->x, p->y - MOV_DIFF, BAR_WIDTH, MOV_DIFF);
 	}
+	
 	p->y += MOV_DIFF * p->movement;
 }
 
@@ -184,6 +255,8 @@ process_key(uint8_t key, uint8_t state)
 
 		case 'q': {
 			running = 0;
+			asm_setcolor(0x0, 0x0);
+			asm_clear();
 		} break;
 	}
 }

@@ -52,7 +52,7 @@ asm_getchar:
 asm_putchar:
     syscall_handler sys_write
 
-asm_draw
+asm_draw:
     syscall_handler sys_draw
 
 asm_clear:

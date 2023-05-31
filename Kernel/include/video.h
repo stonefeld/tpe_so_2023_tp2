@@ -20,5 +20,6 @@ void vd_set_color(uint32_t fg, uint32_t bg);
 void vd_clear();
 void vd_clear_line(uint32_t y);
 void vd_clear_bg(uint32_t bg);
+void vd_print_wallpaper();
 
 #endif

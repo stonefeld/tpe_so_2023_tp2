@@ -17,16 +17,17 @@ typedef struct
 static Command commands[MAX_COMMANDS];
 static uint32_t commands_len = 0;
 static char* args[MAX_ARGS];
-static uint32_t args_leng=0;
+static uint32_t args_leng = 0;
 static char input_buffer[INPUT_SIZE];
 static uint8_t running = 1;
-static uint32_t fg=0xFFFFFF;
-static uint32_t bg=0x000000;
+static uint32_t fg = 0xFFFFFF;
+static uint32_t bg = 0x000000;
 
 static void load_commands();
 static void load_command(uint32_t (*fn)(), char* name, char* desc);
 static uint32_t process_input(char* buff, uint32_t size);
 static void prompt();
+static void show_wallpaper();
 
 // commands
 static uint32_t help();
@@ -42,6 +43,8 @@ static uint32_t setcolors();
 uint32_t
 shell_init()
 {
+	// show_wallpaper();
+
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n");
 	load_commands();
 
@@ -51,7 +54,6 @@ shell_init()
 		len = gets(input_buffer, INPUT_SIZE);
 		asm_setcolor(fg, bg);
 		status = process_input(input_buffer, len);
-		
 	}
 
 	return status;
@@ -68,7 +70,7 @@ load_commands()
 	load_command(testioe, "testioe", "    Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "    Tests the 'Zero Division Error Exception'");
 	load_command(pong, "pong", "       Pong (The Game)");
-	load_command(setcolors,"setcolors", "  Sets background and foreground colors received in format '0xXXXXXX'");
+	load_command(setcolors, "setcolors", "  Sets background and foreground colors received in format '0xXXXXXX'");
 }
 
 static void
@@ -90,7 +92,7 @@ process_input(char* buff, uint32_t size)
 		puts("Wrong ammount of arguments\n");
 		return -1;
 	}
-	args_leng=args_len;
+	args_leng = args_len;
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name))
 			return commands[i].fn();
@@ -106,11 +108,19 @@ prompt()
 {
 	asm_setcolor(0x00ff00, 0x000000);
 	puts("user@qemu");
-	asm_setcolor(fg,bg);
+	asm_setcolor(fg, bg);
 	putchar(':');
 	putchar('~');
 	puts("$ ");
-	
+}
+
+static void
+show_wallpaper()
+{
+	asm_wallpaper();
+	uint8_t status;
+	while (!(getchar(&status) == '\n' && status == PRESSED)) {}
+	asm_clear();
 }
 
 static uint32_t
@@ -177,15 +187,13 @@ pong()
 static uint32_t
 setcolors()
 {
-	if(args_leng!=3||!is_hex_color_code(args[1])||!is_hex_color_code(args[2]))
-	{
+	if (args_leng != 3 || !is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
 		puts("Invalid color codes \n");
 		return 0;
 	}
-	bg=hex_to_uint(args[1]);
-	fg=hex_to_uint(args[2]);
-	asm_setcolor(fg,bg);
+	bg = hex_to_uint(args[1]);
+	fg = hex_to_uint(args[2]);
+	asm_setcolor(fg, bg);
 	clear();
 	return 0;
-
 }

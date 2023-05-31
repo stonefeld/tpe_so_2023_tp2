@@ -10,29 +10,31 @@ global asm_clear
 global asm_setcolor
 global asm_cursor
 global asm_show_cursor
+global asm_wallpaper
 sys_draw         equ 3
 sys_clear        equ 4
 sys_color        equ 5
 sys_cursor       equ 6
 sys_show_cursor  equ 7
+sys_wallpaper    equ 8
 
 ; properties
 global asm_winwidth
 global asm_winheight
 global asm_fontwidth
 global asm_fontheight
-sys_winwidth     equ 8
-sys_winheight    equ 9
-sys_fontwidth    equ 10
-sys_fontheight   equ 11
+sys_winwidth     equ 9
+sys_winheight    equ 10
+sys_fontwidth    equ 11
+sys_fontheight   equ 12
 
 ; system
 global asm_ticked
 global asm_printreg
 global asm_datetime
-sys_ticks        equ 12
-sys_regs         equ 13
-sys_rtc          equ 14
+sys_ticks        equ 13
+sys_regs         equ 14
+sys_rtc          equ 15
 
 %macro syscall_handler 1
     push rbp
@@ -68,6 +70,9 @@ asm_cursor:
 
 asm_show_cursor:
     syscall_handler sys_show_cursor
+
+asm_wallpaper:
+    syscall_handler sys_wallpaper
 
 asm_winwidth:
     syscall_handler sys_winwidth

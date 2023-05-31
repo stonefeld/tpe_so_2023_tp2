@@ -19,6 +19,7 @@ enum syscalls
 	SYS_COLOR,
 	SYS_CURSOR,
 	SYS_SHOW_CURSOR,
+	SYS_WALLPAPER,
 
 	// properties
 	SYS_WINWIDTH,
@@ -58,6 +59,10 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 
 		case SYS_SHOW_CURSOR: {
 			tx_show_cursor(rsi);
+		} break;
+		
+		case SYS_WALLPAPER: {
+			vd_print_wallpaper();
 		} break;
 
 		case SYS_CURSOR: {

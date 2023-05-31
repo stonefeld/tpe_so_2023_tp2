@@ -1,6 +1,7 @@
 #include <font.h>
 #include <libc.h>
 #include <video.h>
+#include <wallpapers.h>
 
 #define PIXEL vbe_mode_info->bpp / 8
 
@@ -62,6 +63,8 @@ FontInfo font_style = {
 	.bg = 0x0,
 	.fg = WHITE,
 };
+
+
 
 uint16_t
 vd_get_winwidth()
@@ -163,3 +166,12 @@ vd_clear_bg(uint32_t bg)
 		for (int j = 0; j < vbe_mode_info->width; j++)
 			vd_put_pixel(bg, j, i);
 }
+void vd_print_wallpaper(){
+ for (uint32_t y = 25; y < 775; y++)
+    {
+        for (uint32_t x = 0; x < 800; x++)
+        {
+            //vd_put_pixel(image_data[x][y],x,y-25);
+			vd_put_pixel(0x0000FF,x,y);
+        }
+    }}

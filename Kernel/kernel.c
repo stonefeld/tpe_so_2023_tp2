@@ -8,6 +8,7 @@
 #include <moduleLoader.h>
 #include <stdint.h>
 #include <text.h>
+#include <time.h>
 #include <video.h>
 
 typedef int (*EntryPoint)();
@@ -52,6 +53,12 @@ int
 main()
 {
 	idt_loader();
+
+	// print intro wallpaper
+	vd_print_wallpaper(2);
+	ti_sleep(3);
+	vd_clear();
+
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp());
 	return ((EntryPoint)sample_code_module_addr)();
 }

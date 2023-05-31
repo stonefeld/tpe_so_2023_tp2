@@ -8,19 +8,19 @@
 #include <video.h>
 
 static const uint8_t scancodes[][2] = {
-	{ 0, 0 },       { KC_ESC, KC_ESC }, { '1', '!' }, { '2', '@' }, { '3', '#' }, { '4', '$' },  { '5', '%' },
-	{ '6', '^' },   { '7', '&' },       { '8', '*' }, { '9', '(' }, { '0', ')' }, { '-', '_' },  { '=', '+' },
-	{ '\b', '\b' }, { '\t', '\t' },     { 'q', 'Q' }, { 'w', 'W' }, { 'e', 'E' }, { 'r', 'R' },  { 't', 'T' },
-	{ 'y', 'Y' },   { 'u', 'U' },       { 'i', 'I' }, { 'o', 'O' }, { 'p', 'P' }, { '[', '{' },  { ']', '}' },
-	{ '\n', '\n' }, { 0, 0 },           { 'a', 'A' }, { 's', 'S' }, { 'd', 'D' }, { 'f', 'F' },  { 'g', 'G' },
-	{ 'h', 'H' },   { 'j', 'J' },       { 'k', 'K' }, { 'l', 'L' }, { ';', ':' }, { '\'', '"' }, { '`', '~' },
-	{ 0, 0 },       { '\\', '|' },      { 'z', 'Z' }, { 'x', 'X' }, { 'c', 'C' }, { 'v', 'V' },  { 'b', 'B' },
-	{ 'n', 'N' },   { 'm', 'M' },       { ',', '<' }, { '.', '>' }, { '/', '?' }, { 0, 0 },      { 0, 0 },
+	{ 0, 0 },       { 0, 0 },       { '1', '!' }, { '2', '@' }, { '3', '#' }, { '4', '$' },  { '5', '%' },
+	{ '6', '^' },   { '7', '&' },   { '8', '*' }, { '9', '(' }, { '0', ')' }, { '-', '_' },  { '=', '+' },
+	{ '\b', '\b' }, { '\t', '\t' }, { 'q', 'Q' }, { 'w', 'W' }, { 'e', 'E' }, { 'r', 'R' },  { 't', 'T' },
+	{ 'y', 'Y' },   { 'u', 'U' },   { 'i', 'I' }, { 'o', 'O' }, { 'p', 'P' }, { '[', '{' },  { ']', '}' },
+	{ '\n', '\n' }, { 0, 0 },       { 'a', 'A' }, { 's', 'S' }, { 'd', 'D' }, { 'f', 'F' },  { 'g', 'G' },
+	{ 'h', 'H' },   { 'j', 'J' },   { 'k', 'K' }, { 'l', 'L' }, { ';', ':' }, { '\'', '"' }, { '`', '~' },
+	{ 0, 0 },       { '\\', '|' },  { 'z', 'Z' }, { 'x', 'X' }, { 'c', 'C' }, { 'v', 'V' },  { 'b', 'B' },
+	{ 'n', 'N' },   { 'm', 'M' },   { ',', '<' }, { '.', '>' }, { '/', '?' }, { 0, 0 },      { 0, 0 },
 	{ 0, 0 },       { ' ', ' ' },
 };
 static const uint32_t keys = sizeof(scancodes) / sizeof(scancodes[0]);
 
-static uint8_t shift = 0, caps_lock = 0;
+static uint8_t shift = 0, caps_lock = 0, control = 0;
 static uint8_t buffer_chars[BUFFER_MAX];
 static uint8_t buffer_states[BUFFER_MAX];
 static uint32_t buffer_size = 0;
@@ -39,14 +39,20 @@ keyboard_handler()
 			shift = 1;
 		else if (key == KC_L_SHIFT_RELEASE || key == KC_R_SHIFT_REREASE)
 			shift = 0;
-		else if (key == KC_CAPS_LOCK)
+		if (key == KC_CAPS_LOCK)
 			caps_lock = !caps_lock;
+		if (key == KC_L_CTRL)
+			control = 1;
+		else if (key == KC_L_CTRL_RELEASE)
+			control = 0;
 
 		uint8_t code, state;
 		state = (key & 0x80 ? RELEASED : PRESSED);
 		key -= (key & 0x80 ? 0x80 : 0);
 		code = get_scancode(key);
-		if (key >= 0 && key < keys && code != 0)
+		if (control && (code == 'r' || code == 'R'))
+			asm_setreg();
+		else if (key >= 0 && key < keys && code != 0)
 			put_buffer(code, state);
 	}
 	return 0;

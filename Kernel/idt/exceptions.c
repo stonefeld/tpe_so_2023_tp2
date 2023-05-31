@@ -64,23 +64,23 @@ exc_set_restore_point(uint64_t ip, uint64_t sp)
 static void
 exception_handler(char* msg)
 {
-	vd_set_color(0xFFFFFF, 0xFF0000);
+	//vd_set_color(0xFFFFFF, 0xFF0000);
 	tx_put_word(msg);
-	vd_set_color(0xFFFFFF, 0x000000);
+	//vd_set_color(0xFFFFFF, 0x000000);
 	tx_put_char('\n');
 }
 
 static void
 restore_state(uint64_t* stack)
 {
-	vd_set_color(0xFFFFFF, 0x2020CF);
+	//vd_set_color(0xFFFFFF, 0x2020CF);
 	tx_put_word("Restoring state from: IP=0x");
 	uint_to_base(rp.ip, buff, HEX);
 	tx_put_word(buff);
 	tx_put_word("  SP=0x");
 	uint_to_base(rp.sp, buff, HEX);
 	tx_put_word(buff);
-	vd_set_color(0xFFFFFF, 0x000000);
+	//vd_set_color(0xFFFFFF, 0x000000);
 	tx_put_word("\n\n");
 
 	stack[registers_len - 2] = rp.ip;

@@ -179,7 +179,7 @@ static uint32_t
 pong()
 {
 	uint8_t ret = start_game();
-	asm_setcolor(0xFFFFFF, 0x000000);
+	asm_setcolor(fg, bg);
 	asm_clear();
 	return ret;
 }

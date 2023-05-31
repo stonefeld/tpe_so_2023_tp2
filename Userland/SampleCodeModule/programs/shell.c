@@ -17,7 +17,7 @@ typedef struct
 static Command commands[MAX_COMMANDS];
 static uint32_t commands_len = 0;
 static char* args[MAX_ARGS];
-static uint32_t args_leng = 0;
+static uint32_t args_len = 0;
 static char input_buffer[INPUT_SIZE];
 static uint8_t running = 1;
 static uint32_t fg = 0xFFFFFF;
@@ -87,12 +87,11 @@ load_command(uint32_t (*fn)(), char* name, char* desc)
 static uint32_t
 process_input(char* buff, uint32_t size)
 {
-	int args_len = strtok(buff, ' ', args, MAX_ARGS);
+	args_len = strtok(buff, ' ', args, MAX_ARGS);
 	if (args_len <= 0 || args_len > MAX_ARGS) {
 		puts("Wrong ammount of arguments\n");
 		return -1;
 	}
-	args_leng = args_len;
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name))
 			return commands[i].fn();
@@ -106,7 +105,7 @@ process_input(char* buff, uint32_t size)
 static void
 prompt()
 {
-	asm_setcolor(0x00ff00, 0x000000);
+	asm_setcolor(0x00ff00, bg);
 	puts("user@qemu");
 	asm_setcolor(fg, bg);
 	putchar(':');
@@ -187,7 +186,7 @@ pong()
 static uint32_t
 setcolors()
 {
-	if (args_leng != 3 || !is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
+	if (args_len != 3 || !is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
 		puts("Invalid color codes \n");
 		return 0;
 	}

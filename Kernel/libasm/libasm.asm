@@ -3,6 +3,7 @@ global asm_rtc_gettime
 global asm_kbd_active
 global asm_kbd_getkey
 global asm_getsp
+global asm_setreg
 global asm_printreg
 
 extern tx_put_int
@@ -112,7 +113,7 @@ asm_getsp:
 ;     mov rsp, rax         ; Set up the stack with the returned address
 ;     call main
 
-asm_printreg:
+asm_setreg:
     mov [regs_stack],r15
     mov [regs_stack+1*8],r14
     mov [regs_stack+2*8],r13
@@ -133,10 +134,11 @@ asm_printreg:
     add rsp,8
     mov [regs_stack+16*8],rsp
     sub rsp,8
+    ret
 
+asm_printreg:
     mov rdi,regs_stack
     call exc_printreg
-
     ret
 
 section .bss

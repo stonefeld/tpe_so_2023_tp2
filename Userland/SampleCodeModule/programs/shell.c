@@ -43,7 +43,7 @@ static uint32_t setcolors();
 uint32_t
 shell_init()
 {
-	// show_wallpaper();
+	show_wallpaper();
 
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n");
 	load_commands();

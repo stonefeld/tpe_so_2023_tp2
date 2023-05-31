@@ -64,8 +64,6 @@ FontInfo font_style = {
 	.fg = WHITE,
 };
 
-
-
 uint16_t
 vd_get_winwidth()
 {
@@ -166,12 +164,15 @@ vd_clear_bg(uint32_t bg)
 		for (int j = 0; j < vbe_mode_info->width; j++)
 			vd_put_pixel(bg, j, i);
 }
-void vd_print_wallpaper(){
- for (uint32_t y = 25; y < 775; y++)
-    {
-        for (uint32_t x = 0; x < 800; x++)
-        {
-            //vd_put_pixel(image_data[x][y],x,y-25);
-			vd_put_pixel(0x0000FF,x,y);
-        }
-    }}
+
+void
+vd_print_wallpaper()
+{
+	// for (uint32_t y = 25; y < 775; y++)
+	// 	for (uint32_t x = 0; x < 800; x++)
+	// 		// vd_put_pixel(image_data[x][y],x,y-25);
+	// 		vd_put_pixel(0x0000FF, x, y);
+	for (uint32_t i = 0; i < wall_height; i++)
+		for (uint32_t j = 0; j < wall_width; j++)
+			vd_put_pixel(image_data[i][j], j, i);
+}

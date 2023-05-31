@@ -172,7 +172,14 @@ vd_print_wallpaper()
 	// 	for (uint32_t x = 0; x < 800; x++)
 	// 		// vd_put_pixel(image_data[x][y],x,y-25);
 	// 		vd_put_pixel(0x0000FF, x, y);
+	int startx=(((vbe_mode_info->width)-wall_width)/4);
+	int starty=(((vbe_mode_info->height)-wall_height)/4);
 	for (uint32_t i = 0; i < wall_height; i++)
-		for (uint32_t j = 0; j < wall_width; j++)
-			vd_put_pixel(image_data[i][j], j, i);
+		for (uint32_t j = 0; j < wall_width; j++){
+			for(uint32_t k=0;k<4;k++){
+				for(uint32_t l=0;l<4;l++){
+			vd_put_pixel(image_data[i][j], j*4+startx-k, i*4+starty-l);
+			
+			}}
+		}
 }

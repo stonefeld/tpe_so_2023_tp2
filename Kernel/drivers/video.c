@@ -4,6 +4,8 @@
 #include <wallpapers.h>
 
 #define PIXEL vbe_mode_info->bpp / 8
+#define LOADING_X_START_POINT wall_width - 6*10
+#define LOADING_Y_START_POINT wall_height*2
 
 // extracted from https://wiki.osdev.org/User:Omarrx024/VESA_Tutorial
 struct vbe_mode_info_structure
@@ -176,4 +178,11 @@ vd_print_wallpaper(uint32_t size)
 			for (uint32_t i = 0; i < size; i++)
 				for (uint32_t j = 0; j < size; j++)
 					vd_put_pixel(image_data[y][x], x * size + startx + j, y * size + starty + i);
+
+	char text[] = "Loading ...";
+	for (int k = 0 ; text[k] != '\0'; k++)
+	{
+		vd_put_char(text[k], startx + 12*k + LOADING_Y_START_POINT, starty + LOADING_Y_START_POINT);
+	}
+	
 }

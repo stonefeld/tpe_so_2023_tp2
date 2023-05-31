@@ -182,7 +182,7 @@ vd_print_wallpaper(uint32_t size)
 	char text[] = "Loading ...";
 	for (int k = 0 ; text[k] != '\0'; k++)
 	{
-		vd_put_char(text[k], startx + 12*k + LOADING_Y_START_POINT, starty + LOADING_Y_START_POINT);
+		vd_put_char(text[k], startx + 10*k + LOADING_Y_START_POINT, starty + LOADING_Y_START_POINT);
 	}
 	
 }

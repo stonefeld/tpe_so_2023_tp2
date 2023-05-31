@@ -29,5 +29,6 @@ extern uint32_t asm_fontheight();
 extern uint8_t asm_ticked();
 extern void asm_printreg();
 extern void asm_datetime();
+extern void asm_sound(uint32_t freq, uint32_t duration);
 
 #endif

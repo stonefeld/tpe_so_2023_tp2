@@ -6,6 +6,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+#include <sound.h>
 
 enum syscalls
 {
@@ -30,7 +31,8 @@ enum syscalls
 	// system
 	SYS_TICKS,
 	SYS_REGS,
-	SYS_RTC
+	SYS_RTC,
+	SYS_SOUND
 };
 
 uint64_t
@@ -95,6 +97,10 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 
 		case SYS_RTC: {
 			rtc_datetime();
+		} break;
+
+		case SYS_SOUND: {
+			asm_sound(rsi, rdx);
 		} break;
 	}
 	return 0;

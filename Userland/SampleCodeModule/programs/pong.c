@@ -284,6 +284,7 @@ update_ball()
 			p2.score++;
 		if (ball.x + ball.speed_x + BALL_SIZE > p2.x + BAR_WIDTH)
 			p1.score++;
+		//asm_sound(440, 3000);
 	}
 }
 

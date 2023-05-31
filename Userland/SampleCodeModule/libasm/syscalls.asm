@@ -32,9 +32,11 @@ sys_fontheight   equ 12
 global asm_ticked
 global asm_printreg
 global asm_datetime
+global asm_sound
 sys_ticks        equ 13
 sys_regs         equ 14
 sys_rtc          equ 15
+sys_sound        equ 16
 
 %macro syscall_handler 1
     push rbp
@@ -94,3 +96,6 @@ asm_printreg:
 
 asm_datetime:
     syscall_handler sys_rtc
+
+asm_sound:
+    syscall_handler sys_sound

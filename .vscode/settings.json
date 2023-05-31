@@ -21,7 +21,8 @@
         "*.tcc": "c",
         "chrono": "c",
         "string_view": "c",
-        "functional": "c"
+        "functional": "c",
+        "rtc.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
 }

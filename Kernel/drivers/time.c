@@ -31,9 +31,9 @@ ti_seconds()
 }
 
 void
-ti_sleep(uint32_t seconds)
+ti_sleep(uint32_t ticks_wanted)
 {
-	uint32_t last_sec = ti_seconds();
-	while (ti_seconds() - last_sec < seconds)
+	uint32_t last = ticks;
+	while (ticks - last < ticks_wanted)
 		asm_hlt();
 }

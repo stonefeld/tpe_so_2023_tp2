@@ -6,6 +6,7 @@ global asm_getsp
 global asm_setreg
 global asm_printreg
 global asm_sound
+global asm_nosound
 
 extern tx_put_int
 extern tx_put_word
@@ -138,36 +139,41 @@ asm_setreg:
     ret
 
 asm_printreg:
+    push rbp
+    mov rbp,rsp
+
     mov rdi,regs_stack
     call exc_printreg
+
+    leave
     ret
 
-; Primer parametro es la frecuencia, y segundo la duracion
 asm_sound:
     push rbp
     mov rbp,rsp
 
-    mov al, 182         ;Configuro altavoz
-    out 43h, al
+    mov al,182         ; Configuro altavoz
+    out 43h,al
 
-    mov ax, [rbp + 8]   ;Frecuencia en bx
-    out 42h, al         ;Envio byte - significativo
-    mov al, ah
-    out 42h, al         ;Envio byte + significativo
+    mov ax,di          ; Frecuencia en bx
+    out 42h,al         ; Envio byte - significativo
+    mov al,ah
+    out 42h,al         ; Envio byte + significativo
 
-    mov al, 3           ;Habilito altavoz
-    out 61h, al
+    in al,61h
+    or al,3h
+    out 61h,al
 
-    mov cx, [rbp + 12]
-    mov dx, 0
+    leave
+    ret
 
-sigue_sonando:
-    in al, 61h
-    and al, 1
-    jnz sigue_sonando
+asm_nosound:
+    push rbp
+    mov rbp,rsp
 
-    mov al, 0           ;Freno el altavoz
-    out 61h, al
+    in al,61h
+    and al,0fch
+    out 61h,al
 
     leave
     ret

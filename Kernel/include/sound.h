@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void asm_sound(uint32_t x, uint32_t y);
+void sd_play(uint32_t freq, uint32_t time);
 
 #endif

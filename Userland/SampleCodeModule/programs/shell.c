@@ -20,7 +20,7 @@ static char* args[MAX_ARGS];
 static uint32_t args_len = 0;
 static char input_buffer[INPUT_SIZE];
 static uint8_t running = 1;
-static volatile uint32_t bg = 0x000001;//no sabemos que pasa que con 0x000000 no funca
+static volatile uint32_t bg = 0x000001;  // no sabemos que pasa que con 0x000000 no funca
 static volatile uint32_t fg = 0xFFFFFF;
 
 static void load_commands();
@@ -45,6 +45,7 @@ uint32_t
 shell_init()
 {
 	// show_wallpaper();
+	// asm_sound(1193180 / 1, 5);
 
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n");
 	load_commands();
@@ -72,7 +73,7 @@ load_commands()
 	load_command(testzde, "testzde", "      Tests the 'Zero Division Error Exception'");
 	load_command(pong, "pong", "         Pong (The Game)");
 	load_command(setcolors, "setcolors", "    Sets background and foreground colors received in format '0xXXXXXX'");
-	load_command(invertcolors, "switchcolors"," Inverts the background and foreground colors");
+	load_command(invertcolors, "switchcolors", " Inverts the background and foreground colors");
 }
 
 static void
@@ -202,10 +203,10 @@ setcolors()
 static uint32_t
 invertcolors()
 {
-	uint32_t aux=bg;
-	bg=fg;
-	fg=aux;
-	asm_setcolor(fg,bg);
+	uint32_t aux = bg;
+	bg = fg;
+	fg = aux;
+	asm_setcolor(fg, bg);
 	clear();
 	return 0;
 }

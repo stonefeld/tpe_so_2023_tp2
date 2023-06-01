@@ -21,6 +21,9 @@
 #define P2_UP 2
 #define P2_DOWN 3
 
+// sound
+#define SOUND_COUNT 1
+
 typedef enum
 {
 	QUIT = 0,
@@ -53,6 +56,7 @@ static Player p1, p2;
 static Ball ball;
 static uint8_t buttons[4] = { 0 };
 static char buff[2];
+static uint8_t sound_count;
 
 static void intro_message();
 static void game_loop();
@@ -115,6 +119,12 @@ intro_message()
 static void
 game_loop()
 {
+	// play a sound for the winner
+	if (state == RELOAD) {
+		asm_sound(600, 0.2 * 18);
+		asm_sound(900, 0.3 * 18);
+	}
+
 	asm_clear();
 	draw_window();
 	init_players();
@@ -132,9 +142,14 @@ game_loop()
 		process_key(c, c_status);
 		if (asm_ticked()) {
 			update_players();
-			update_ball();
 			draw_players();
+			update_ball();
 			draw_ball();
+
+			if (sound_count == 0)
+				asm_sound(0, 0);
+			else
+				sound_count--;
 		}
 	}
 }
@@ -263,8 +278,11 @@ static void
 update_ball()
 {
 	// rebota en los limites horizontales
-	if (ball.y + ball.speed_y <= BORDER || ball.y + ball.speed_y >= window.height - BORDER)
+	if (ball.y + ball.speed_y <= BORDER || ball.y + ball.speed_y >= window.height - BORDER) {
 		ball.speed_y *= -1;
+		asm_sound(100, 0);
+		sound_count = SOUND_COUNT;
+	}
 
 	// dentro o fuera
 	if (ball.x + ball.speed_x >= p1.x && ball.x + ball.speed_x + BALL_SIZE <= p2.x + BAR_WIDTH) {
@@ -272,11 +290,14 @@ update_ball()
 		if ((ball.x + ball.speed_x <= p1.x + BAR_WIDTH && ball.y + ball.speed_y >= p1.y &&
 		     ball.y + ball.speed_y <= p1.y + BAR_HEIGHT) ||
 		    (ball.x + ball.speed_x + BALL_SIZE >= p2.x && ball.y + ball.speed_y >= p2.y &&
-		     ball.y + ball.speed_y <= p2.y + BAR_HEIGHT))
+		     ball.y + ball.speed_y <= p2.y + BAR_HEIGHT)) {
 			/*
 			 * TODO: el angulo de salida deberia depender de la parte de la barra con la que impacta la bola
 			 */
 			ball.speed_x *= -1;
+			asm_sound(100, 0);
+			sound_count = SOUND_COUNT;
+		}
 	} else {
 		// se fue la pelota. hay que sumar puntos y reiniciar
 		state = RELOAD;
@@ -284,7 +305,6 @@ update_ball()
 			p2.score++;
 		if (ball.x + ball.speed_x + BALL_SIZE > p2.x + BAR_WIDTH)
 			p1.score++;
-		//asm_sound(440, 3000);
 	}
 }
 

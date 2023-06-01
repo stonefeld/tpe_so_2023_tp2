@@ -6,6 +6,7 @@
 #include <libasm.h>
 #include <libc.h>
 #include <moduleLoader.h>
+#include <sound.h>
 #include <stdint.h>
 #include <text.h>
 #include <time.h>
@@ -56,7 +57,10 @@ main()
 
 	// print intro wallpaper
 	vd_print_wallpaper(2);
-	ti_sleep(3);
+	ti_sleep(1 * 18);
+	sd_play(900, 0.2 * 18);
+	sd_play(500, 0.3 * 18);
+	ti_sleep(1 * 18);
 	vd_clear();
 
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp());

@@ -2,11 +2,11 @@
 #include <keyboard.h>
 #include <libasm.h>
 #include <rtc.h>
+#include <sound.h>
 #include <syscalls.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-#include <sound.h>
 
 enum syscalls
 {
@@ -100,7 +100,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_SOUND: {
-			asm_sound(rsi, rdx);
+			sd_play(rsi, rdx);
 		} break;
 	}
 	return 0;

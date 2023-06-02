@@ -11,7 +11,7 @@ global asm_nosound
 extern tx_put_int
 extern tx_put_word
 extern tx_put_char
-extern exc_printreg
+extern printreg
 
 section .text
 
@@ -116,6 +116,23 @@ asm_getsp:
 ;     call main
 
 asm_setreg:
+     
+    ; mov r15, 0
+    ; mov r14, 1
+    ; mov r13, 2
+    ; mov r12, 3
+    ; mov r11, 4
+    ; mov r10, 5
+    ; mov r9, 6
+    ; mov r8, 7
+    ; mov rsi, 8
+    ; mov rdi, 9
+    ; ;mov rbp, 10
+    ; mov rdx, 11
+    ; mov rcx, 12
+    ; mov rbx, 13
+    ; mov rax, 14
+
     mov [regs_stack],r15
     mov [regs_stack+1*8],r14
     mov [regs_stack+2*8],r13
@@ -141,9 +158,9 @@ asm_setreg:
 asm_printreg:
     push rbp
     mov rbp,rsp
-
+    
     mov rdi,regs_stack
-    call exc_printreg
+    call printreg
 
     leave
     ret

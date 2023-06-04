@@ -9,19 +9,18 @@
 
 static uint32_t curr_x = 0, curr_y = 0;
 static uint8_t show_cursor = 1;
-static char datetime[DATE_SIZE];
 
-static void cursor();
+static void cursor(uint32_t color);
 static void enter();
 
 void
-tx_put_char(char c)
+tx_put_char(char c, uint32_t color)
 {
 	switch (c) {
 		case '\b': {
 			if (curr_x == 0 && curr_y == 0)
 				return;
-			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT, color);
 			if (curr_x == 0) {
 				curr_x = WIDTH;
 				curr_y--;
@@ -30,12 +29,12 @@ tx_put_char(char c)
 		} break;
 
 		case '\n': {
-			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT, color);
 			enter();
 		} break;
 
 		case '\t': {
-			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+			vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT, color);
 			curr_x += 8;
 			if (curr_x >= WIDTH) {
 				uint32_t aux = curr_x - WIDTH;
@@ -45,32 +44,32 @@ tx_put_char(char c)
 		} break;
 
 		default: {
-			vd_put_char(c, curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+			vd_put_char(c, curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT, color);
 			curr_x++;
 			if (curr_x >= WIDTH)
 				enter();
 		} break;
 	}
-	cursor();
+	cursor(color);
 }
 
 void
-tx_put_word(char* str)
+tx_put_word(char* str, uint32_t color)
 {
 	while (*str != 0)
-		tx_put_char(*str++);
+		tx_put_char(*str++, color);
 }
 
 void
-tx_set_cursor(uint32_t x, uint32_t y)
+tx_set_cursor(uint32_t x, uint32_t y, uint32_t color)
 {
 	if (x >= WIDTH || x < 0 || y >= HEIGHT || y < 0)
 		return;
 	if (show_cursor)
-		vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+		vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT, color);
 	curr_x = x;
 	curr_y = y;
-	cursor();
+	cursor(color);
 }
 
 void
@@ -80,26 +79,19 @@ tx_show_cursor(uint8_t show)
 }
 
 void
-tx_clear()
+tx_clear(uint32_t color)
 {
-	vd_clear();
+	vd_clear(color);
 	curr_x = 0;
 	curr_y = 0;
-	cursor();
-}
-
-void
-tx_put_int(uint64_t x)
-{
-	uint_to_base(x, datetime, DEC);
-	tx_put_word(datetime);
+	cursor(color);
 }
 
 static void
-cursor()
+cursor(uint32_t color)
 {
 	if (show_cursor)
-		vd_draw_cursor(curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT);
+		vd_draw_cursor(curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT, color);
 }
 
 static void

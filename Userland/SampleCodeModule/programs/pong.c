@@ -94,7 +94,6 @@ start_game()
 {
 	// hide cursor
 	asm_show_cursor(0);
-	asm_setcolor(FG, BG);
 
 	// initialize the window
 	window.width = asm_winwidth();
@@ -124,7 +123,7 @@ game_loop()
 	}
 
 	state = RUNNING;
-	asm_clear();
+	asm_clear(BG);
 	draw_window();
 	init_players();
 	init_ball();
@@ -158,10 +157,10 @@ game_loop()
 static void
 intro_message()
 {
-	asm_cursor((window.width / window.font_width - title_len) / 2, window.height / (2 * window.font_height) - 4);
-	puts(title);
-	asm_cursor((window.width / window.font_width - subtitle_len) / 2, window.height / (2 * window.font_height) - 3);
-	puts(subtitle);
+	asm_cursor((window.width / window.font_width - title_len) / 2, window.height / (2 * window.font_height) - 4, FG);
+	puts(title, FG);
+	asm_cursor((window.width / window.font_width - subtitle_len) / 2, window.height / (2 * window.font_height) - 3, FG);
+	puts(subtitle, FG);
 
 	uint8_t c, c_status;
 	while (!((c = getchar(&c_status)) == '\n' && c_status == PRESSED)) {
@@ -171,11 +170,11 @@ intro_message()
 		}
 	}
 
-	asm_setcolor(BG, BG);
 	asm_draw((window.width - (subtitle_len + 1) * window.font_width) / 2,
 	         window.height / 2 - 4 * window.font_height,
 	         subtitle_len * window.font_height,
-	         2 * window.font_height);
+	         2 * window.font_height,
+	         FG);
 }
 
 static void
@@ -183,8 +182,8 @@ print_winner(char* msg, uint32_t len)
 {
 	draw_players();
 
-	asm_cursor((window.width / window.font_width - len) / 2, window.height / (2 * window.font_height));
-	puts(msg);
+	asm_cursor((window.width / window.font_width - len) / 2, window.height / (2 * window.font_height), FG);
+	puts(msg, FG);
 
 	asm_sound(800, 0.1 * 18);
 	asm_sleep(0.2 * 18);
@@ -228,10 +227,10 @@ process_key(uint8_t key, uint8_t status)
 static void
 draw_window()
 {
-	asm_draw(0, 0, BORDER, window.height);
-	asm_draw(BORDER, 0, window.width - BORDER, BORDER);
-	asm_draw(window.width - BORDER, 0, BORDER, window.height);
-	asm_draw(BORDER, window.height - BORDER, window.width - BORDER, BORDER);
+	asm_draw(0, 0, BORDER, window.height, FG);
+	asm_draw(BORDER, 0, window.width - BORDER, BORDER, FG);
+	asm_draw(window.width - BORDER, 0, BORDER, window.height, FG);
+	asm_draw(BORDER, window.height - BORDER, window.width - BORDER, BORDER, FG);
 }
 
 // PLAYERS LOGIC
@@ -244,8 +243,8 @@ init_players()
 	p1.movement = p2.movement = 0;
 	if (state != RELOAD)
 		p1.score = p2.score = 0;
-	asm_draw(p1.x, p1.y, BAR_WIDTH, BAR_HEIGHT);
-	asm_draw(p2.x, p2.y, BAR_WIDTH, BAR_HEIGHT);
+	asm_draw(p1.x, p1.y, BAR_WIDTH, BAR_HEIGHT, FG);
+	asm_draw(p2.x, p2.y, BAR_WIDTH, BAR_HEIGHT, FG);
 	draw_players();
 }
 
@@ -270,16 +269,16 @@ static void
 draw_players()
 {
 	draw_player(&p1);
-	asm_cursor(0, 0);
+	asm_cursor(0, 0, FG);
 	uint_to_base(p1.score, buff, 10);
-	puts(p1score);
-	puts(buff);
+	puts(p1score, FG);
+	puts(buff, FG);
 
 	draw_player(&p2);
-	asm_cursor(window.width / window.font_width - p2score_len, 0);
+	asm_cursor(window.width / window.font_width - p2score_len, 0, FG);
 	uint_to_base(p2.score, buff, 10);
-	puts(p2score);
-	puts(buff);
+	puts(p2score, FG);
+	puts(buff, FG);
 }
 
 static void
@@ -288,17 +287,13 @@ draw_player(Player* p)
 	if (p->movement == 1) {
 		if (p->y + BAR_HEIGHT >= window.height - MOV_DIFF)
 			return;
-		asm_setcolor(BG, BG);
-		asm_draw(p->x, p->y, BAR_WIDTH, MOV_DIFF);
-		asm_setcolor(FG, BG);
-		asm_draw(p->x, p->y + BAR_HEIGHT, BAR_WIDTH, MOV_DIFF);
+		asm_draw(p->x, p->y, BAR_WIDTH, MOV_DIFF, BG);
+		asm_draw(p->x, p->y + BAR_HEIGHT, BAR_WIDTH, MOV_DIFF, FG);
 	} else if (p->movement == -1) {
 		if (p->y < MOV_DIFF)
 			return;
-		asm_setcolor(BG, BG);
-		asm_draw(p->x, p->y + BAR_HEIGHT - MOV_DIFF, BAR_WIDTH, MOV_DIFF);
-		asm_setcolor(FG, BG);
-		asm_draw(p->x, p->y - MOV_DIFF, BAR_WIDTH, MOV_DIFF);
+		asm_draw(p->x, p->y + BAR_HEIGHT - MOV_DIFF, BAR_WIDTH, MOV_DIFF, BG);
+		asm_draw(p->x, p->y - MOV_DIFF, BAR_WIDTH, MOV_DIFF, FG);
 	}
 
 	p->y += MOV_DIFF * p->movement;
@@ -311,7 +306,7 @@ init_ball()
 	ball.x = (window.width - BALL_SIZE) / 2;
 	ball.y = (window.height - BALL_SIZE) / 2;
 	ball.speed_x = ball.speed_y = BALL_SPEED;
-	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
+	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE, FG);
 }
 
 static void
@@ -348,10 +343,8 @@ update_ball()
 static void
 draw_ball()
 {
-	asm_setcolor(BG, BG);
-	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
-	asm_setcolor(FG, BG);
+	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE, BG);
 	ball.x += ball.speed_x;
 	ball.y += ball.speed_y;
-	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
+	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE, FG);
 }

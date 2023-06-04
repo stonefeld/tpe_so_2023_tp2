@@ -3,9 +3,13 @@
 #include <video.h>
 #include <wallpapers.h>
 
+// colors
+#define RED 0xff0000
+#define GREEN 0x00ff00
+#define BLUE 0x0000ff
+
+// pixel size (in bytes)
 #define PIXEL vbe_mode_info->bpp / 8
-#define LOADING_X_START_POINT wall_width - 6 * 10
-#define LOADING_Y_START_POINT wall_height * 2
 
 // extracted from https://wiki.osdev.org/User:Omarrx024/VESA_Tutorial
 struct vbe_mode_info_structure
@@ -53,18 +57,13 @@ struct vbe_mode_info_structure
 	uint8_t reserved1[206];
 } __attribute__((packed));
 
-typedef struct
-{
-	uint32_t fg, bg;
-} FontInfo;
-
 typedef struct vbe_mode_info_structure* VBEModeInfo;
 
-VBEModeInfo vbe_mode_info = (VBEModeInfo)0x5C00;
-FontInfo font_style = {
-	.bg = 0x0,
-	.fg = WHITE,
-};
+static VBEModeInfo vbe_mode_info = (VBEModeInfo)0x5C00;
+static volatile uint32_t last_bg = 0;
+
+static void put_pixel(uint8_t r, uint8_t g, uint8_t b, uint32_t x, uint32_t y);
+static void clear_line(uint32_t y);
 
 uint16_t
 vd_get_winwidth()
@@ -79,23 +78,13 @@ vd_get_winheight()
 }
 
 void
-vd_put_pixel(uint32_t hex_color, uint32_t x, uint32_t y)
+vd_put_pixel(uint32_t x, uint32_t y, uint32_t color)
 {
-	vd_put_pixel_rgb((hex_color & RED) >> 16, (hex_color & GREEN) >> 8, hex_color & BLUE, x, y);
+	put_pixel((color & RED) >> 16, (color & GREEN) >> 8, color & BLUE, x, y);
 }
 
 void
-vd_put_pixel_rgb(uint8_t r, uint8_t g, uint32_t b, uint32_t x, uint32_t y)
-{
-	uint8_t* screen = (uint8_t*)(uint64_t)vbe_mode_info->framebuffer;
-	int offset = y * vbe_mode_info->pitch + x * PIXEL;
-	screen[offset] = b;
-	screen[offset + 1] = g;
-	screen[offset + 2] = r;
-}
-
-void
-vd_put_char(char c, uint32_t x, uint32_t y)
+vd_put_char(char c, uint32_t x, uint32_t y, uint32_t color)
 {
 	uint32_t aux_x = x, aux_y = y;
 	uint8_t* c_bitmap = fnt_get_char_bitmap(c);
@@ -105,9 +94,9 @@ vd_put_char(char c, uint32_t x, uint32_t y)
 		for (int j = 0; j < CHAR_WIDTH; j++) {
 			is_foreground = (1 << (CHAR_WIDTH - j)) & c_bitmap[i];
 			if (is_foreground)
-				vd_put_pixel(font_style.fg, aux_x, aux_y);
+				vd_put_pixel(aux_x, aux_y, color);
 			else
-				vd_put_pixel(font_style.bg, aux_x, aux_y);
+				vd_put_pixel(aux_x, aux_y, last_bg);
 			aux_x++;
 		}
 		aux_x = x;
@@ -116,17 +105,17 @@ vd_put_char(char c, uint32_t x, uint32_t y)
 }
 
 void
-vd_draw_cursor(uint32_t x, uint32_t y)
+vd_draw_cursor(uint32_t x, uint32_t y, uint32_t color)
 {
-	vd_put_char('_', x, y);
+	vd_put_char('_', x, y, color);
 }
 
 void
-vd_draw_figure(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+vd_draw(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 {
 	for (int i = y; i < y + h; i++)
 		for (int j = x; j < x + w; j++)
-			vd_put_pixel(font_style.fg, j, i);
+			vd_put_pixel(j, i, color);
 }
 
 void
@@ -136,39 +125,11 @@ vd_scroll_up()
 	uint8_t* dest = (uint8_t*)(uint64_t)vbe_mode_info->framebuffer;
 	uint8_t* src = dest + vbe_mode_info->width * PIXEL * CHAR_HEIGHT;
 	memcpy(dest, src, len);
-	vd_clear_line(vbe_mode_info->height / CHAR_HEIGHT - 1);
+	clear_line(vbe_mode_info->height / CHAR_HEIGHT - 1);
 }
 
 void
-vd_set_color(uint32_t fg, uint32_t bg)
-{
-	font_style.fg = fg;
-	font_style.bg = bg;
-}
-
-void
-vd_clear()
-{
-	vd_clear_bg(font_style.bg);
-}
-
-void
-vd_clear_line(uint32_t y)
-{
-	for (int i = 0; i < vbe_mode_info->width / CHAR_WIDTH; i++)
-		vd_put_char(' ', i * CHAR_WIDTH, y * CHAR_HEIGHT);
-}
-
-void
-vd_clear_bg(uint32_t bg)
-{
-	for (int i = 0; i < vbe_mode_info->height; i++)
-		for (int j = 0; j < vbe_mode_info->width; j++)
-			vd_put_pixel(bg, j, i);
-}
-
-void
-vd_print_wallpaper(uint32_t size)
+vd_wallpaper(uint32_t size)
 {
 	int startx = (vbe_mode_info->width - wall_width * size) / 2;
 	int starty = (vbe_mode_info->height - wall_height * size) / 2;
@@ -177,10 +138,31 @@ vd_print_wallpaper(uint32_t size)
 		for (uint32_t x = 0; x < wall_width; x++)
 			for (uint32_t i = 0; i < size; i++)
 				for (uint32_t j = 0; j < size; j++)
-					vd_put_pixel(image_data[y][x], x * size + startx + j, y * size + starty + i);
+					vd_put_pixel(x * size + startx + j, y * size + starty + i, image_data[y][x]);
+}
 
-	char text[] = "Loading ...";
-	for (int k = 0; text[k] != '\0'; k++) {
-		vd_put_char(text[k], startx + 10 * k + LOADING_Y_START_POINT, starty + LOADING_Y_START_POINT);
-	}
+void
+vd_clear(uint32_t bg)
+{
+	for (int y = 0; y < vbe_mode_info->height; y++)
+		for (int x = 0; x < vbe_mode_info->width; x++)
+			vd_put_pixel(x, y, bg);
+	last_bg = bg;
+}
+
+static void
+put_pixel(uint8_t r, uint8_t g, uint8_t b, uint32_t x, uint32_t y)
+{
+	uint8_t* screen = (uint8_t*)(uint64_t)vbe_mode_info->framebuffer;
+	int offset = y * vbe_mode_info->pitch + x * PIXEL;
+	screen[offset] = b;
+	screen[offset + 1] = g;
+	screen[offset + 2] = r;
+}
+
+static void
+clear_line(uint32_t y)
+{
+	for (int i = 0; i < vbe_mode_info->width / CHAR_WIDTH; i++)
+		vd_put_char(' ', i * CHAR_WIDTH, y * CHAR_HEIGHT, last_bg);
 }

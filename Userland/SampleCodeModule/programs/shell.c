@@ -27,7 +27,7 @@ static uint32_t args_len = 0;
 static uint8_t running = 1;
 
 // colors
-static Color color = { .fg = 0xffffff, .bg = 0x000000, .output = 0x808080, .prompt = 0x00ff00, .error = 0xff0000 };
+static Color color = { .fg = 0xffffff, .bg = 0x000000, .output = 0xa0a0a0, .prompt = 0x00ff00, .error = 0xff0000 };
 
 static void load_commands();
 static void load_command(uint32_t (*fn)(), char* name, char* desc);
@@ -49,14 +49,13 @@ static uint32_t invertcolors();
 uint32_t
 shell_init()
 {
-	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n");
+	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n", color.output);
 	load_commands();
 
 	int32_t len, status = 0;
 	while (running) {
 		prompt(status);
-		len = gets(input_buffer, INPUT_SIZE);
-		asm_setcolor(color.fg, color.bg);
+		len = gets(input_buffer, INPUT_SIZE, color.fg);
 		status = process_input(input_buffer, len);
 	}
 
@@ -96,35 +95,30 @@ process_input(char* buff, uint32_t size)
 	if (args_len == 0)
 		return -1;
 
-	asm_setcolor(color.output, color.bg);
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name))
 			return commands[i].fn();
 	}
-	puts("Command not found: ");
-	puts(args[0]);
-	putchar('\n');
+	puts("Command not found: ", color.output);
+	puts(args[0], color.output);
+	putchar('\n', color.output);
 	return -1;
 }
 
 static void
 prompt(int32_t status)
 {
-	asm_setcolor(status < 0 ? color.error : 0x00ff00, color.bg);
-	puts("user@qemu");
-	asm_setcolor(color.fg, color.bg);
-	putchar(':');
-	putchar('~');
-	puts("$ ");
+	puts("user@qemu:~$", color.prompt);
+	putchar(' ', color.fg);
 }
 
 static uint32_t
 help()
 {
 	for (int i = 0; i < commands_len; i++) {
-		puts(commands[i].name);
-		puts(commands[i].desc);
-		putchar('\n');
+		puts(commands[i].name, color.output);
+		puts(commands[i].desc, color.output);
+		putchar('\n', color.output);
 	}
 	return 0;
 }
@@ -132,14 +126,14 @@ help()
 static uint32_t
 datetime()
 {
-	asm_datetime();
+	asm_datetime(color.output);
 	return 0;
 }
 
 static uint32_t
 clear()
 {
-	asm_clear();
+	asm_clear(color.bg);
 	return 0;
 }
 
@@ -153,7 +147,7 @@ exit()
 static uint32_t
 printreg()
 {
-	asm_printreg();
+	asm_printreg(color.output);
 	return 0;
 }
 
@@ -175,8 +169,7 @@ static uint32_t
 pong()
 {
 	start_game();
-	asm_setcolor(color.fg, color.bg);
-	asm_clear();
+	asm_clear(color.bg);
 	return 0;
 }
 
@@ -184,12 +177,11 @@ static uint32_t
 setcolors()
 {
 	if (args_len != 3 || !is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
-		puts("Invalid color codes \n");
+		puts("Invalid color codes \n", color.output);
 		return 0;
 	}
 	color.bg = hex_to_uint(args[1]);
 	color.fg = hex_to_uint(args[2]);
-	asm_setcolor(color.fg, color.bg);
 	clear();
 	return 0;
 }
@@ -200,7 +192,6 @@ invertcolors()
 	uint32_t aux = color.bg;
 	color.bg = color.fg;
 	color.fg = aux;
-	asm_setcolor(color.fg, color.bg);
 	clear();
 	return 0;
 }

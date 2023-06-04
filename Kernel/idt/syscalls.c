@@ -44,27 +44,23 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_WRITE: {
-			tx_put_char(rsi);
+			tx_put_char(rsi, rdx);
 		} break;
 
 		case SYS_DRAW: {
-			vd_draw_figure(rsi, rdx, rcx, r8);
+			vd_draw(rsi, rdx, rcx, r8, r9);
 		} break;
 
 		case SYS_CLEAR: {
-			tx_clear();
+			tx_clear(rsi);
 		} break;
 
-		case SYS_COLOR: {
-			vd_set_color(rsi, rdx);
+		case SYS_CURSOR: {
+			tx_set_cursor(rsi, rdx, rcx);
 		} break;
 
 		case SYS_SHOW_CURSOR: {
 			tx_show_cursor(rsi);
-		} break;
-
-		case SYS_CURSOR: {
-			tx_set_cursor(rsi, rdx);
 		} break;
 
 		case SYS_WINWIDTH: {
@@ -92,11 +88,11 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_REGS: {
-			asm_printreg();
+			asm_printreg(rsi);
 		} break;
 
 		case SYS_RTC: {
-			rtc_datetime();
+			rtc_datetime(rsi);
 		} break;
 
 		case SYS_SOUND: {

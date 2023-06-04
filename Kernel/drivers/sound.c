@@ -9,6 +9,6 @@ sd_play(uint32_t freq, uint32_t time)
 		asm_sound(1193180 / freq, time);
 	if (time != 0)
 		ti_sleep(time);
-	if (!(freq == 0 ^ time == 0))
+	if (!((freq == 0) ^ (time == 0)))
 		asm_nosound();
 }

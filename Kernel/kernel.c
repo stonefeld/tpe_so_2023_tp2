@@ -12,6 +12,8 @@
 #include <time.h>
 #include <video.h>
 
+#define BLACK 0x000000
+
 typedef int (*EntryPoint)();
 
 extern uint8_t text;
@@ -56,7 +58,7 @@ main()
 	idt_loader();
 
 	// print intro wallpaper
-	vd_print_wallpaper(2);
+	vd_wallpaper(2);
 	ti_sleep(1 * 18);
 	sd_play(800, 0.1 * 18);
 	ti_sleep(0.2 * 18);
@@ -64,7 +66,7 @@ main()
 	ti_sleep(0.1 * 18);
 	sd_play(1000, 0.3 * 18);
 	ti_sleep(1 * 18);
-	vd_clear();
+	vd_clear(BLACK);
 
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp());
 	return ((EntryPoint)sample_code_module_addr)();

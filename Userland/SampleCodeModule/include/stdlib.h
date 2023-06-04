@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-uint32_t gets(char* buff, uint32_t size);
+uint32_t gets(char* buff, uint32_t size, uint32_t color);
 uint8_t getchar(uint8_t* state);
-void puts(char* str);
-void putchar(char c);
+void puts(char* str, uint32_t color);
+void putchar(char c, uint32_t color);
 
 uint64_t strlen(char* buff);
 uint32_t strtok(char* buff, uint8_t token, char** args, uint32_t size);

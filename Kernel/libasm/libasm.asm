@@ -124,6 +124,7 @@ asm_printreg:
     push rbp
     mov rbp,rsp
 
+    mov rsi,rdi
     cmp byte [setreg_called],1
     jne .notcalled
     mov rdi,regs_stack

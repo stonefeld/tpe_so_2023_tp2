@@ -1,8 +1,8 @@
 #ifndef RTC_H
 #define RTC_H
 
-#define DATE_SIZE 4
+#include <stdint.h>
 
-void rtc_datetime();
+void rtc_datetime(uint32_t color);
 
 #endif

@@ -3,7 +3,7 @@
 #include <syscalls.h>
 
 uint32_t
-gets(char* buff, uint32_t size)
+gets(char* buff, uint32_t size, uint32_t color)
 {
 	uint8_t c, state;
 	uint32_t len = 0;
@@ -12,19 +12,19 @@ gets(char* buff, uint32_t size)
 		if (c && state == PRESSED) {
 			if (c != '\b') {
 				if (len < size - 1) {
-					putchar(c);
+					putchar(c, color);
 					buff[len++] = c;
 				}
 			} else if (len > 0 && c != '\n') {
 				if (buff[len - 1] == '\t')
 					for (int i = 0; i < 7; i++)
-						putchar(c);
-				putchar(c);
+						putchar(c, color);
+				putchar(c, color);
 				len--;
 			}
 		}
 	}
-	putchar('\n');
+	putchar('\n', color);
 	buff[len] = 0;
 	return len;
 }
@@ -36,17 +36,17 @@ getchar(uint8_t* state)
 }
 
 void
-puts(char* str)
+puts(char* str, uint32_t color)
 {
 	uint64_t len = strlen(str);
 	for (int i = 0; i < len; i++)
-		putchar(str[i]);
+		putchar(str[i], color);
 }
 
 void
-putchar(char c)
+putchar(char c, uint32_t color)
 {
-	asm_putchar(c);
+	asm_putchar(c, color);
 }
 
 uint64_t

@@ -15,20 +15,24 @@
 #define BG 0x151f42
 #define FG 0xf5ebbc
 
-// index for player movement state
-#define P1_UP 0
-#define P1_DOWN 1
-#define P2_UP 2
-#define P2_DOWN 3
-
 // sound
 #define SOUND_COUNT 1
+
+// index for player movement state
+enum player_movement
+{
+	P1_UP = 0,
+	P1_DOWN,
+	P2_UP,
+	P2_DOWN
+};
 
 typedef enum
 {
 	QUIT = 0,
 	RUNNING,
-	RELOAD
+	RELOAD,
+	WINNER
 } State;
 
 typedef struct
@@ -54,12 +58,27 @@ static State state;
 static Window window;
 static Player p1, p2;
 static Ball ball;
+
 static uint8_t buttons[4] = { 0 };
 static char buff[2];
 static uint8_t sound_count;
 
-static void intro_message();
+// messages
+static char title[] = "PONG - THE GAME";
+static char subtitle[] = "PRESS ENTER TO START";
+static char p1score[] = "Player 1: ";
+static char p2score[] = "Player 2: ";
+static char p1winner[] = "PLAYER 1 WINS!!!";
+static char p2winner[] = "PLAYER 2 WINS!!!";
+static uint32_t title_len = sizeof(title) / sizeof(title[0]);
+static uint32_t subtitle_len = sizeof(subtitle) / sizeof(subtitle[0]);
+static uint32_t p2score_len = sizeof(p2score) / sizeof(p2score[0]);
+static uint32_t p1winner_len = sizeof(p1winner) / sizeof(p1winner[0]);
+static uint32_t p2winner_len = sizeof(p2winner) / sizeof(p2winner[0]);
+
 static void game_loop();
+static void intro_message();
+static void print_winner(char* msg, uint32_t len);
 static void process_key(uint8_t key, uint8_t state);
 static void draw_window();
 static void init_players();
@@ -70,7 +89,7 @@ static void draw_players();
 static void draw_player(Player* p);
 static void draw_ball();
 
-uint32_t
+void
 start_game()
 {
 	// hide cursor
@@ -88,50 +107,29 @@ start_game()
 		game_loop();
 	} while (state == RELOAD);
 
+	if (state == WINNER)
+		print_winner(p1.score == 5 ? p1winner : p2winner, p1.score == 5 ? p1winner_len : p2winner_len);
+
 	// show the cursor again
 	asm_show_cursor(1);
-	return 0;
-}
-
-static void
-intro_message()
-{
-	char title[] = "PONG (THE GAME)";
-	char subtitle[] = "PRESS ENTER TO START";
-	uint32_t title_len = sizeof(title) / sizeof(title[0]);
-	uint32_t subtitle_len = sizeof(subtitle) / sizeof(subtitle[0]);
-
-	asm_cursor((window.width / window.font_width - title_len) / 2, window.height / (2 * window.font_height) - 4);
-	puts(title);
-	asm_cursor((window.width / window.font_width - subtitle_len) / 2, window.height / (2 * window.font_height) - 3);
-	puts(subtitle);
-
-	uint8_t c_status;
-	while (!(getchar(&c_status) == '\n' && c_status == PRESSED)) {}
-
-	asm_setcolor(BG, BG);
-	asm_draw((window.width - (subtitle_len + 1) * window.font_width) / 2,
-	         window.height / 2 - 4 * window.font_height,
-	         subtitle_len * window.font_height,
-	         2 * window.font_height);
 }
 
 static void
 game_loop()
 {
-	// play a sound for the winner
+	// play a sound for the player who scored
 	if (state == RELOAD) {
 		asm_sound(600, 0.2 * 18);
 		asm_sound(900, 0.3 * 18);
 	}
 
+	state = RUNNING;
 	asm_clear();
 	draw_window();
 	init_players();
 	init_ball();
 	intro_message();
 
-	state = RUNNING;
 	uint8_t c, c_status;
 
 	for (int i = 0; i < 4; i++)
@@ -150,13 +148,60 @@ game_loop()
 				asm_sound(0, 0);
 			else
 				sound_count--;
+
+			if (p1.score == 5 || p2.score == 5)
+				state = WINNER;
 		}
 	}
 }
 
 static void
+intro_message()
+{
+	asm_cursor((window.width / window.font_width - title_len) / 2, window.height / (2 * window.font_height) - 4);
+	puts(title);
+	asm_cursor((window.width / window.font_width - subtitle_len) / 2, window.height / (2 * window.font_height) - 3);
+	puts(subtitle);
+
+	uint8_t c, c_status;
+	while (!((c = getchar(&c_status)) == '\n' && c_status == PRESSED)) {
+		if (c == 'q') {
+			state = QUIT;
+			break;
+		}
+	}
+
+	asm_setcolor(BG, BG);
+	asm_draw((window.width - (subtitle_len + 1) * window.font_width) / 2,
+	         window.height / 2 - 4 * window.font_height,
+	         subtitle_len * window.font_height,
+	         2 * window.font_height);
+}
+
+static void
+print_winner(char* msg, uint32_t len)
+{
+	draw_players();
+
+	asm_cursor((window.width / window.font_width - len) / 2, window.height / (2 * window.font_height));
+	puts(msg);
+
+	asm_sound(800, 0.1 * 18);
+	asm_sleep(0.2 * 18);
+	asm_sound(800, 0.1 * 18);
+	asm_sleep(0.1 * 18);
+	asm_sound(1000, 0.3 * 18);
+
+	uint8_t c_status;
+	while (!(getchar(&c_status) == '\n' && c_status == PRESSED)) {}
+}
+
+static void
 process_key(uint8_t key, uint8_t status)
 {
+	if (key >= 'A' && key <= 'Z')
+		key += 'a' - 'A';
+
 	switch (key) {
 		case 'w': {
 			buttons[P1_UP] = status;
@@ -224,19 +269,17 @@ update_players()
 static void
 draw_players()
 {
+	draw_player(&p1);
 	asm_cursor(0, 0);
 	uint_to_base(p1.score, buff, 10);
-	puts("Player 1: ");
+	puts(p1score);
 	puts(buff);
-	draw_player(&p1);
 
-	static char msg[] = "Player 2: ";
-	static uint32_t size = sizeof(msg) / sizeof(msg[0]);
-	asm_cursor(window.width / window.font_width - size, 0);
-	uint_to_base(p2.score, buff, 10);
-	puts("Player 2: ");
-	puts(buff);
 	draw_player(&p2);
+	asm_cursor(window.width / window.font_width - p2score_len, 0);
+	uint_to_base(p2.score, buff, 10);
+	puts(p2score);
+	puts(buff);
 }
 
 static void
@@ -267,9 +310,6 @@ init_ball()
 {
 	ball.x = (window.width - BALL_SIZE) / 2;
 	ball.y = (window.height - BALL_SIZE) / 2;
-	/*
-	 * TODO: randomizar el disparo inicial
-	 */
 	ball.speed_x = ball.speed_y = BALL_SPEED;
 	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
 }
@@ -291,9 +331,6 @@ update_ball()
 		     ball.y + ball.speed_y <= p1.y + BAR_HEIGHT) ||
 		    (ball.x + ball.speed_x + BALL_SIZE >= p2.x && ball.y + ball.speed_y >= p2.y &&
 		     ball.y + ball.speed_y <= p2.y + BAR_HEIGHT)) {
-			/*
-			 * TODO: el angulo de salida deberia depender de la parte de la barra con la que impacta la bola
-			 */
 			ball.speed_x *= -1;
 			asm_sound(100, 0);
 			sound_count = SOUND_COUNT;

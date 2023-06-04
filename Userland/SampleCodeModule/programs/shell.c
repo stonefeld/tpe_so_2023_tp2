@@ -166,10 +166,10 @@ testzde()
 static uint32_t
 pong()
 {
-	uint8_t ret = start_game();
+	start_game();
 	asm_setcolor(fg, bg);
 	asm_clear();
-	return ret;
+	return 0;
 }
 
 static uint32_t

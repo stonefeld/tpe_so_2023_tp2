@@ -20,7 +20,6 @@ enum syscalls
 	SYS_COLOR,
 	SYS_CURSOR,
 	SYS_SHOW_CURSOR,
-	SYS_WALLPAPER,
 
 	// properties
 	SYS_WINWIDTH,
@@ -30,6 +29,7 @@ enum syscalls
 
 	// system
 	SYS_TICKS,
+	SYS_SLEEP,
 	SYS_REGS,
 	SYS_RTC,
 	SYS_SOUND
@@ -63,10 +63,6 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 			tx_show_cursor(rsi);
 		} break;
 
-		case SYS_WALLPAPER: {
-			vd_print_wallpaper(rsi);
-		} break;
-
 		case SYS_CURSOR: {
 			tx_set_cursor(rsi, rdx);
 		} break;
@@ -89,6 +85,10 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 
 		case SYS_TICKS: {
 			return ti_ticked();
+		} break;
+
+		case SYS_SLEEP: {
+			ti_sleep(rsi);
 		} break;
 
 		case SYS_REGS: {

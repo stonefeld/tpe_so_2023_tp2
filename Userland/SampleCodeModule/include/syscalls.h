@@ -17,7 +17,6 @@ extern uint8_t asm_clear();
 extern uint8_t asm_setcolor(uint32_t fg, uint32_t bg);
 extern void asm_cursor(uint32_t x, uint32_t y);
 extern void asm_show_cursor(uint8_t show);
-extern void asm_wallpaper();
 
 // properties
 extern uint32_t asm_winwidth();
@@ -27,6 +26,7 @@ extern uint32_t asm_fontheight();
 
 // system
 extern uint8_t asm_ticked();
+extern void asm_sleep(uint32_t ticks);
 extern void asm_printreg();
 extern void asm_datetime();
 extern void asm_sound(uint32_t freq, uint32_t duration);

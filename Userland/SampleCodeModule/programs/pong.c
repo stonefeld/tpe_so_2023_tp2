@@ -126,12 +126,12 @@ game_loop()
 
 	state = RUNNING;
 	intro_message();
-
-	uint8_t c, c_status;
+	asm_draw(window.width / 2, 0, 1, window.height, window.fg);
 
 	for (int i = 0; i < 4; i++)
 		buttons[i] = RELEASED;
 
+	uint8_t c, c_status;
 	while (state == RUNNING) {
 		c = getchar(&c_status);
 		process_key(c, c_status);
@@ -155,11 +155,10 @@ game_loop()
 static void
 intro_message()
 {
-	asm_cursor(
-	    (window.width / window.font_width - title_len) / 2, window.height / (2 * window.font_height) - 4, window.fg);
+	uint32_t ypos = window.height / (2 * window.font_height);
+	asm_cursor((window.width / window.font_width - title_len) / 2, ypos - 4, window.fg);
 	puts(title, window.fg);
-	asm_cursor(
-	    (window.width / window.font_width - subtitle_len) / 2, window.height / (2 * window.font_height) - 3, window.fg);
+	asm_cursor((window.width / window.font_width - subtitle_len) / 2, ypos - 3, window.fg);
 	puts(subtitle, window.fg);
 
 	uint8_t c, c_status;
@@ -344,6 +343,8 @@ static void
 draw_ball()
 {
 	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE, window.bg);
+	if (ball.x <= window.width / 2 && ball.x + BALL_SIZE >= window.width / 2)
+		asm_draw(window.width / 2, ball.y, 1, BALL_SIZE, window.fg);
 	ball.x += ball.speed_x;
 	ball.y += ball.speed_y;
 	asm_draw(ball.x, ball.y, BALL_SIZE, BALL_SIZE, window.fg);

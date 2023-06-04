@@ -43,34 +43,19 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 	restore_state(stack);
 }
 
-
-void
-printreg(uint64_t* stack)
-{
-
-	//stack [] = [r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax, RIP, RSP]    si vengo desde ctrl+r y print_regs 
-
- 	for (int i = 0; i < registers_len - 1; i++) {
-		tx_put_word(registers[i]);
-		uint_to_base(stack[i], buff, HEX);
-		tx_put_word(buff);
-		tx_put_char('\n');
-	}
-
-	tx_put_word(registers[registers_len - 1]);
-	uint_to_base((uint64_t)stack[registers_len-1], buff, HEX);
-	tx_put_word(buff);
-	tx_put_char('\n');
-}
-
-
 void
 exc_printreg(uint64_t* stack)
 {
-	//stack [] = [dir_ret,r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax, RIP, CS, EFLAGS, RSP]    si vengo desde interrupción ioe
-	//stack [] = [dir_ret, r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax, RIP, CS, EFLAGS, RSP]    si vengo desde interrupción zde
+	// stack [] = [dir_ret,r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax, RIP, CS, EFLAGS, RSP]    si vengo
+	// desde interrupción ioe stack [] = [dir_ret, r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax, RIP, CS,
+	// EFLAGS, RSP]    si vengo desde interrupción zde
 
- 	for (int i = 0; i < registers_len - 1; i++) {
+	if (stack == 0) {
+		tx_put_word("You have to press 'Ctrl+r' to set the registers at some point\n");
+		return;
+	}
+
+	for (int i = 0; i < registers_len - 1; i++) {
 		tx_put_word(registers[i]);
 		uint_to_base(stack[i], buff, HEX);
 		tx_put_word(buff);
@@ -78,7 +63,7 @@ exc_printreg(uint64_t* stack)
 	}
 
 	tx_put_word(registers[registers_len - 1]);
-	uint_to_base((uint64_t)stack[registers_len + 1], buff, HEX);
+	uint_to_base((uint64_t)stack[registers_len - 1], buff, HEX);
 	tx_put_word(buff);
 	tx_put_char('\n');
 }
@@ -102,8 +87,8 @@ exception_handler(char* msg)
 static void
 restore_state(uint64_t* stack)
 {
-	// stack [] = [dir_ret, 0 ,r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax,rbp, RIP, CS, EFLAGS, RSP(viejo)]
-	// vd_set_color(0xFFFFFF, 0x2020CF);
+	// stack [] = [dir_ret, 0 ,r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax,rbp, RIP, CS, EFLAGS,
+	// RSP(viejo)] vd_set_color(0xFFFFFF, 0x2020CF);
 	tx_put_word("Restoring state from: IP=0x");
 	uint_to_base(rp.ip, buff, HEX);
 	tx_put_word(buff);

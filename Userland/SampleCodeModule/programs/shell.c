@@ -14,19 +14,25 @@ typedef struct
 	char *name, *desc;
 } Command;
 
+typedef struct
+{
+	volatile uint32_t fg, bg, output, prompt, error;
+} Color;
+
 static Command commands[MAX_COMMANDS];
-static uint32_t commands_len = 0;
 static char* args[MAX_ARGS];
-static uint32_t args_len = 0;
 static char input_buffer[INPUT_SIZE];
+static uint32_t commands_len = 0;
+static uint32_t args_len = 0;
 static uint8_t running = 1;
-static volatile uint32_t bg = 0x000001;  // no sabemos que pasa que con 0x000000 no funciona
-static volatile uint32_t fg = 0xFFFFFF;
+
+// colors
+static Color color = { .fg = 0xffffff, .bg = 0x000000, .output = 0x808080, .prompt = 0x00ff00, .error = 0xff0000 };
 
 static void load_commands();
 static void load_command(uint32_t (*fn)(), char* name, char* desc);
-static uint32_t process_input(char* buff, uint32_t size);
-static void prompt();
+static int32_t process_input(char* buff, uint32_t size);
+static void prompt(int32_t status);
 
 // commands
 static uint32_t help();
@@ -46,11 +52,11 @@ shell_init()
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n");
 	load_commands();
 
-	uint32_t len, status = 0;
+	int32_t len, status = 0;
 	while (running) {
-		prompt();
+		prompt(status);
 		len = gets(input_buffer, INPUT_SIZE);
-		asm_setcolor(fg, bg);
+		asm_setcolor(color.fg, color.bg);
 		status = process_input(input_buffer, len);
 	}
 
@@ -83,12 +89,14 @@ load_command(uint32_t (*fn)(), char* name, char* desc)
 	commands_len++;
 }
 
-static uint32_t
+static int32_t
 process_input(char* buff, uint32_t size)
 {
 	args_len = strtok(buff, ' ', args, MAX_ARGS);
 	if (args_len == 0)
 		return -1;
+
+	asm_setcolor(color.output, color.bg);
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name))
 			return commands[i].fn();
@@ -100,11 +108,11 @@ process_input(char* buff, uint32_t size)
 }
 
 static void
-prompt()
+prompt(int32_t status)
 {
-	asm_setcolor(0x00ff00, bg);
+	asm_setcolor(status < 0 ? color.error : 0x00ff00, color.bg);
 	puts("user@qemu");
-	asm_setcolor(fg, bg);
+	asm_setcolor(color.fg, color.bg);
 	putchar(':');
 	putchar('~');
 	puts("$ ");
@@ -167,7 +175,7 @@ static uint32_t
 pong()
 {
 	start_game();
-	asm_setcolor(fg, bg);
+	asm_setcolor(color.fg, color.bg);
 	asm_clear();
 	return 0;
 }
@@ -179,9 +187,9 @@ setcolors()
 		puts("Invalid color codes \n");
 		return 0;
 	}
-	bg = hex_to_uint(args[1]);
-	fg = hex_to_uint(args[2]);
-	asm_setcolor(fg, bg);
+	color.bg = hex_to_uint(args[1]);
+	color.fg = hex_to_uint(args[2]);
+	asm_setcolor(color.fg, color.bg);
 	clear();
 	return 0;
 }
@@ -189,10 +197,10 @@ setcolors()
 static uint32_t
 invertcolors()
 {
-	uint32_t aux = bg;
-	bg = fg;
-	fg = aux;
-	asm_setcolor(fg, bg);
+	uint32_t aux = color.bg;
+	color.bg = color.fg;
+	color.fg = aux;
+	asm_setcolor(color.fg, color.bg);
 	clear();
 	return 0;
 }

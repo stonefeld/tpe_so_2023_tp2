@@ -8,10 +8,7 @@ global asm_printreg
 global asm_sound
 global asm_nosound
 
-extern tx_put_int
-extern tx_put_word
-extern tx_put_char
-extern printreg
+extern exc_printreg
 
 section .text
 
@@ -100,7 +97,6 @@ asm_setreg:
     ; mov rcx, 12
     ; mov rbx, 13
     ; mov rax, 14
-
     mov [regs_stack],r15
     mov [regs_stack+1*8],r14
     mov [regs_stack+2*8],r13
@@ -121,14 +117,23 @@ asm_setreg:
     add rsp,8
     mov [regs_stack+16*8],rsp
     sub rsp,8
+    mov [setreg_called],byte 1
     ret
 
 asm_printreg:
     push rbp
     mov rbp,rsp
 
+    cmp byte [setreg_called],1
+    jne .notcalled
     mov rdi,regs_stack
-    call printreg
+    jmp .next
+
+.notcalled:
+    mov rdi,0
+
+.next:
+    call exc_printreg
 
     leave
     ret
@@ -165,3 +170,6 @@ asm_nosound:
 
 section .bss
 regs_stack resb 17*8
+
+section .data
+setreg_called db 0

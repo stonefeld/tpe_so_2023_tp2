@@ -37,7 +37,7 @@ idt_loader()
 	setup_idt_entry(0x06, (uint64_t)&asm_exception06_handler);
 
 	// syscall handler
-	setup_idt_entry(0x69, (uint64_t)&asm_syscall_handler);
+	setup_idt_entry(0x80, (uint64_t)&asm_syscall_handler);
 
 	// solo interrupción timer tick habilitadas
 	asm_pic_master_mask(0xFC);

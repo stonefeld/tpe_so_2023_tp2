@@ -47,7 +47,7 @@ sys_sound        equ 16
     mov rdx,rsi
     mov rsi,rdi
     mov rdi,%1
-    int 69h
+    int 80h
     leave
     ret
 %endmacro

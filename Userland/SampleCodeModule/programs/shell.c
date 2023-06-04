@@ -20,14 +20,13 @@ static char* args[MAX_ARGS];
 static uint32_t args_len = 0;
 static char input_buffer[INPUT_SIZE];
 static uint8_t running = 1;
-static volatile uint32_t bg = 0x000001;  // no sabemos que pasa que con 0x000000 no funca
+static volatile uint32_t bg = 0x000001;  // no sabemos que pasa que con 0x000000 no funciona
 static volatile uint32_t fg = 0xFFFFFF;
 
 static void load_commands();
 static void load_command(uint32_t (*fn)(), char* name, char* desc);
 static uint32_t process_input(char* buff, uint32_t size);
 static void prompt();
-static void show_wallpaper();
 
 // commands
 static uint32_t help();
@@ -44,9 +43,6 @@ static uint32_t invertcolors();
 uint32_t
 shell_init()
 {
-	// show_wallpaper();
-	// asm_sound(1193180 / 1, 5);
-
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n");
 	load_commands();
 
@@ -91,10 +87,8 @@ static uint32_t
 process_input(char* buff, uint32_t size)
 {
 	args_len = strtok(buff, ' ', args, MAX_ARGS);
-	if (args_len <= 0 || args_len > MAX_ARGS) {
-		puts("Wrong ammount of arguments\n");
+	if (args_len == 0)
 		return -1;
-	}
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name))
 			return commands[i].fn();
@@ -114,15 +108,6 @@ prompt()
 	putchar(':');
 	putchar('~');
 	puts("$ ");
-}
-
-static void
-show_wallpaper()
-{
-	asm_wallpaper();
-	uint8_t status;
-	while (!(getchar(&status) == '\n' && status == PRESSED)) {}
-	asm_clear();
 }
 
 static uint32_t
@@ -200,6 +185,7 @@ setcolors()
 	clear();
 	return 0;
 }
+
 static uint32_t
 invertcolors()
 {

@@ -84,39 +84,7 @@ asm_getsp:
     leave
     ret
 
-; asm_print_regs:
-;     push rbp  ; los registros están pusheados en el stack
-;     mov rbp,rsp
-;
-;     mov r10,0
-;
-;     .loop:
-;         mov rdi, [REGS + r10]
-;         call tx_put_word
-;
-;         add r10,8
-;
-;         mov rdi, [rbp + r10 + 8] ; el 8 es por el stackframe
-;         call tx_put_int
-;
-;         mov rdi,10
-;         call tx_put_char
-;
-;         cmp r10, length
-;
-;         jne .loop
-;
-;     mov rsp,rbp
-;     pop rbp
-;     ret
-
-; give_control_to_user:
-;     call get_stack_base  ; Get thet stack address
-;     mov rsp, rax         ; Set up the stack with the returned address
-;     call main
-
 asm_setreg:
-     
     ; mov r15, 0
     ; mov r14, 1
     ; mov r13, 2
@@ -158,7 +126,7 @@ asm_setreg:
 asm_printreg:
     push rbp
     mov rbp,rsp
-    
+
     mov rdi,regs_stack
     call printreg
 

@@ -58,8 +58,11 @@ main()
 	// print intro wallpaper
 	vd_print_wallpaper(2);
 	ti_sleep(1 * 18);
-	sd_play(900, 0.2 * 18);
-	sd_play(500, 0.3 * 18);
+	sd_play(800, 0.1 * 18);
+	ti_sleep(0.2 * 18);
+	sd_play(800, 0.1 * 18);
+	ti_sleep(0.1 * 18);
+	sd_play(1000, 0.3 * 18);
 	ti_sleep(1 * 18);
 	vd_clear();
 

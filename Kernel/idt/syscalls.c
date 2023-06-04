@@ -17,15 +17,11 @@ enum syscalls
 	// drawing
 	SYS_DRAW,
 	SYS_CLEAR,
-	SYS_COLOR,
 	SYS_CURSOR,
 	SYS_SHOW_CURSOR,
 
 	// properties
-	SYS_WINWIDTH,
-	SYS_WINHEIGHT,
-	SYS_FONTWIDTH,
-	SYS_FONTHEIGHT,
+	SYS_WINPROPS,
 
 	// system
 	SYS_TICKS,
@@ -63,20 +59,11 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 			tx_show_cursor(rsi);
 		} break;
 
-		case SYS_WINWIDTH: {
-			return vd_get_winwidth();
-		} break;
-
-		case SYS_WINHEIGHT: {
-			return vd_get_winheight();
-		} break;
-
-		case SYS_FONTWIDTH: {
-			return CHAR_WIDTH;
-		} break;
-
-		case SYS_FONTHEIGHT: {
-			return CHAR_HEIGHT;
+		case SYS_WINPROPS: {
+			*((uint32_t*)rsi) = vd_get_winwidth();
+			*((uint32_t*)rdx) = vd_get_winheight();
+			*((uint32_t*)rcx) = CHAR_WIDTH;
+			*((uint32_t*)r8) = CHAR_HEIGHT;
 		} break;
 
 		case SYS_TICKS: {

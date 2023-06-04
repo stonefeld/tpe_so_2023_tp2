@@ -118,46 +118,47 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	return digits;
 }
 
-uint32_t
-hex_to_uint(char* hex_code)
-{
-	uint32_t code = 0;
-
-	if (hex_code[0] == '0' && hex_code[1] == 'x')
-		hex_code += 2;
-
-	for (int i = 0; hex_code[i] != '\0'; i++) {
-		char c = hex_code[i];
-
-		uint32_t value = 0;
-		if (c >= '0' && c <= '9') {
-			value = c - '0';
-		} else if (c >= 'A' && c <= 'F') {
-			value = 10 + (c - 'A');
-		} else if (c >= 'a' && c <= 'f') {
-			value = 10 + (c - 'a');
-		} else {
-			return 0;
-		}
-
-		code = (code << 4) | value;
-	}
-
-	return code;
-}
-
 uint8_t
 is_hex_color_code(char* code)
 {
-	if (strlen(code) != 8 || code[0] != '0' || code[1] != 'x')
+	uint32_t len = strlen(code);
+	if ((len != 7 || code[0] != '#') && (len != 8 || code[0] != '0' || code[1] != 'x'))
 		return 0;
 
-	for (int i = 2; i < 7; i++) {
-		char c = code[i];
-		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) {
+	char c;
+	for (int i = len == 7 ? 1 : 2; i < len; i++) {
+		c = code[i];
+		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')))
 			return 0;
-		}
+	}
+	return 1;
+}
+
+uint32_t
+hex_to_uint(char* code)
+{
+	uint32_t ret = 0;
+
+	if (code[0] == '0' && code[1] == 'x')
+		code += 2;
+	else if (code[0] == '#')
+		code++;
+
+	for (int i = 0; code[i] != '\0'; i++) {
+		char c = code[i];
+		uint32_t value = 0;
+
+		if (c >= '0' && c <= '9')
+			value = c - '0';
+		else if (c >= 'A' && c <= 'F')
+			value = 10 + (c - 'A');
+		else if (c >= 'a' && c <= 'f')
+			value = 10 + (c - 'a');
+		else
+			return 0;
+
+		ret = (ret << 4) | value;
 	}
 
-	return 1;
+	return ret;
 }

@@ -1,12 +1,14 @@
 #include <font.h>
 #include <libc.h>
+#include <text.h>
 #include <video.h>
-#include <wallpapers.h>
+#include <wallpaper.h>
 
 // colors
 #define RED 0xff0000
 #define GREEN 0x00ff00
 #define BLUE 0x0000ff
+#define WHITE RED | GREEN | BLUE
 
 // pixel size (in bytes)
 #define PIXEL vbe_mode_info->bpp / 8
@@ -139,6 +141,13 @@ vd_wallpaper(uint32_t size)
 			for (uint32_t i = 0; i < size; i++)
 				for (uint32_t j = 0; j < size; j++)
 					vd_put_pixel(x * size + startx + j, y * size + starty + i, image_data[y][x]);
+
+	tx_show_cursor(0);
+	char loading[] = "Loading...";
+	uint32_t len = sizeof(loading) / sizeof(loading[0]);
+	tx_set_cursor((vbe_mode_info->width / CHAR_WIDTH - len) / 2, starty / CHAR_HEIGHT + CHAR_HEIGHT / 2, WHITE);
+	tx_put_word(loading, 0xffffff);
+	tx_show_cursor(1);
 }
 
 void

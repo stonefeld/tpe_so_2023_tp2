@@ -8,6 +8,9 @@
 #define MAX_ARGS 3
 #define INPUT_SIZE 200
 
+#define PONG_FG 0xf5ebbc
+#define PONG_BG 0x151f42
+
 typedef struct
 {
 	uint32_t (*fn)();
@@ -43,8 +46,8 @@ static uint32_t clear();
 static uint32_t testioe();
 static uint32_t testzde();
 static uint32_t pong();
-static uint32_t setcolors();
-static uint32_t invertcolors();
+static uint32_t setcolor();
+static uint32_t switchcolors();
 
 uint32_t
 shell_init()
@@ -65,16 +68,16 @@ shell_init()
 static void
 load_commands()
 {
-	load_command(help, "help", "         Displays this help message");
-	load_command(datetime, "datetime", "     Prints the current datetime");
-	load_command(clear, "clear", "        Clears the screen");
-	load_command(exit, "exit", "         Exits the shell");
-	load_command(printreg, "printreg", "     Prints all the registers values");
-	load_command(testioe, "testioe", "      Tests the 'Invalid Opcode Exception'");
-	load_command(testzde, "testzde", "      Tests the 'Zero Division Error Exception'");
-	load_command(pong, "pong", "         Pong (The Game)");
-	load_command(setcolors, "setcolors", "    Sets background and foreground colors received in format '0xXXXXXX'");
-	load_command(invertcolors, "switchcolors", " Inverts the background and foreground colors");
+	load_command(help, "help", "          Displays this help message");
+	load_command(datetime, "datetime", "      Prints the current datetime");
+	load_command(printreg, "printreg", "      Prints all the registers values");
+	load_command(pong, "pong", "          Pong (The Game)");
+	load_command(setcolor, "setcolor", "      Sets background and foreground colors received in format '0xXXXXXX'");
+	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
+	load_command(clear, "clear", "         Clears the screen");
+	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
+	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
+	load_command(exit, "exit", "          Exits the shell");
 }
 
 static void
@@ -108,7 +111,7 @@ process_input(char* buff, uint32_t size)
 static void
 prompt(int32_t status)
 {
-	puts("user@qemu:~$", color.prompt);
+	puts(">>>", status == 0 ? color.prompt : color.error);
 	putchar(' ', color.fg);
 }
 
@@ -140,8 +143,7 @@ clear()
 static uint32_t
 exit()
 {
-	running = 0;
-	return 0;
+	return running = 0;
 }
 
 static uint32_t
@@ -168,26 +170,85 @@ testzde()
 static uint32_t
 pong()
 {
-	start_game();
+	char* usage = "USAGE: pong [fg] [bg]\nWhen leaving empty, <fg> and <bg> will get default values\n";
+
+	if (args_len == 1) {
+		start_game(PONG_FG, PONG_BG);
+	} else if (args_len == 3) {
+		if (!hex_to_uint(args[1]) && !hex_to_uint(args[2])) {
+			puts("Invalid arguments\n", color.output);
+			puts(usage, color.output);
+			return -1;
+		}
+		uint32_t fg = hex_to_uint(args[1]);
+		uint32_t bg = hex_to_uint(args[2]);
+		start_game(fg, bg);
+	} else {
+		puts("Invalid ammount of arguments\n", color.output);
+		puts(usage, color.output);
+		return -1;
+	}
 	asm_clear(color.bg);
 	return 0;
 }
 
 static uint32_t
-setcolors()
+setcolor()
 {
-	if (args_len != 3 || !is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
-		puts("Invalid color codes \n", color.output);
-		return 0;
+	if (args_len != 3) {
+		puts("USAGE: setcolor <target> <color>\n<target>   fg | bg | output | prompt | error\n<color>    The color in "
+		     "hex format ('0xXXXXXX' or '#XXXXXX')\n",
+		     color.output);
+		return -1;
 	}
-	color.bg = hex_to_uint(args[1]);
-	color.fg = hex_to_uint(args[2]);
-	clear();
-	return 0;
+
+	if (!is_hex_color_code(args[2])) {
+		puts("Invalid color '", color.output);
+		puts(args[2], color.output);
+		puts("'\n", color.output);
+		return -1;
+	}
+
+	char* targets[] = { "fg", "bg", "output", "prompt", "error" };
+	uint32_t targets_len = sizeof(targets) / sizeof(targets[0]);
+
+	for (int i = 0; i < targets_len; i++) {
+		if (strcmp(targets[i], args[1])) {
+			uint32_t col = hex_to_uint(args[2]);
+			switch (i) {
+				case 0: {
+					color.fg = col;
+				} break;
+
+				case 1: {
+					color.bg = col;
+					clear();
+				} break;
+
+				case 2: {
+					color.output = col;
+				} break;
+
+				case 3: {
+					color.prompt = col;
+				} break;
+
+				case 4: {
+					color.error = col;
+				} break;
+			}
+			return 0;
+		}
+	}
+
+	puts("Invalid target '", color.output);
+	puts(args[1], color.output);
+	puts("'\n", color.output);
+	return -1;
 }
 
 static uint32_t
-invertcolors()
+switchcolors()
 {
 	uint32_t aux = color.bg;
 	color.bg = color.fg;

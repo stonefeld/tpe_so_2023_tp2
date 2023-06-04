@@ -13,6 +13,7 @@
 #include <video.h>
 
 #define BLACK 0x000000
+#define WHITE 0xffffff
 
 typedef int (*EntryPoint)();
 
@@ -57,8 +58,10 @@ main()
 {
 	idt_loader();
 
-	// print intro wallpaper
+	// print intro wallpaper and loading message
 	vd_wallpaper(2);
+
+	// play some nice sound
 	ti_sleep(1 * 18);
 	sd_play(800, 0.1 * 18);
 	ti_sleep(0.2 * 18);
@@ -66,8 +69,12 @@ main()
 	ti_sleep(0.1 * 18);
 	sd_play(1000, 0.3 * 18);
 	ti_sleep(1 * 18);
-	vd_clear(BLACK);
+	tx_clear(BLACK);
 
+	// set the restore point in case of exceptions
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp());
-	return ((EntryPoint)sample_code_module_addr)();
+
+	uint32_t status = ((EntryPoint)sample_code_module_addr)();
+	tx_put_word("Exit from Userland. Back in Kernel.\n", WHITE);
+	return status;
 }

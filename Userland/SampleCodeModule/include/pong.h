@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void start_game();
+void start_game(uint32_t fg, uint32_t bg);
 
 #endif

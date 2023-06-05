@@ -45,6 +45,9 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 	restore_state(stack);
 }
 
+
+
+
 void
 exc_printreg(uint64_t* stack, uint32_t color, uint8_t exception)
 {

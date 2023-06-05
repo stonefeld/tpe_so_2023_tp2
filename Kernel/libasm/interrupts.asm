@@ -66,6 +66,7 @@ section .text
     pop rax
 %endmacro
 
+; handler de las interrupciones de Hardware
 %macro irq_handler 1
    push rsp
    push_state_full
@@ -82,6 +83,7 @@ section .text
    iretq
 %endmacro
 
+; handler de las excepciones
 %macro excepction_handler 1
    push_state_full
 
@@ -92,6 +94,13 @@ section .text
    pop_state_full
    iretq
 %endmacro
+
+; handler de las syscalls 
+asm_syscall_handler:
+   push_state
+   call syscall_dispatcher
+   pop_state
+   iretq
 
 
 asm_hlt:
@@ -127,6 +136,10 @@ asm_pic_slave_mask:
     pop rbp
     retn
 
+
+
+; **************************************** EL RESTO LLAMA A LAS MACROS CON DISTINTOS PARÁMETROS ****************************************************************************************************
+
 ; 8254 Timer (Timer Tick)
 asm_irq00_handler:
     irq_handler 0
@@ -159,9 +172,3 @@ asm_exception00_handler:
 asm_exception06_handler:
    excepction_handler 6
 
-; Calls the syscall handler
-asm_syscall_handler:
-   push_state
-   call syscall_dispatcher
-   pop_state
-   iretq

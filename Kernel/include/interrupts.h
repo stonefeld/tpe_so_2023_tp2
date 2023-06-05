@@ -18,6 +18,11 @@ extern void asm_irq03_handler();
 extern void asm_irq04_handler();
 extern void asm_irq05_handler();
 
+/*
+    Wrappers que llaman a los dispatchers de:
+    * syscalls
+    * exceptions
+*/
 extern void asm_syscall_handler();
 extern void asm_exception00_handler();
 extern void asm_exception06_handler();

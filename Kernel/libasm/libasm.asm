@@ -80,7 +80,7 @@ asm_getsp:
 
     leave
     ret
-
+; guarda en un arreglo el contenido de los registros
 asm_setreg:
     mov [regs_stack],r15
     mov [regs_stack+1*8],r14

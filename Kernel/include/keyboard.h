@@ -16,7 +16,14 @@
 #define RELEASED 0
 #define PRESSED 1
 
+/*
+    Maneja la interrupción de hardware del teclado, llena el buffer del teclado  
+*/
+
 int keyboard_handler();
+
+/*
+*/
 char kb_getchar(uint8_t* state);
 
 #endif

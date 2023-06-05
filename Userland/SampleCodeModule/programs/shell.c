@@ -70,9 +70,9 @@ load_commands()
 {
 	load_command(help, "help", "          Displays this help message");
 	load_command(datetime, "datetime", "      Prints the current datetime");
-	load_command(printreg, "printreg", "      Prints all the registers values");
+	load_command(printreg, "printreg", "      Prints all the registers values saved in the last key press of ctrl+r");
 	load_command(pong, "pong", "          Pong (The Game)");
-	load_command(setcolor, "setcolor", "      Sets background and foreground colors received in format '0xXXXXXX'");
+	load_command(setcolor, "setcolor", "      Sets background,foreground,prompt,output or error colors");
 	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
 	load_command(clear, "clear", "         Clears the screen");
 	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");

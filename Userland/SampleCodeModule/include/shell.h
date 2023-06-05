@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+/*
+ * Inicializa y corre el shell.
+ */
 uint32_t shell_init();
 
 #endif

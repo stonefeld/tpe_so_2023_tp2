@@ -15,6 +15,12 @@ ti_ticks()
 	return ticks;
 }
 
+uint64_t
+ti_seconds()
+{
+	return ticks / 18;
+}
+
 uint8_t
 ti_ticked()
 {
@@ -22,12 +28,6 @@ ti_ticked()
 		return 0;
 	last_ticks = ticks;
 	return 1;
-}
-
-uint64_t
-ti_seconds()
-{
-	return ticks / 18;
 }
 
 void

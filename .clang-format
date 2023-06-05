@@ -23,6 +23,7 @@ IndentWrappedFunctionNames: 'false'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
 NamespaceIndentation: All
 PointerAlignment: Left
+ReflowComments: 'true'
 SortIncludes: 'true'
 SortUsingDeclarations: 'true'
 SpaceAfterCStyleCast: 'false'

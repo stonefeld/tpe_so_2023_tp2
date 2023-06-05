@@ -137,9 +137,9 @@ game_loop()
 		process_key(c, c_status);
 		if (asm_ticked()) {
 			update_players();
+			draw_players();
 			update_ball();
 			draw_ball();
-			draw_players();
 
 			if (sound_count == 0)
 				asm_sound(0, 0);

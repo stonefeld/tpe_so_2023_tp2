@@ -1,31 +1,55 @@
+/*
+ * Estas funciones están definidas en libasm/libasm.asm
+ */
+
 #ifndef LIBASM_H
 #define LIBASM_H
 
 #include <stdint.h>
 
-// defined in asm/libasm.asm
+/*
+ * Devuelve la información del productor del procesador.
+ */
 extern char* asm_cpu_vendor(char* result);
 
 /*
-    Devuelve el ftm (HORA, DIA, etc..) indicado del tiempo medido por RTC.   
-*/
+ * Devuelve el fmt (HORA, DIA, etc..) indicado del tiempo medido por RTC.
+ */
 extern int asm_rtc_gettime(int fmt);
+
+/*
+ * Devuelve si hay un caracter disponible, es decir, si se presionó alguna tecla.
+ */
 extern char asm_kbd_active();
+
+/*
+ * Devuelve la tecla que haya sido presionada cuando saltó la interrupción.
+ */
 extern int asm_kbd_getkey();
 
 /*
-    Devuelve el stack pointer actual.
-*/
+ * Devuelve el stack pointer actual.
+ */
 extern uint64_t asm_getsp();
+
 /*
-    Guarda en un arreglo el contenido de los registros
-*/
+ * Guarda en un arreglo el contenido de los registros. Genera la snapshot.
+ */
 extern void asm_setreg();
+
 /*
-    Imprime los registros.
-*/
+ * Imprime los registros cargados en el arreglo de la snapshot.
+ */
 extern void asm_printreg(uint32_t color);
-extern void asm_sound(uint32_t freq, uint32_t time);
+
+/*
+ * Reproduce un sonido por el pcspkr con la frecuencia deseada.
+ */
+extern void asm_sound(uint32_t freq);
+
+/*
+ * Frena la reproducción de sonido.
+ */
 extern void asm_nosound();
 
 #endif

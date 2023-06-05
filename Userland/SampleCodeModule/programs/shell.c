@@ -54,6 +54,7 @@ shell_init()
 {
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n", color.output);
 	load_commands();
+	running = 1;
 
 	int32_t len, status = 0;
 	while (running) {

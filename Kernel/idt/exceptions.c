@@ -41,14 +41,14 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 			exception_handler("Invalid Opcode Exception");
 		} break;
 	}
-	exc_printreg(stack, ERROR_MSG);
+	exc_printreg(stack, ERROR_MSG, 1);
 	restore_state(stack);
 }
 
 void
-exc_printreg(uint64_t* stack, uint32_t color)
+exc_printreg(uint64_t* stack, uint32_t color, uint8_t exception)
 {
-	if (stack == 0) {
+	if (!exception && stack == 0) {
 		tx_put_word("You have to press 'Ctrl+r' to set the registers at some point\n", color);
 		return;
 	}
@@ -64,7 +64,7 @@ exc_printreg(uint64_t* stack, uint32_t color)
 	}
 
 	tx_put_word(registers[registers_len - 1], color);
-	len = uint_to_base(stack[registers_len - 1], buff, HEX);
+	len = uint_to_base(stack[registers_len + (exception ? 1 : -1)], buff, HEX);
 	for (int i = 0; i < 16 - len; i++)
 		tx_put_char('0', color);
 	tx_put_word(buff, color);

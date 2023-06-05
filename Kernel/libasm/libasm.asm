@@ -119,6 +119,7 @@ asm_printreg:
     mov rdi,0
 
 .next:
+    mov rdx,0
     call exc_printreg
 
     leave

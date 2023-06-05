@@ -82,21 +82,6 @@ asm_getsp:
     ret
 
 asm_setreg:
-    ; mov r15, 0
-    ; mov r14, 1
-    ; mov r13, 2
-    ; mov r12, 3
-    ; mov r11, 4
-    ; mov r10, 5
-    ; mov r9, 6
-    ; mov r8, 7
-    ; mov rsi, 8
-    ; mov rdi, 9
-    ; ;mov rbp, 10
-    ; mov rdx, 11
-    ; mov rcx, 12
-    ; mov rbx, 13
-    ; mov rax, 14
     mov [regs_stack],r15
     mov [regs_stack+1*8],r14
     mov [regs_stack+2*8],r13
@@ -143,13 +128,13 @@ asm_sound:
     push rbp
     mov rbp,rsp
 
-    mov al,182         ; Configuro altavoz
+    mov al,182         ; configuro altavoz
     out 43h,al
 
-    mov ax,di          ; Frecuencia en bx
-    out 42h,al         ; Envio byte - significativo
+    mov ax,di          ; frecuencia en bx
+    out 42h,al         ; envio byte - significativo
     mov al,ah
-    out 42h,al         ; Envio byte + significativo
+    out 42h,al         ; envio byte + significativo
 
     in al,61h
     or al,3h

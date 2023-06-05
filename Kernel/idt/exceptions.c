@@ -48,24 +48,25 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 void
 exc_printreg(uint64_t* stack, uint32_t color)
 {
-	// stack [] = [dir_ret,r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax, RIP, CS, EFLAGS, RSP]    si vengo
-	// desde interrupción ioe stack [] = [dir_ret, r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax, RIP, CS,
-	// EFLAGS, RSP]    si vengo desde interrupción zde
-
 	if (stack == 0) {
 		tx_put_word("You have to press 'Ctrl+r' to set the registers at some point\n", color);
 		return;
 	}
 
+	uint32_t len;
 	for (int i = 0; i < registers_len - 1; i++) {
 		tx_put_word(registers[i], color);
-		uint_to_base(stack[i], buff, HEX);
+		len = uint_to_base(stack[i], buff, HEX);
+		for (int i = 0; i < 16 - len; i++)
+			tx_put_char('0', color);
 		tx_put_word(buff, color);
 		tx_put_char('\n', color);
 	}
 
 	tx_put_word(registers[registers_len - 1], color);
-	uint_to_base((uint64_t)stack[registers_len - 1], buff, HEX);
+	len = uint_to_base(stack[registers_len - 1], buff, HEX);
+	for (int i = 0; i < 16 - len; i++)
+		tx_put_char('0', color);
 	tx_put_word(buff, color);
 	tx_put_char('\n', color);
 }
@@ -87,8 +88,6 @@ exception_handler(char* msg)
 static void
 restore_state(uint64_t* stack)
 {
-	// stack [] = [dir_ret, 0 ,r15,r14,r13,r12,r11,r10,r9,r8,rsi,rdi,rbp,rdx,rcx,rbx,rax,rbp, RIP, CS, EFLAGS,
-	// RSP(viejo)] vd_set_color(0xFFFFFF, 0x2020CF);
 	tx_put_word("Restoring state from: IP=0x", INFO_MSG);
 	uint_to_base(rp.ip, buff, HEX);
 	tx_put_word(buff, INFO_MSG);

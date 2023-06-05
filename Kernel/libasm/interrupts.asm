@@ -19,7 +19,6 @@ global asm_exception06_handler
 extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
-extern asm_print_regs
 
 section .text
 
@@ -84,13 +83,6 @@ section .text
 %endmacro
 
 %macro excepction_handler 1
-   ;mov rdi,1
-   ;mov rsi,2
-   ;mov rdx,3
-   ;mov r10,4
-   ;mov r9,5
-   ;mov r8,6
-   ; TEST PARA LA EXCEPTION
    push_state_full
 
    mov rdi,%1   ; pasaje de parametro
@@ -99,7 +91,6 @@ section .text
 
    pop_state_full
    iretq
-   ;ret  ; UNA VEZ QUE TERMINEMOS EL TESTING VOLVER A IRETQ
 %endmacro
 
 

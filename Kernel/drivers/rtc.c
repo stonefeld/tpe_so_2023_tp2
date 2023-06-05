@@ -6,6 +6,7 @@
 
 #define ARG_TIMEZONE -3
 #define DATE_SIZE 4
+#define MONTHS 12
 
 enum time_fmt
 {
@@ -19,35 +20,70 @@ enum time_fmt
 };
 
 static char buff[DATE_SIZE];
+static uint8_t monthdays[MONTHS] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 static int format(int n);
 
 void
 rtc_datetime(uint32_t color)
 {
+	int32_t day = format(asm_rtc_gettime(DAY));
+	int32_t month = format(asm_rtc_gettime(MONTH));
+	int32_t year = format(asm_rtc_gettime(YEAR));
+	int32_t hours = format(asm_rtc_gettime(HOURS));
+	int32_t minutes = format(asm_rtc_gettime(MINUTES));
+	int32_t seconds = format(asm_rtc_gettime(SECONDS));
+	uint32_t len;
+
+	hours += ARG_TIMEZONE;
+	if (hours < 0) {
+		hours += 24;
+		day--;
+		if (day <= 0) {
+			month--;
+			if (month <= 0) {
+				month += 12;
+				year--;
+			}
+			day += monthdays[month - 1];
+			if ((year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)) && month == 2)
+				day++;
+		}
+	}
+
 	tx_put_word("Datetime: ", color);
-	uint32_t value = format(asm_rtc_gettime(DAY));
-	uint_to_base(value, buff, DEC);
+	len = uint_to_base(day, buff, DEC);
+	if (len == 1)
+		tx_put_char('0', color);
 	tx_put_word(buff, color);
 	tx_put_char('/', color);
-	value = format(asm_rtc_gettime(MONTH));
-	uint_to_base(value, buff, DEC);
+
+	len = uint_to_base(month, buff, DEC);
+	if (len == 1)
+		tx_put_char('0', color);
 	tx_put_word(buff, color);
 	tx_put_char('/', color);
-	value = format(asm_rtc_gettime(YEAR));
-	uint_to_base(value, buff, DEC);
+
+	uint_to_base(year, buff, DEC);
+	tx_put_word("20", color);
 	tx_put_word(buff, color);
 	tx_put_char(' ', color);
-	value = format(asm_rtc_gettime(HOURS)) + ARG_TIMEZONE;
-	uint_to_base(value, buff, DEC);
+
+	len = uint_to_base(hours, buff, DEC);
+	if (len == 1)
+		tx_put_char('0', color);
 	tx_put_word(buff, color);
 	tx_put_char(':', color);
-	value = format(asm_rtc_gettime(MINUTES));
-	uint_to_base(value, buff, DEC);
+
+	len = uint_to_base(minutes, buff, DEC);
+	if (len == 1)
+		tx_put_char('0', color);
 	tx_put_word(buff, color);
 	tx_put_char(':', color);
-	value = format(asm_rtc_gettime(SECONDS));
-	uint_to_base(value, buff, DEC);
+
+	len = uint_to_base(seconds, buff, DEC);
+	if (len == 1)
+		tx_put_char('0', color);
 	tx_put_word(buff, color);
 	tx_put_char('\n', color);
 }

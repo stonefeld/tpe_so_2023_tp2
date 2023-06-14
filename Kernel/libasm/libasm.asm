@@ -73,13 +73,9 @@ asm_kbd_getkey:
 
 ; devuelve el valor del stack-pointer
 asm_getsp:
-    push rbp
-    mov rbp,rsp
-
     mov rax,rsp
-
-    leave
     ret
+
 ; guarda en un arreglo el contenido de los registros
 asm_setreg:
     mov [regs_stack],r15

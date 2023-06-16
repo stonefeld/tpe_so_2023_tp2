@@ -77,8 +77,10 @@ asm_getsp:
     ret
 
 ; guarda en un arreglo el contenido de los registros
+; creo que podemos borrar todo esto y llevarlo directamente a .C
 asm_setreg:
-    mov [regs_stack],r15
+
+   ; mov [regs_stack],[rsp +]
     mov [regs_stack+1*8],r14
     mov [regs_stack+2*8],r13
     mov [regs_stack+3*8],r12

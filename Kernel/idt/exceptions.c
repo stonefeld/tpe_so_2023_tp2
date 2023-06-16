@@ -2,7 +2,7 @@
 #include <libc.h>
 #include <text.h>
 #include <video.h>
-
+#include <syscalls.h>
 #define BUFF_SIZE 30
 #define ERROR_MSG 0xff0000
 #define INFO_MSG 0x0000ff
@@ -18,11 +18,11 @@ typedef struct
 	uint64_t ip, sp;
 } RestorePoint;
 
-static char* registers[] = {
+static char* regs_descriptor[] = {
 	"R15: 0x", "R14: 0x", "R13: 0x", "R12: 0x", "R11: 0x", "R10: 0x", "R9:  0x", "R8:  0x", "RSI: 0x",
 	"RDI: 0x", "RBP: 0x", "RDX: 0x", "RCX: 0x", "RBX: 0x", "RAX: 0x", "IP:  0x", "RSP: 0x",
 };
-static uint32_t registers_len = sizeof(registers) / sizeof(registers[0]);
+static uint32_t registers_len = sizeof(regs_descriptor) / sizeof(regs_descriptor[0]);
 static char buff[BUFF_SIZE];
 static RestorePoint rp;
 
@@ -41,21 +41,21 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 			exception_handler("Invalid Opcode Exception");
 		} break;
 	}
-	exc_printreg(stack, ERROR_MSG, 1);
+	exc_printreg(stack, ERROR_MSG);
 	restore_state(stack);
 }
 
 void
-exc_printreg(uint64_t* stack, uint32_t color, uint8_t exception)
+exc_printreg(uint64_t* stack, uint32_t color)
 {
-	if (!exception && stack == 0) {
-		tx_put_word("You have to press 'Ctrl+r' to set the registers at some point\n", color);
-		return;
+	if (!register_flag) {
+		tx_put_word("You have to press 'Ctrl+r' to set the regs_descriptor at some point\n", color);
+		//return;
 	}
 
 	uint32_t len;
 	for (int i = 0; i < registers_len - 1; i++) {
-		tx_put_word(registers[i], color);
+		tx_put_word(regs_descriptor[i], color);
 		len = uint_to_base(stack[i], buff, HEX);
 		for (int i = 0; i < 16 - len; i++)
 			tx_put_char('0', color);
@@ -63,8 +63,8 @@ exc_printreg(uint64_t* stack, uint32_t color, uint8_t exception)
 		tx_put_char('\n', color);
 	}
 
-	tx_put_word(registers[registers_len - 1], color);
-	len = uint_to_base(stack[registers_len + (exception ? 1 : -1)], buff, HEX);
+	tx_put_word(regs_descriptor[registers_len - 1], color);
+	len = uint_to_base(stack[registers_len + 1], buff, HEX);
 	for (int i = 0; i < 16 - len; i++)
 		tx_put_char('0', color);
 	tx_put_word(buff, color);

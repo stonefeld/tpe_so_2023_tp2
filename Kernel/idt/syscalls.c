@@ -7,7 +7,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
-
+#include <exceptions.h>
 enum syscalls
 {
 	// i/o interaction
@@ -30,6 +30,20 @@ enum syscalls
 	SYS_RTC,
 	SYS_SOUND
 };
+
+
+
+
+void save_registers(uint64_t * stack){
+	register_flag = 1;
+	for ( int i = 0; i < SIZE_REGS-4; i++)
+	{
+		registers[i] = stack[i];
+	}
+	registers[16] = stack[16]; // IP
+	registers[18] = stack[15]; // rsp
+	return;
+}
 
 uint64_t
 syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
@@ -75,7 +89,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_REGS: {
-			asm_printreg(rsi);
+			exc_printreg(registers, rsi);
 		} break;
 
 		case SYS_RTC: {

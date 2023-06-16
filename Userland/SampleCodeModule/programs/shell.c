@@ -58,9 +58,12 @@ shell_init()
 
 	int32_t len, status = 0;
 	while (running) {
-		prompt(status);
-		len = gets(input_buffer, INPUT_SIZE, color.fg);
-		status = process_input(input_buffer, len);
+		asm_sleep(10*5);
+		asm_printreg(color.output);
+		asm_testzde();
+		//prompt(status);
+		//len = gets(input_buffer, INPUT_SIZE, color.fg);
+		//status = process_input(input_buffer, len);
 	}
 
 	return status;

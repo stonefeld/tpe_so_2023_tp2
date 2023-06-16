@@ -11,7 +11,7 @@ void exception_dispatcher(uint32_t exception, uint64_t* stack);
 /*
  * Imprime los Registros en pantalla en caso de excepción y comando 'printreg'
  */
-void exc_printreg(uint64_t* stack, uint32_t color, uint8_t exception);
+void exc_printreg(uint64_t* stack, uint32_t color);
 
 /*
  * Restaura el puntero al Stack y reinicia la shell (IP = 0x400000)

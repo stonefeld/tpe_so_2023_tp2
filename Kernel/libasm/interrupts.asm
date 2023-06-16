@@ -19,7 +19,8 @@ global asm_exception06_handler
 extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
-
+extern asm_setreg
+extern save_registers
 section .text
 
 %macro push_state 0
@@ -74,10 +75,21 @@ section .text
    mov rdi,%1 ; pasaje de parametro
    call irq_dispatcher
 
+   push rax
    ; signal pic EOI (End of Interrupt)
    mov al,20h
    out 20h,al
 
+   pop rax
+   
+   cmp rax, REG_CAPTURE
+   
+   jne .fin
+   
+   mov rdi, rsp
+   call save_registers
+
+.fin:
    pop_state_full
    pop rsp
    iretq
@@ -171,4 +183,9 @@ asm_exception00_handler:
 ; Invalid Opcode Exception
 asm_exception06_handler:
    excepction_handler 6
+
+
+
+section .data
+   REG_CAPTURE  equ 9
 

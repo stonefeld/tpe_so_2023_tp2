@@ -8,16 +8,18 @@ enum irq
 	KEYBOARD
 };
 
-void
+int
 irq_dispatcher(uint64_t irq)
 {
 	switch (irq) {
 		case TIMER: {
 			timer_handler();
+			return 0;
 		} break;
 
 		case KEYBOARD: {
-			keyboard_handler();
+			return keyboard_handler();
 		} break;
 	}
+	return 0;
 }

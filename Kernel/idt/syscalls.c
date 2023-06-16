@@ -1,3 +1,4 @@
+#include <exceptions.h>
 #include <font.h>
 #include <keyboard.h>
 #include <libasm.h>
@@ -7,7 +8,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
-#include <exceptions.h>
+
 enum syscalls
 {
 	// i/o interaction
@@ -31,18 +32,16 @@ enum syscalls
 	SYS_SOUND
 };
 
+uint8_t register_flag = 0;
 
-
-
-void save_registers(uint64_t * stack){
+void
+save_registers(uint64_t* stack)
+{
 	register_flag = 1;
-	for ( int i = 0; i < SIZE_REGS-4; i++)
-	{
+	for (int i = 0; i < SIZE_REGS - 4; i++)
 		registers[i] = stack[i];
-	}
-	registers[16] = stack[16]; // IP
-	registers[18] = stack[15]; // rsp
-	return;
+	registers[SIZE_REGS - 4] = stack[SIZE_REGS - 3];  // IP
+	registers[SIZE_REGS - 1] = stack[SIZE_REGS - 4];  // rsp
 }
 
 uint64_t

@@ -1,8 +1,9 @@
 #include <exceptions.h>
 #include <libc.h>
+#include <syscalls.h>
 #include <text.h>
 #include <video.h>
-#include <syscalls.h>
+
 #define BUFF_SIZE 30
 #define ERROR_MSG 0xff0000
 #define INFO_MSG 0x0000ff
@@ -25,6 +26,8 @@ static char* regs_descriptor[] = {
 static uint32_t registers_len = sizeof(regs_descriptor) / sizeof(regs_descriptor[0]);
 static char buff[BUFF_SIZE];
 static RestorePoint rp;
+
+extern uint8_t register_flag;
 
 static void exception_handler(char* msg);
 static void restore_state(uint64_t* stack);
@@ -50,7 +53,7 @@ exc_printreg(uint64_t* stack, uint32_t color)
 {
 	if (!register_flag) {
 		tx_put_word("You have to press 'Ctrl+r' to set the regs_descriptor at some point\n", color);
-		//return;
+		// return;
 	}
 
 	uint32_t len;

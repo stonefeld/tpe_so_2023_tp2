@@ -19,9 +19,11 @@ global asm_exception06_handler
 extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
-extern asm_setreg
 extern save_registers
 section .text
+
+; constantes
+REGISTER_CAPTURE equ 9
 
 %macro push_state 0
    push rbx
@@ -69,7 +71,6 @@ section .text
 
 ; handler de las interrupciones de Hardware
 %macro irq_handler 1
-   push rsp
    push_state_full
 
    mov rdi,%1 ; pasaje de parametro
@@ -79,19 +80,15 @@ section .text
    ; signal pic EOI (End of Interrupt)
    mov al,20h
    out 20h,al
-
    pop rax
    
-   cmp rax, REG_CAPTURE
-   
+   cmp rax,REGISTER_CAPTURE
    jne .fin
-   
-   mov rdi, rsp
+   mov rdi,rsp
    call save_registers
 
 .fin:
    pop_state_full
-   pop rsp
    iretq
 %endmacro
 
@@ -113,7 +110,6 @@ asm_syscall_handler:
    call syscall_dispatcher
    pop_state
    iretq
-
 
 asm_hlt:
     sti
@@ -148,10 +144,6 @@ asm_pic_slave_mask:
     pop rbp
     retn
 
-
-
-; **************************************** EL RESTO LLAMA A LAS MACROS CON DISTINTOS PARÁMETROS ****************************************************************************************************
-
 ; 8254 Timer (Timer Tick)
 asm_irq00_handler:
     irq_handler 0
@@ -183,9 +175,3 @@ asm_exception00_handler:
 ; Invalid Opcode Exception
 asm_exception06_handler:
    excepction_handler 6
-
-
-
-section .data
-   REG_CAPTURE  equ 9
-

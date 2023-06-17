@@ -27,10 +27,9 @@ static uint32_t registers_len = sizeof(regs_descriptor) / sizeof(regs_descriptor
 static char buff[BUFF_SIZE];
 static RestorePoint rp;
 
-extern uint8_t register_flag;
-
 static void exception_handler(char* msg);
 static void restore_state(uint64_t* stack);
+static void fill_and_print(uint8_t* str, uint32_t color);
 
 void
 exception_dispatcher(uint32_t exception, uint64_t* stack)
@@ -51,26 +50,19 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 void
 exc_printreg(uint64_t* stack, uint32_t color)
 {
-	if (!register_flag) {
-		tx_put_word("You have to press 'Ctrl+r' to set the regs_descriptor at some point\n", color);
-		// return;
+	if (!stack) {
+		tx_put_word("You have to press 'Ctrl+r' to save the registers state at some point\n", color);
+		return;
 	}
 
 	uint32_t len;
 	for (int i = 0; i < registers_len - 1; i++) {
 		tx_put_word(regs_descriptor[i], color);
-		len = uint_to_base(stack[i], buff, HEX);
-		for (int i = 0; i < 16 - len; i++)
-			tx_put_char('0', color);
-		tx_put_word(buff, color);
+		fill_and_print(stack[i], color);
 		tx_put_char('\n', color);
 	}
-
 	tx_put_word(regs_descriptor[registers_len - 1], color);
-	len = uint_to_base(stack[registers_len + 1], buff, HEX);
-	for (int i = 0; i < 16 - len; i++)
-		tx_put_char('0', color);
-	tx_put_word(buff, color);
+	fill_and_print(stack[registers_len + 1], color);
 	tx_put_char('\n', color);
 }
 
@@ -101,4 +93,13 @@ restore_state(uint64_t* stack)
 
 	stack[registers_len - 2] = rp.ip;
 	stack[registers_len + 1] = rp.sp;
+}
+
+static void
+fill_and_print(uint8_t* str, uint32_t color)
+{
+	uint32_t len = uint_to_base(str, buff, HEX);
+	for (int i = 0; i < 16 - len; i++)
+		tx_put_char('0', color);
+	tx_put_word(buff, color);
 }

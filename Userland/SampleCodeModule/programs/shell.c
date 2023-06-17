@@ -58,11 +58,6 @@ shell_init()
 
 	int32_t len, status = 0;
 	while (running) {
-		// asm_sleep(10 * 5);
-		// if (asm_ticked()) {
-		// 	asm_printreg(color.output);
-		// asm_testzde();
-		// }
 		prompt(status);
 		len = gets(input_buffer, INPUT_SIZE, color.fg);
 		status = process_input(input_buffer, len);
@@ -181,7 +176,7 @@ pong()
 	if (args_len == 1) {
 		start_game(PONG_FG, PONG_BG);
 	} else if (args_len == 3) {
-		if (!hex_to_uint(args[1]) && !hex_to_uint(args[2])) {
+		if (!is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
 			puts("Invalid arguments\n", color.output);
 			puts(usage, color.output);
 			return -1;

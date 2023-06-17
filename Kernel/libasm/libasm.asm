@@ -3,7 +3,6 @@ global asm_rtc_gettime
 global asm_kbd_active
 global asm_kbd_getkey
 global asm_getsp
-global asm_setreg
 global asm_printreg
 global asm_sound
 global asm_nosound
@@ -76,53 +75,6 @@ asm_getsp:
     mov rax,rsp
     ret
 
-; guarda en un arreglo el contenido de los registros
-; creo que podemos borrar todo esto y llevarlo directamente a .C
-asm_setreg:
-
-   ; mov [regs_stack],[rsp +]
-    mov [regs_stack+1*8],r14
-    mov [regs_stack+2*8],r13
-    mov [regs_stack+3*8],r12
-    mov [regs_stack+4*8],r11
-    mov [regs_stack+5*8],r10
-    mov [regs_stack+6*8],r9
-    mov [regs_stack+7*8],r8
-    mov [regs_stack+8*8],rsi
-    mov [regs_stack+9*8],rdi
-    mov [regs_stack+10*8],rbp
-    mov [regs_stack+11*8],rdx
-    mov [regs_stack+12*8],rcx
-    mov [regs_stack+13*8],rbx
-    mov [regs_stack+14*8],rax
-    mov rax,[rsp]  ; rip
-    mov [regs_stack+15*8],rax
-    add rsp,8
-    mov [regs_stack+16*8],rsp
-    sub rsp,8
-    mov [setreg_called],byte 1
-    ret
-
-asm_printreg:
-    push rbp
-    mov rbp,rsp
-
-    mov rsi,rdi
-    cmp byte [setreg_called],1
-    jne .notcalled
-    mov rdi,regs_stack
-    jmp .next
-
-.notcalled:
-    mov rdi,0
-
-.next:
-    mov rdx,0
-    call exc_printreg
-
-    leave
-    ret
-
 asm_sound:
     push rbp
     mov rbp,rsp
@@ -152,9 +104,3 @@ asm_nosound:
 
     leave
     ret
-
-section .bss
-regs_stack resb 17*8
-
-section .data
-setreg_called db 0

@@ -33,11 +33,6 @@ extern int asm_kbd_getkey();
 extern uint64_t asm_getsp();
 
 /*
- * Guarda en un arreglo el contenido de los registros. Genera la snapshot.
- */
-extern void asm_setreg();
-
-/*
  * Imprime los registros cargados en el arreglo de la snapshot.
  */
 extern void asm_printreg(uint32_t color);

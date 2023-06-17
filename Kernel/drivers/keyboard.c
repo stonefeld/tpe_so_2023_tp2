@@ -72,7 +72,6 @@ keyboard_handler()
 
 		// handle para el snapshot de registros
 		if (control && (code == 'r' || code == 'R'))
-			//asm_setreg();
 			return REGISTER_CAPTURE; 
 		else if (key >= 0 && key < keys && code != 0)
 			put_buffer(code, state);

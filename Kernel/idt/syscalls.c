@@ -9,6 +9,8 @@
 #include <time.h>
 #include <video.h>
 
+#define REGS_SIZE 19
+
 enum syscalls
 {
 	// i/o interaction
@@ -32,17 +34,8 @@ enum syscalls
 	SYS_SOUND
 };
 
-uint8_t register_flag = 0;
-
-void
-save_registers(uint64_t* stack)
-{
-	register_flag = 1;
-	for (int i = 0; i < SIZE_REGS - 4; i++)
-		registers[i] = stack[i];
-	registers[SIZE_REGS - 4] = stack[SIZE_REGS - 3];  // IP
-	registers[SIZE_REGS - 1] = stack[SIZE_REGS - 4];  // rsp
-}
+static uint8_t regs_flag = 0;
+static uint64_t registers[REGS_SIZE];
 
 uint64_t
 syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
@@ -88,7 +81,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_REGS: {
-			exc_printreg(registers, rsi);
+			exc_printreg(regs_flag ? registers : (uint64_t*)0, rsi);
 		} break;
 
 		case SYS_RTC: {
@@ -100,4 +93,12 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 	}
 	return 0;
+}
+
+void
+save_registers(uint64_t* stack)
+{
+	regs_flag = 1;
+	for (int i = 0; i < REGS_SIZE; i++)
+		registers[i] = stack[i];
 }

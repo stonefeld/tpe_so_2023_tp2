@@ -16,7 +16,7 @@ enum exceptions
 
 typedef struct
 {
-	uint64_t ip, sp;
+	uint64_t ip, sp, bp;
 } RestorePoint;
 
 static char* regs_descriptor[] = {
@@ -29,7 +29,7 @@ static RestorePoint rp;
 
 static void exception_handler(char* msg);
 static void restore_state(uint64_t* stack);
-static void fill_and_print(uint8_t* str, uint32_t color);
+static void fill_and_print(uint64_t data, uint32_t color);
 
 void
 exception_dispatcher(uint32_t exception, uint64_t* stack)
@@ -55,7 +55,6 @@ exc_printreg(uint64_t* stack, uint32_t color)
 		return;
 	}
 
-	uint32_t len;
 	for (int i = 0; i < registers_len - 1; i++) {
 		tx_put_word(regs_descriptor[i], color);
 		fill_and_print(stack[i], color);
@@ -67,10 +66,11 @@ exc_printreg(uint64_t* stack, uint32_t color)
 }
 
 void
-exc_set_restore_point(uint64_t ip, uint64_t sp)
+exc_set_restore_point(uint64_t ip, uint64_t sp, uint64_t bp)
 {
 	rp.ip = ip;
 	rp.sp = sp;
+	rp.bp = bp;
 }
 
 static void
@@ -91,14 +91,16 @@ restore_state(uint64_t* stack)
 	tx_put_word(buff, INFO_MSG);
 	tx_put_word("\n\n", INFO_MSG);
 
-	stack[registers_len - 2] = rp.ip;
-	stack[registers_len + 1] = rp.sp;
+	// restauramos los valores
+	stack[registers_len - 2] = rp.ip;  // RIP
+	stack[registers_len + 1] = rp.sp;  // RSP
+	stack[registers_len - 7] = rp.bp;  // RSP
 }
 
 static void
-fill_and_print(uint8_t* str, uint32_t color)
+fill_and_print(uint64_t data, uint32_t color)
 {
-	uint32_t len = uint_to_base(str, buff, HEX);
+	uint32_t len = uint_to_base(data, buff, HEX);
 	for (int i = 0; i < 16 - len; i++)
 		tx_put_char('0', color);
 	tx_put_word(buff, color);

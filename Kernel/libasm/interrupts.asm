@@ -81,7 +81,7 @@ REGISTER_CAPTURE equ 9
    mov al,20h
    out 20h,al
    pop rax
-   
+
    cmp rax,REGISTER_CAPTURE
    jne .fin
    mov rdi,rsp
@@ -104,7 +104,7 @@ REGISTER_CAPTURE equ 9
    iretq
 %endmacro
 
-; handler de las syscalls 
+; handler de las syscalls
 asm_syscall_handler:
    push_state
    call syscall_dispatcher

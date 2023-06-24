@@ -3,6 +3,7 @@ global asm_rtc_gettime
 global asm_kbd_active
 global asm_kbd_getkey
 global asm_getsp
+global asm_getbp
 global asm_printreg
 global asm_sound
 global asm_nosound
@@ -75,6 +76,12 @@ asm_getsp:
     mov rax,rsp
     ret
 
+; devuelve el valor del base-pointer
+asm_getbp:
+    mov rax,rbp
+    ret
+
+; emite un sonido con cierta frecuencia y duración
 asm_sound:
     push rbp
     mov rbp,rsp
@@ -94,6 +101,7 @@ asm_sound:
     leave
     ret
 
+; stopea el sonido que esté sonando
 asm_nosound:
     push rbp
     mov rbp,rsp

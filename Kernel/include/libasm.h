@@ -33,6 +33,11 @@ extern int asm_kbd_getkey();
 extern uint64_t asm_getsp();
 
 /*
+ * Devuelve el base pointer actual.
+ */
+extern uint64_t asm_getbp();
+
+/*
  * Imprime los registros cargados en el arreglo de la snapshot.
  */
 extern void asm_printreg(uint32_t color);

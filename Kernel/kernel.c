@@ -72,9 +72,9 @@ main()
 	tx_clear(BLACK);
 
 	// set the restore point in case of exceptions
-	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp());
+	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp(), asm_getbp());
 
 	uint32_t status = ((EntryPoint)sample_code_module_addr)();
-	tx_put_word("Exit from Userland. Back in Kernel.\n", WHITE);
+	tx_put_word("Exit from Userland. Back in Kernel.", WHITE);
 	return status;
 }

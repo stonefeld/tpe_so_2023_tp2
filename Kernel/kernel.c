@@ -8,10 +8,10 @@
 #include <moduleLoader.h>
 #include <sound.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-
 #define BLACK 0x000000
 #define WHITE 0xffffff
 
@@ -27,6 +27,9 @@ extern uint8_t end_of_kernel;
 static const uint64_t page_size = 0x1000;
 static void* const sample_code_module_addr = (void*)0x400000;
 static void* const sample_data_module_addr = (void*)0x500000;
+
+static void* const startHeapAddres = (void*)0xF00000;
+static void* const endHeapAddres = (void*)0x2000000;
 
 void
 clear_bss(void* bss_addr, uint64_t bss_size)
@@ -58,17 +61,18 @@ main()
 {
 	idt_loader();
 
+	mm_init(startHeapAddres, (size_t)(endHeapAddres - startHeapAddres));
 	// print intro wallpaper and loading message
-	vd_wallpaper(2);
+	// vd_wallpaper(2);
 
-	// play some nice sound
-	ti_sleep(1 * 18);
-	sd_play(800, 0.1 * 18);
-	ti_sleep(0.2 * 18);
-	sd_play(800, 0.1 * 18);
-	ti_sleep(0.1 * 18);
-	sd_play(1000, 0.3 * 18);
-	ti_sleep(1 * 18);
+	// // play some nice sound
+	// ti_sleep(1 * 18);
+	// sd_play(800, 0.1 * 18);
+	// ti_sleep(0.2 * 18);
+	// sd_play(800, 0.1 * 18);
+	// ti_sleep(0.1 * 18);
+	// sd_play(1000, 0.3 * 18);
+	// ti_sleep(1 * 18);
 	tx_clear(BLACK);
 
 	// set the restore point in case of exceptions

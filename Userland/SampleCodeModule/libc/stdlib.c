@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
+void
+sleep(int time)
+{
+	asm_sleep(time);
+}
+
 uint32_t
 gets(char* buff, uint32_t size, uint32_t color)
 {
@@ -161,4 +167,15 @@ hex_to_uint(char* code)
 	}
 
 	return ret;
+}
+void*
+malloc(const uint32_t memoryToAllocate)
+{
+	return asm_malloc(memoryToAllocate);
+}
+
+void
+freeAll()
+{
+	asm_freeAll();
 }

@@ -1,24 +1,55 @@
 #include "memoryManager.h"
 
-struct memory_manager_adt
-{
-	char* nextAdress;
-};
+static void* heap_start;
+size_t mem_size;
+static void* next_address;
 
-MemoryManager
-mm_create(void* const restrict memoryForMemoryManager, void* const restrict managedMemory)
+void
+mm_init(void* const restrict start_address, size_t size)
 {
-	MemoryManager mm = (MemoryManager)memoryForMemoryManager;
-	mm->nextAdress = managedMemory;
+	heap_start = start_address;
+	mem_size = (size_t)size;
 
-	return mm;
+	return;
 }
 
 void*
-mm_alloc(MemoryManager const restrict self, const size_t memoryToAllocate)
+mm_alloc(const size_t memoryToAllocate)
 {
-	char* allocation = self->nextAdress;
-	self->nextAdress += memoryToAllocate;
+	void* allocation = next_address;
+	next_address += memoryToAllocate;
 
 	return (void*)allocation;
 }
+
+void
+mm_freeAll()
+{
+	next_address = heap_start;
+	return;
+}
+// ***********************************************************************************
+
+// struct memory_manager_adt
+// {
+// 	char* nextAdress;
+// };
+
+// static MemoryManager mm;
+
+// mm_init(void* const restrict memoryForMemoryManager, void* const restrict managedMemory)
+// {
+// 	mm = (MemoryManager)memoryForMemoryManager;
+// 	mm->nextAdress = managedMemory;
+
+// 	return mm;
+// }
+
+// void*
+// mm_alloc(MemoryManager const restrict self, const size_t memoryToAllocate)
+// {
+// 	char* allocation = self->nextAdress;
+// 	self->nextAdress += memoryToAllocate;
+
+// 	return (void*)allocation;
+// }

@@ -55,4 +55,8 @@ uint8_t is_hex_color_code(char* code);
  */
 uint32_t hex_to_uint(char* code);
 
+void* malloc(const uint32_t memoryToAllocate);
+void freeAll();
+
+void sleep(int time);
 #endif

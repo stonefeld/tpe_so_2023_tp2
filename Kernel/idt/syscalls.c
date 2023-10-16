@@ -2,13 +2,13 @@
 #include <font.h>
 #include <keyboard.h>
 #include <libasm.h>
+#include <memoryManager.h>
 #include <rtc.h>
 #include <sound.h>
 #include <syscalls.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-
 #define REGS_SIZE 19
 
 enum syscalls
@@ -31,7 +31,9 @@ enum syscalls
 	SYS_SLEEP,
 	SYS_REGS,
 	SYS_RTC,
-	SYS_SOUND
+	SYS_SOUND,
+	SYS_MALLOC,
+	SYS_FREEALL
 };
 
 static uint8_t regs_flag = 0;
@@ -90,6 +92,14 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 
 		case SYS_SOUND: {
 			sd_play(rsi, rdx);
+		} break;
+
+		case SYS_MALLOC: {
+			return mm_alloc(rsi);
+		} break;
+
+		case SYS_FREEALL: {
+			mm_freeAll();
 		} break;
 	}
 	return 0;

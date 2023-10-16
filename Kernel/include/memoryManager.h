@@ -5,7 +5,9 @@
 
 typedef struct memory_manager_adt* MemoryManager;
 
-MemoryManager mm_create(void* const restrict memoryForMemoryManager, void* const restrict managedMemory);
-void* mm_alloc(MemoryManager const restrict memoryManager, const size_t memoryToAllocate);
+void mm_init(void* const restrict start_address, size_t size);
 
+void* mm_alloc(const size_t memoryToAllocate);
+
+void mm_freeAll();
 #endif

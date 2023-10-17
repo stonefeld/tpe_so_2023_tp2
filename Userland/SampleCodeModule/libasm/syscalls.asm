@@ -85,5 +85,6 @@ asm_sound:
 
 asm_malloc:
     syscall_handler sys_malloc
+    
 asm_freeAll:
     syscall_handler sys_freeAll

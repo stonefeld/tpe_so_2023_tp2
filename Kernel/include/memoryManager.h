@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-typedef struct memory_manager_adt* MemoryManager;
+// typedef struct memory_manager_adt* MemoryManager;
 
 void mm_init(void* const restrict start_address, size_t size);
 

@@ -1,4 +1,4 @@
-#include "memoryManager.h"
+#include <memoryManager.h>
 
 static void* heap_start;
 size_t mem_size;
@@ -17,9 +17,12 @@ void*
 mm_alloc(const size_t memoryToAllocate)
 {
 	void* allocation = next_address;
-	next_address += memoryToAllocate;
+	if (mem_size < heap_start - (next_address + memoryToAllocate)) {
+		return ((void*)0);
+	}
 
-	return (void*)allocation;
+	next_address += memoryToAllocate;
+	return allocation;
 }
 
 void

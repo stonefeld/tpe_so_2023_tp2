@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-uint64_t test_mm();
+uint32_t test_mm();
 
 #endif

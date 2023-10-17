@@ -48,7 +48,7 @@ static uint32_t testzde();
 static uint32_t pong();
 static uint32_t setcolor();
 static uint32_t switchcolors();
-static void testmm();
+static uint32_t testmm();
 uint32_t
 shell_init()
 {
@@ -117,10 +117,11 @@ prompt(int32_t status)
 	putchar(' ', color.fg);
 }
 
-static void
+static uint32_t
 testmm()
 {
 	test_mm();
+	return 0;
 }
 static uint32_t
 help()

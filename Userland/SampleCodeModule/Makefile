@@ -30,6 +30,6 @@ $(MODULE): $(OBJECTS) $(OBJECTS_LIBASM) $(OBJECTS_LIBC) $(OBJECTS_PROGRAMS) $(OB
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
-	rm -rf *.o libasm/*.o libc/*.o programs/*.o
+	rm -rf *.o libasm/*.o libc/*.o programs/*.o tests/*.o
 
 .PHONY: all clean print

@@ -1,6 +1,7 @@
 #ifndef TEST_UTIL_H
 #define TEST_UTIL_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 uint32_t GetUint();
@@ -10,5 +11,5 @@ int64_t satoi(char* str);
 void bussy_wait(uint64_t n);
 void endless_loop();
 void endless_loop_print(uint64_t wait);
-
+void* setmem(void* destiny, int32_t c, size_t length);
 #endif

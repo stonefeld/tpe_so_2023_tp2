@@ -28,7 +28,7 @@ static const uint64_t page_size = 0x1000;
 static void* const sample_code_module_addr = (void*)0x400000;
 static void* const sample_data_module_addr = (void*)0x500000;
 
-static void* const startHeapAddres = (void*)0xF00000;
+static void* const startHeapAddres = (void*)0x1000000;
 static void* const endHeapAddres = (void*)0x2000000;
 
 void
@@ -61,7 +61,7 @@ main()
 {
 	idt_loader();
 
-	mm_init(startHeapAddres, (size_t)(endHeapAddres - startHeapAddres));
+	mm_init(startHeapAddres, (endHeapAddres - startHeapAddres));
 	// print intro wallpaper and loading message
 	// vd_wallpaper(2);
 

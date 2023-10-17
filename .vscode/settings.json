@@ -23,8 +23,19 @@
         "string_view": "c",
         "functional": "c",
         "rtc.h": "c",
-        "memorymanager.h": "c"
+        "memorymanager.h": "c",
+        "cstring": "c",
+        "test_syscalls.h": "c",
+        "test_util.h": "c",
+        "array": "c",
+        "deque": "c",
+        "list": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "initializer_list": "c",
+        "ranges": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
 }

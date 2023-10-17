@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #define MAX_BLOCKS 128
-#define MAX_MEMORY (0x200000 - 0x100000) /2
+#define MAX_MEMORY (2*1024*1024)
 
 typedef struct MM_rq
 {
@@ -48,7 +48,7 @@ test_mm()
 					puts(" test_mm ERROR\n", 0xffffff);
 					return -1;
 				}
-				freeAll();
+				
 
 		// Free
 		// for (i = 0; i < rq; i++)

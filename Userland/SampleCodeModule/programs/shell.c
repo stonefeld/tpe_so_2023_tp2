@@ -79,7 +79,7 @@ load_commands()
 	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(exit, "exit", "          Exits the shell");
-	load_command(testmm, "test_mm", "			Test Memory Manager");
+	load_command(testmm, "testmm", "			Test Memory Manager");
 }
 
 static void

@@ -9,6 +9,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+#include <stddef.h>
 #define REGS_SIZE 19
 
 enum syscalls
@@ -33,7 +34,8 @@ enum syscalls
 	SYS_RTC,
 	SYS_SOUND,
 	SYS_MALLOC,
-	SYS_FREEALL
+	SYS_FREE,
+	SYS_REALLOC
 };
 
 static uint8_t regs_flag = 0;
@@ -95,11 +97,14 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_MALLOC: {
-			return mm_alloc(rsi);
+			return (uint64_t) mm_alloc(rsi);
 		} break;
 
-		case SYS_FREEALL: {
-			mm_freeAll();
+		case SYS_FREE: {
+			mm_free((void*)rsi);
+		} break;
+		case SYS_REALLOC: {
+			mm_realloc((void*)rsi, rdx);
 		} break;
 	}
 	return 0;

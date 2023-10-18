@@ -11,6 +11,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
+
 
 /*
  * Devuele el caracter presionado por teclado y el estado (presionado o soltado).
@@ -75,7 +77,10 @@ extern void asm_datetime(uint32_t color);
  */
 extern void asm_sound(uint32_t freq, uint32_t duration);
 
-extern void* asm_malloc(uint32_t memoryToAllocate);
+extern void* asm_malloc(size_t memoryToAllocate);
 
-extern void asm_freeAll();
+extern void asm_free(void * ptr);
+
+extern void* asm_realloc(void * ptr, size_t size);
+
 #endif

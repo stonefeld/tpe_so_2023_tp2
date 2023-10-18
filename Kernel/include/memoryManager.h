@@ -2,12 +2,27 @@
 #define MEMORY_MANAGER_H
 
 #include <stdlib.h>
+#include <stddef.h>
+typedef enum
+{
+	TEST,
+	BUDDY
+} MemType;
 
-// typedef struct memory_manager_adt* MemoryManager;
+typedef struct
+{
+	MemType type;
+	size_t total;
+	size_t used;
+	unsigned int chunks;
+} MemState;
 
 void mm_init(void* const restrict start_address, size_t size);
 
 void* mm_alloc(const size_t memoryToAllocate);
 
-void mm_freeAll();
+void mm_free(void * ptr);
+
+void* mm_realloc(void* ptr, size_t size);
+
 #endif

@@ -5,6 +5,7 @@
 #include <keyboard.h>
 #include <libasm.h>
 #include <libc.h>
+#include <memoryManager.h>
 #include <moduleLoader.h>
 #include <sound.h>
 #include <stdint.h>
@@ -28,8 +29,8 @@ static const uint64_t page_size = 0x1000;
 static void* const sample_code_module_addr = (void*)0x400000;
 static void* const sample_data_module_addr = (void*)0x500000;
 
-static void* const startHeapAddress = (void*)0x1000000;
-static void* const endHeapAddress = (void*)0x3000000;
+static void* const startHeapAddress = (void*)0xF00000;
+static void* const endHeapAddress = (void*)0x2000000;
 
 void
 clear_bss(void* bss_addr, uint64_t bss_size)
@@ -61,7 +62,7 @@ main()
 {
 	idt_loader();
 
-	mm_init(0x1000000, (endHeapAddress - startHeapAddress));
+	mm_init(startHeapAddress, (endHeapAddress - startHeapAddress));
 	// print intro wallpaper and loading message
 	// vd_wallpaper(2);
 

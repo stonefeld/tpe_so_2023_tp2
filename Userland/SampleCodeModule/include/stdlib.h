@@ -1,8 +1,8 @@
 #ifndef STDLIB_H
 #define STDLIB_H
 
+#include <stddef.h>
 #include <stdint.h>
-
 /*
  * Devuelve el caracter presionado por teclado y su estado
  * (presionado o soltado).
@@ -55,8 +55,8 @@ uint8_t is_hex_color_code(char* code);
  */
 uint32_t hex_to_uint(char* code);
 
-void* malloc(const uint32_t memoryToAllocate);
-void freeAll();
-
+void* malloc(size_t memoryToAllocate);
+void free(void* ptr);
+void* realloc(void* ptr, size_t size);
 void sleep(int time);
 #endif

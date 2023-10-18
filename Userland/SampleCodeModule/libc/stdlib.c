@@ -169,13 +169,19 @@ hex_to_uint(char* code)
 	return ret;
 }
 void*
-malloc(const uint32_t memoryToAllocate)
+malloc(size_t memoryToAllocate)
 {
 	return asm_malloc(memoryToAllocate);
 }
 
 void
-freeAll()
+free(void* ptr)
 {
-	asm_freeAll();
+	asm_free(ptr);
+}
+
+void*
+realloc(void* ptr, size_t size)
+{
+	return asm_realloc(ptr, size);
 }

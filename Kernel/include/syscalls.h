@@ -2,7 +2,6 @@
 #define SYSCALLS
 
 #include <stdint.h>
-
 /*
  * Maneja las syscalls, basicamente una wrapper que llama a los distintos drivers.
  */

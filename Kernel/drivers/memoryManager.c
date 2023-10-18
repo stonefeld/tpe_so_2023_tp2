@@ -1,3 +1,4 @@
+#ifdef USE_TEST
 #include <memoryManager.h>
 
 static void* heap_start;
@@ -32,28 +33,4 @@ mm_freeAll()
 	next_address = heap_start;
 	return;
 }
-// ***********************************************************************************
-
-// struct memory_manager_adt
-// {
-// 	char* nextAdress;
-// };
-
-// static MemoryManager mm;
-
-// mm_init(void* const restrict memoryForMemoryManager, void* const restrict managedMemory)
-// {
-// 	mm = (MemoryManager)memoryForMemoryManager;
-// 	mm->nextAdress = managedMemory;
-
-// 	return mm;
-// }
-
-// void*
-// mm_alloc(MemoryManager const restrict self, const size_t memoryToAllocate)
-// {
-// 	char* allocation = self->nextAdress;
-// 	self->nextAdress += memoryToAllocate;
-
-// 	return (void*)allocation;
-// }
+#endif

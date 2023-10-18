@@ -1,7 +1,7 @@
-#include <test_syscalls.h>
-#include <test_util.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <test_syscalls.h>
+#include <test_util.h>
 
 // Random
 static uint32_t m_z = 362436069;
@@ -40,9 +40,6 @@ setmem(void* destiation, int32_t c, size_t length)
 {
 	uint8_t chr = (uint8_t)c;
 	char* dst = (char*)destiation;
-	if(destiation < 10){
-	 return -1;
-	}	
 	while (length--) {
 		dst[length] = chr;
 	}

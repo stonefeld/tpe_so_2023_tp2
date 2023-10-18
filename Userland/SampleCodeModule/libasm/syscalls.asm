@@ -25,14 +25,18 @@ global asm_printreg
 global asm_datetime
 global asm_sound
 global asm_malloc
-global asm_freeAll
+global asm_free
+global asm_realloc
+
 sys_ticks        equ 8
 sys_sleep        equ 9
 sys_regs         equ 10
 sys_rtc          equ 11
 sys_sound        equ 12
 sys_malloc       equ 13
-sys_freeAll      equ 14
+sys_free         equ 14
+sys_realloc      equ 15
+
 %macro syscall_handler 1
     push rbp
     mov rbp,rsp
@@ -86,5 +90,7 @@ asm_sound:
 asm_malloc:
     syscall_handler sys_malloc
     
-asm_freeAll:
-    syscall_handler sys_freeAll
+asm_free:
+    syscall_handler sys_free
+asm_realloc:
+    syscall_handler sys_realloc

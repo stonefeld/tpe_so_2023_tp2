@@ -5,11 +5,11 @@
 #include <memoryManager.h>
 #include <rtc.h>
 #include <sound.h>
+#include <stddef.h>
 #include <syscalls.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-#include <stddef.h>
 #define REGS_SIZE 19
 
 enum syscalls
@@ -97,7 +97,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_MALLOC: {
-			return (uint64_t) mm_alloc(rsi);
+			return (uint64_t)mm_alloc(rsi);
 		} break;
 
 		case SYS_FREE: {

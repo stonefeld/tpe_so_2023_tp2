@@ -16,7 +16,7 @@
 #define KC_L_CTRL_RELEASE KC_L_CTRL + 128
 
 #define BUFFER_MAX 10
-#define REGISTER_CAPTURE 9 
+#define REGISTER_CAPTURE 9
 #define RELEASED 0
 #define PRESSED 1
 
@@ -72,7 +72,7 @@ keyboard_handler()
 
 		// handle para el snapshot de registros
 		if (control && (code == 'r' || code == 'R'))
-			return REGISTER_CAPTURE; 
+			return REGISTER_CAPTURE;
 		else if (key >= 0 && key < keys && code != 0)
 			put_buffer(code, state);
 	}

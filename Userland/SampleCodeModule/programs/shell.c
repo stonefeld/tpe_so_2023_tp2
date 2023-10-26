@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <syscalls.h>
 #include <test_mm.h>
+
 #define MAX_COMMANDS 20
 #define MAX_ARGS 3
 #define INPUT_SIZE 200
@@ -49,6 +50,7 @@ static uint32_t pong();
 static uint32_t setcolor();
 static uint32_t switchcolors();
 static uint32_t testmm();
+
 uint32_t
 shell_init()
 {
@@ -79,7 +81,7 @@ load_commands()
 	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(exit, "exit", "          Exits the shell");
-	load_command(testmm, "testmm", "			Test Memory Manager");
+	load_command(testmm, "testmm", "        Test Memory Manager");
 }
 
 static void

@@ -8,8 +8,6 @@ global asm_printreg
 global asm_sound
 global asm_nosound
 
-extern exc_printreg
-
 section .text
 
 ; devuelve el fabricante del cpu

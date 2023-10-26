@@ -22,4 +22,7 @@ clean:
 	cd Kernel; make clean
 	cd Userland; make clean
 
+bear:
+	bear -- make clean bootloader kernel; bear --append -- make userland
+
 .PHONY: bootloader image collections kernel userland all clean

@@ -13,6 +13,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+
 #define BLACK 0x000000
 #define WHITE 0xffffff
 

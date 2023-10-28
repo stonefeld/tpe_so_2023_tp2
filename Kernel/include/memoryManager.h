@@ -5,7 +5,7 @@
 #include <stddef.h>
 typedef enum
 {
-	TEST,
+	FREE_LIST,
 	BUDDY
 } MemType;
 

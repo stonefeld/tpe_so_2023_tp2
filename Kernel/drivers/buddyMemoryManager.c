@@ -1,4 +1,4 @@
-#ifndef USE_TEST
+#ifdef BUDDY
 
 /*
     Siguiendo la explicación de Buddy Memory Allocation: https://en.wikipedia.org/wiki/Buddy_memory_allocation

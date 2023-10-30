@@ -67,7 +67,7 @@ init_shell()
 		.name = "shell",
 		.entry_point = (ProcessEntryPoint)sample_code_module_addr,
 		.is_fg = 1,
-		.priority = MAX_PRIORITY,
+		.priority = DEFAULT_PRIORITY,
 		.argc = 0,
 		.argv = NULL,
 	};
@@ -85,6 +85,7 @@ main()
 	asm_sti();
 
 	while (1) {
+		sch_yield();
 		asm_hlt();
 	}
 

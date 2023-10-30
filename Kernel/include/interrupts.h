@@ -31,9 +31,11 @@ extern void asm_irq05_handler();
 /*
  * Wrappers que llaman a los dispatchers de:
  * - syscalls
+ * - scheduler
  * - exceptions
  */
 extern void asm_syscall_handler();
+extern void asm_scheduler_handler();
 extern void asm_exception00_handler();
 extern void asm_exception06_handler();
 

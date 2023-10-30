@@ -7,3 +7,5 @@ GCCFLAGS=-m64 -g -static -fno-exceptions -fno-asynchronous-unwind-tables -mno-mm
 ARFLAGS=rvs
 ASMFLAGS=-felf64 -g
 LDFLAGS=--warn-common -z max-page-size=0x1000
+
+MEMORY_MANAGER=USE_BUDDY

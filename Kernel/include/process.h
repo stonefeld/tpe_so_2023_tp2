@@ -5,10 +5,7 @@
 #include <stdlib.h>
 
 #define MAX_NAME_LEN 256
-#define MAX_PROCESSES 16
 #define PROCESS_STACK_SIZE 4096
-
-#define MAX_PRIORITY -20
 
 typedef void (*ProcessEntryPoint)(int argc, char* argv[]);
 
@@ -16,7 +13,8 @@ typedef enum
 {
 	READY = 0,
 	RUNNING,
-	BLOCKED
+	BLOCKED,
+	KILLED
 } ProcessStatus;
 
 typedef struct
@@ -41,5 +39,8 @@ typedef struct
 } ProcessCreateInfo;
 
 int proc_create(const ProcessCreateInfo* create_info);
+
+// asm functions
+extern void* asm_create_process_context(int argc, const char* const argv[], void* rsp, ProcessEntryPoint entry_point);
 
 #endif

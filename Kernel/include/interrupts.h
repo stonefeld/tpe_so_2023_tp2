@@ -9,6 +9,7 @@
 extern void asm_cli();
 extern void asm_sti();
 extern void asm_hlt();
+extern void asm_int81();
 
 /*
  * Funciones para configurar el timer tick.

@@ -1,6 +1,7 @@
 #include <libc.h>
 #include <memoryManager.h>
 #include <process.h>
+#include <scheduler.h>
 
 typedef struct
 {
@@ -17,10 +18,10 @@ typedef struct
 
 static ProcessContext processes[MAX_PROCESSES];
 
-static uint8_t validate_name(const char* name);
+static uint8_t valid_name(const char* name);
 
 static uint8_t
-validate_name(const char* name)
+valid_name(const char* name)
 {
 	if (name == NULL)
 		return 0;
@@ -47,7 +48,7 @@ proc_create(const ProcessCreateInfo* create_info)
 	for (; pid < MAX_PROCESSES && processes[pid].stack_end != NULL; pid++)
 		continue;
 
-	if (create_info->argc < 0 || pid == MAX_PROCESSES || !validate_name(create_info->name))
+	if (create_info->argc < 0 || pid == MAX_PROCESSES || !valid_name(create_info->name))
 		return -1;
 
 	void* stack_end = NULL;
@@ -90,7 +91,12 @@ proc_create(const ProcessCreateInfo* create_info)
 	process->argv = argv;
 	process->argc = create_info->argc;
 
-	// TODO: avisarle al scheduler del proceso creado
+	sch_on_process_create(pid,
+	                      create_info->entry_point,
+	                      create_info->priority,
+	                      process->stack_start,
+	                      create_info->argc,
+	                      (const char* const*)argv);
 
 	return pid;
 }

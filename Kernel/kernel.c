@@ -8,6 +8,7 @@
 #include <memoryManager.h>
 #include <moduleLoader.h>
 #include <process.h>
+#include <scheduler.h>
 #include <sound.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -79,6 +80,7 @@ main()
 	asm_cli();
 	idt_loader();
 	mm_init(heap_start_addr, (heap_end_addr - heap_start_addr));
+	sch_init();
 	init_shell();
 	asm_sti();
 

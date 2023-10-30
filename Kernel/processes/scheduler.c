@@ -1,35 +1,13 @@
-#include "scheduler.h"
-
+#include <interrupts.h>
+#include <process.h>
+#include <scheduler.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-typedef struct
-{
-	const char* name;
-	void (*entry_point)(int argc, char* argv[]);
-	int is_fg;
-	int8_t priority;
-	int argc;
-	const char* const* argv;
-} ProcCreateInfo;
-
-typedef struct
-{
-	int8_t priority;
-	Status status;
-	void* current_rsp;
-} Process;
 
 static void* main_rsp;
 static Process processes[MAX_PROCESSES];
 static uint64_t current_running_pid;
 static uint8_t quantums;
-
-extern void asm_int81();
-extern void* asm_create_process_context(int argc,
-                                        const char* const argv[],
-                                        void* rsp,
-                                        void (*entry_point)(int argc, char* argv[]));
 
 static int valid_pid(uint64_t pid);
 static int valid_priority(int8_t priority);
@@ -54,7 +32,7 @@ valid_priority(int8_t priority)
 static int
 is_active(uint64_t pid)
 {
-	return valid_pid(pid) && processes[pid].current_rsp != NULL;
+	return valid_pid(pid) && processes[pid].rsp != NULL;
 }
 
 static int
@@ -103,10 +81,10 @@ sch_init()
 }
 
 int
-sch_on_process_create(uint64_t pid,
-                      void (*entry_point)(int argc, char* argv[]),
+sch_on_process_create(int pid,
+                      ProcessEntryPoint entry_point,
                       int8_t priority,
-                      void* current_rsp,
+                      void* rsp,
                       int argc,
                       const char* const argv[])
 {
@@ -116,7 +94,7 @@ sch_on_process_create(uint64_t pid,
 
 	processes[pid].priority = priority;
 	processes[pid].status = READY;
-	processes[pid].current_rsp = asm_create_process_context(argc, argv, current_rsp, entry_point);
+	processes[pid].rsp = asm_create_process_context(argc, argv, rsp, entry_point);
 	return 0;
 }
 
@@ -161,7 +139,7 @@ sch_kill(uint64_t pid)
 		return 0;
 
 	process->status = KILLED;
-	process->current_rsp = NULL;
+	process->rsp = NULL;
 
 	if (current_running_pid == pid)
 		current_running_pid = -1;
@@ -194,7 +172,7 @@ void*
 sch_switch(void* current_rsp)
 {
 	if (current_running_pid >= 0) {
-		processes[current_running_pid].current_rsp = current_rsp;
+		processes[current_running_pid].rsp = current_rsp;
 		if (processes[current_running_pid].status == RUNNING) {
 			processes[current_running_pid].status = READY;
 		}
@@ -216,7 +194,7 @@ sch_switch(void* current_rsp)
 	}
 
 	processes[current_running_pid].status = RUNNING;
-	return processes[current_running_pid].current_rsp;
+	return processes[current_running_pid].rsp;
 }
 
 void
@@ -229,13 +207,13 @@ sch_yield()
 }
 
 int
-sch_get_proc_info(uint64_t pid, ProcInfo* info)
+sch_get_proc_info(uint64_t pid, Process* info)
 {
 	Process* process = NULL;
 	if (!try_get_process(pid, process))
 		return -1;
 	info->status = process->status;
 	info->priority = process->priority;
-	info->current_rsp = process->current_rsp;
+	info->rsp = process->rsp;
 	return 0;
 }

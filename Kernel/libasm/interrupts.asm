@@ -1,6 +1,7 @@
 global asm_cli
 global asm_sti
 global asm_hlt
+global asm_int81
 
 global asm_pic_master_mask
 global asm_pic_slave_mask
@@ -123,6 +124,10 @@ asm_cli:
 
 asm_sti:
     sti
+    ret
+
+asm_int81:
+    int 81h
     ret
 
 asm_pic_master_mask:

@@ -56,6 +56,16 @@ strlen(char* str)
 	return len - 1;
 }
 
+char*
+strcpy(char* destination, const char* source)
+{
+	char* w;
+	for (w = destination; *source != '\0'; *(w++) = *(source++))
+		continue;
+	*w = '\0';
+	return destination;
+}
+
 uint32_t
 uint_to_base(uint64_t value, char* buff, uint32_t base)
 {

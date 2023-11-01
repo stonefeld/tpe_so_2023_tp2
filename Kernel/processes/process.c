@@ -19,6 +19,7 @@ typedef struct
 static ProcessContext processes[MAX_PROCESSES];
 
 static uint8_t valid_name(const char* name);
+static uint8_t get_process_from_pid(int pid, ProcessContext** process);
 
 static uint8_t
 valid_name(const char* name)
@@ -39,6 +40,16 @@ valid_name(const char* name)
 	}
 
 	return 0;
+}
+
+static uint8_t
+get_process_from_pid(int pid, ProcessContext** process)
+{
+	if (pid < 0 || pid >= MAX_PROCESSES || processes[pid].stack_end == NULL)
+		return 0;
+
+	*process = &processes[pid];
+	return 1;
 }
 
 int
@@ -99,4 +110,28 @@ proc_create(const ProcessCreateInfo* create_info)
 	                      (const char* const*)argv);
 
 	return pid;
+}
+
+int
+proc_kill(int pid)
+{
+	ProcessContext* process;
+	if (!get_process_from_pid(pid, &process))
+		return -1;
+
+	for (int i = 0; i < process->mem_count; i++)
+		mm_free(process->mem[i]);
+	mm_free(process->mem);
+
+	sch_on_process_killed(pid);
+
+	for (int i = 0; i < process->argc; i++)
+		mm_free(process->argv[i]);
+	mm_free(process->argv);
+	mm_free(process->name);
+	mm_free(process->stack_end);
+	mm_free(process->stack_start);
+	memset(process, 0, sizeof(ProcessContext));
+
+	return 0;
 }

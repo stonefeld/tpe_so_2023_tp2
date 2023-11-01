@@ -2,7 +2,7 @@ global asm_create_process_context
 
 asm_entry_point_wrapper:
     call rdx
-    mov rax,42h
+    mov rdi,10h
     int 80h
 
 asm_create_process_context:

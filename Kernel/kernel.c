@@ -77,15 +77,19 @@ init_shell()
 int
 main()
 {
+	// dehabilito las interrupciones
 	asm_cli();
+
 	idt_loader();
 	mm_init(heap_start_addr, (heap_end_addr - heap_start_addr));
 	sch_init();
 	init_shell();
-	init_shell();
+
+	// vuelvo a habilitar las interrupciones
 	asm_sti();
 
 	while (1) {
+		// el proceso kernel no debe hacer mas nada así
 		sch_yield();
 		asm_hlt();
 	}

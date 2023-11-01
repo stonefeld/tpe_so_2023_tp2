@@ -19,7 +19,7 @@ int sch_on_process_create(int pid,
 
 int sch_block(uint64_t pid);
 int sch_unblock(uint64_t pid);
-int sch_kill(uint64_t pid);
+int sch_on_process_killed(uint64_t pid);
 
 int sch_get_current_pid();
 int sch_set_priority(int pid, int8_t new_priority);

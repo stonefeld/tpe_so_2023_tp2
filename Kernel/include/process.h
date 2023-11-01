@@ -2,7 +2,6 @@
 #define PROCESS_H
 
 #include <stdint.h>
-#include <stdlib.h>
 
 #define MAX_NAME_LEN 256
 #define PROCESS_STACK_SIZE 4096
@@ -39,6 +38,7 @@ typedef struct
 } ProcessCreateInfo;
 
 int proc_create(const ProcessCreateInfo* create_info);
+int proc_kill(int pid);
 
 // asm functions
 extern void* asm_create_process_context(int argc, const char* const argv[], void* rsp, ProcessEntryPoint entry_point);

@@ -1,3 +1,5 @@
+#include "scheduler.h"
+
 #include <exceptions.h>
 #include <font.h>
 #include <keyboard.h>
@@ -10,6 +12,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+
 #define REGS_SIZE 19
 
 enum syscalls
@@ -33,9 +36,14 @@ enum syscalls
 	SYS_REGS,
 	SYS_RTC,
 	SYS_SOUND,
+
+	// memory
 	SYS_MALLOC,
 	SYS_FREE,
-	SYS_REALLOC
+	SYS_REALLOC,
+
+	// processes
+	SYS_EXIT
 };
 
 static uint8_t regs_flag = 0;
@@ -85,7 +93,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_REGS: {
-			exc_printreg(regs_flag ? registers : (uint64_t*)0, rsi);
+			exc_printreg(regs_flag ? registers : NULL, rsi);
 		} break;
 
 		case SYS_RTC: {
@@ -103,8 +111,14 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_FREE: {
 			mm_free((void*)rsi);
 		} break;
+
 		case SYS_REALLOC: {
 			mm_realloc((void*)rsi, rdx);
+		} break;
+
+		case SYS_EXIT: {
+			proc_kill(sch_get_current_pid());
+			sch_yield();
 		} break;
 	}
 	return 0;

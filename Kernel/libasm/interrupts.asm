@@ -118,9 +118,11 @@ asm_syscall_handler:
 
 asm_scheduler_handler:
     push_state_full
+
     mov rdi,rsp
     call sch_switch
     mov rsp,rax
+
     pop_state_full
     iretq
 

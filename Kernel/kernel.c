@@ -82,6 +82,7 @@ main()
 	mm_init(heap_start_addr, (heap_end_addr - heap_start_addr));
 	sch_init();
 	init_shell();
+	init_shell();
 	asm_sti();
 
 	while (1) {

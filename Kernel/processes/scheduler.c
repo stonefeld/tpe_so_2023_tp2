@@ -62,9 +62,8 @@ get_next_ready_pid()
 
 	do {
 		next = (next + 1) % MAX_PROCESSES;
-		if (is_ready(next)) {
+		if (is_ready(next))
 			return next;
-		}
 	} while (next != first);
 
 	return -1;
@@ -176,9 +175,8 @@ sch_switch(void* current_rsp)
 {
 	if (current_running_pid >= 0) {
 		processes_states[current_running_pid].rsp = current_rsp;
-		if (processes_states[current_running_pid].status == RUNNING) {
+		if (processes_states[current_running_pid].status == RUNNING)
 			processes_states[current_running_pid].status = READY;
-		}
 	} else if (current_running_pid == -1) {
 		main_rsp = current_rsp;
 	}

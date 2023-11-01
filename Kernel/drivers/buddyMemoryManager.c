@@ -11,7 +11,7 @@
 #include <stddef.h>
 
 #define MIN_LEVEL 0
-#define MAX_LEVEL 15 // 16 different orders, so minimum memory block is 256 bytes
+#define MAX_LEVEL 15  // 16 different orders, so minimum memory block is 256 bytes
 #define MIN_BLOCK 256
 #define MEMORY_SIZE (9 * 1024 * 1024)  // Memory needed for heap + tree allocation
 #define HEAP_SIZE (8 * 1024 * 1024)
@@ -25,6 +25,7 @@
 #define NEGATIVE_DELTA -1
 #define USED 1
 #define FREE 0
+
 typedef struct
 {
 	unsigned int used;  // whether this Node is in use or not
@@ -32,9 +33,7 @@ typedef struct
 } Node;
 
 static void* heap_start;
-
 static Node* block_tree;  // binary tree array
-
 static size_t total_mem;
 static size_t used_mem;
 static unsigned int mem_chuncks;
@@ -50,11 +49,13 @@ get_left_child(unsigned int index)
 {
 	return (index << 1) + 1;
 }
+
 static inline unsigned int
 get_right_child(unsigned int index)
 {
 	return (index << 1) + 2;
 }
+
 static inline unsigned int
 get_first_index(unsigned int level)
 {
@@ -78,38 +79,13 @@ get_first_free_index(unsigned int level)
 static inline void*
 get_ptr(int index, int level)
 {
-	void * ptr = heap_start + (index - get_first_index(level)) * (1 << level) * MIN_BLOCK;
+	void* ptr = heap_start + (index - get_first_index(level)) * (1 << level) * MIN_BLOCK;
 	return ptr;
-}
-void
-mm_init(void* const restrict start_address, size_t size)
-{
-	void* true_start = (void*)WORD_ALIGN_UP(start_address);
-	size -= (true_start - start_address);
-
-	if (size < MEMORY_SIZE) {
-		return;  // fail
-	}
-
-	block_tree = true_start;
-	size_t tree_size = sizeof(Node) * MAX_NODES;
-
-	true_start += tree_size;
-	heap_start = true_start;
-
-	total_mem = HEAP_SIZE;
-	used_mem = 0;
-	mem_chuncks = 0;  // allocations
-
-	for (int i = 0; i < MAX_NODES; i++) {
-		block_tree[i].used = 0;
-		block_tree[i].used_subnodes = 0;
-	}
 }
 
 static unsigned int
 get_level(size_t size)
-{		
+{
 	size--;
 	unsigned int level = 0;
 	while (size > MIN_BLOCK) {
@@ -141,6 +117,7 @@ set_used(unsigned int index, int state)
 	set_used(get_right_child(index), state);
 	set_used(get_left_child(index), state);
 }
+
 static int
 search_node(int index, int* level, void* ptr)
 {
@@ -160,8 +137,9 @@ static int
 get_initial_index(void* ptr, int max_level)
 {
 	int offset = ptr - heap_start;
-	return get_first_index(max_level) + (offset / ((1 << max_level)*MIN_BLOCK));
+	return get_first_index(max_level) + (offset / ((1 << max_level) * MIN_BLOCK));
 }
+
 static int
 get_max_level(void* ptr)
 {
@@ -170,42 +148,60 @@ get_max_level(void* ptr)
 
 	int max_block_level = (1 << MAX_LEVEL);
 
-	while ( (offset % max_block_level) != 0) {
+	while ((offset % max_block_level) != 0) {
 		max_level--;
 		max_block_level = max_block_level >> 1;
 	}
 	return max_level;
 }
+
+void
+mm_init(void* const restrict start_address, size_t size)
+{
+	void* true_start = (void*)WORD_ALIGN_UP(start_address);
+	size -= (true_start - start_address);
+
+	if (size < MEMORY_SIZE) {
+		return;  // fail
+	}
+
+	block_tree = true_start;
+	size_t tree_size = sizeof(Node) * MAX_NODES;
+
+	true_start += tree_size;
+	heap_start = true_start;
+
+	total_mem = HEAP_SIZE;
+	used_mem = 0;
+	mem_chuncks = 0;  // allocations
+
+	for (int i = 0; i < MAX_NODES; i++) {
+		block_tree[i].used = 0;
+		block_tree[i].used_subnodes = 0;
+	}
+}
+
 void*
 mm_alloc(const size_t size)
 {
 	unsigned int level;
-	if (size > HEAP_SIZE || size == 0 || (level = get_level(size)) > MAX_LEVEL ) {
+	if (size > HEAP_SIZE || size == 0 || (level = get_level(size)) > MAX_LEVEL)
 		return NULL;
-	}
-	
-	
+
 	// if (level < MIN_LEVEL)
-    //     level = MIN_LEVEL;
-
-
+	//     level = MIN_LEVEL;
 
 	int index = get_first_free_index(level);
-
-	if (index < 0) {
+	if (index < 0)
 		return NULL;  // out of mem
-	}
 
 	update_parents(index, POSITIVE_DELTA);
-
 	set_used(index, USED);
-
 	mem_chuncks++;
-
-	used_mem += (1 << level)*MIN_BLOCK ;
-
+	used_mem += (1 << level) * MIN_BLOCK;
 	return get_ptr(index, level);
 }
+
 void
 mm_free(void* ptr)
 {
@@ -225,7 +221,7 @@ mm_free(void* ptr)
 	set_used(index, FREE);
 
 	mem_chuncks--;
-	used_mem -= (1 << level)*MIN_BLOCK ;
+	used_mem -= (1 << level) * MIN_BLOCK;
 
 	return;
 }

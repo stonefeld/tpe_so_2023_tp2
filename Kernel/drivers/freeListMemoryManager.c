@@ -1,4 +1,4 @@
-#ifndef USE_BUDDY
+#ifdef USE_LIST
 
 /*
     https://www.geeksforgeeks.org/power-of-two-free-lists-allocators-kernal-memory-allocators/
@@ -22,7 +22,7 @@
 typedef struct Node
 {
 	size_t size;
-	struct Node * next;
+	struct Node* next;
 
 } MemoryBlock;
 
@@ -44,7 +44,7 @@ mm_init(void* const restrict start_address, size_t size)
 
 	MemoryBlock* first_block = true_start;
 
-    blk_list.next = first_block;
+	blk_list.next = first_block;
 
 	// initially only one block with full size
 	first_block->size = size;
@@ -54,109 +54,108 @@ mm_init(void* const restrict start_address, size_t size)
 static void
 insert_block(MemoryBlock* block)
 {
-	MemoryBlock* aux; 
+	MemoryBlock* aux;
 
-	for(aux = &blk_list; aux->next < block && aux->next != NULL; aux= aux->next);
+	for (aux = &blk_list; aux->next < block && aux->next != NULL; aux = aux->next)
+		;
 
 	// encontré donde insertar mi bloque
 
 	if ((aux + aux->size) == block) {  // si son continuos en memoria, los simplifico
-        aux->size += block->size;
-        block = aux;
-    }
+		aux->size += block->size;
+		block = aux;
+	}
 
-    if(aux->next != NULL && block + block->size == aux->next){ // el siguiente bloque también continuo
-        block->size += aux->next->size;
-        block->next = aux->next->next; // could be NULL
-        aux->next = block;
-    }
+	if (aux->next != NULL && block + block->size == aux->next) {  // el siguiente bloque también continuo
+		block->size += aux->next->size;
+		block->next = aux->next->next;  // could be NULL
+		aux->next = block;
+	}
 
-    if(block != aux){ 
-        aux->next = block;
-    }
-
+	if (block != aux) {
+		aux->next = block;
+	}
 }
 
-static MemoryBlock* get_block(size_t wanted_size){
-    
-
+static MemoryBlock*
+get_block(size_t wanted_size)
+{
 	MemoryBlock* aux = &blk_list;
-    MemoryBlock* block;
-    MemoryBlock * prev;
+	MemoryBlock* block;
+	MemoryBlock* prev;
 
-    size_t block_size = wanted_size + sizeof(MemoryBlock);
+	size_t block_size = wanted_size + sizeof(MemoryBlock);
 
-    for(aux = &blk_list; aux->size < block_size && aux != NULL; aux= aux->next, prev=aux);
+	for (aux = &blk_list; aux->size < block_size && aux != NULL; aux = aux->next, prev = aux)
+		;
 
-   
-    if(aux == NULL){ 
-        return NULL; // out of mem
-    }
+	if (aux == NULL) {
+		return NULL;  // out of mem
+	}
 
-   
-    block = prev->next;
-    prev->next = prev->next->next; 
+	block = prev->next;
+	prev->next = prev->next->next;
 
-    // maybe the block is to large and can be split
+	// maybe the block is to large and can be split
 
-    if((block->size - block_size) > MIN_BLOCK_SIZE){
+	if ((block->size - block_size) > MIN_BLOCK_SIZE) {
+		MemoryBlock* free_block = block + block_size;
 
-        MemoryBlock* free_block = block + block_size;
+		free_block->size = block->size - block_size;
 
-        free_block->size = block->size - block_size;
+		block->size = block_size;
 
-        block->size = block_size;
+		insert_block(free_block);
+	}
 
-        insert_block(free_block);
-
-    }
-
-    return block;
+	return block;
 }
 
-void* mm_alloc(const size_t memoryToAllocate){
-    
-    MemoryBlock* block = get_block(memoryToAllocate);
+void*
+mm_alloc(const size_t memoryToAllocate)
+{
+	MemoryBlock* block = get_block(memoryToAllocate);
 
-    if(block == NULL){
-        return NULL; // out of mem
-    }
+	if (block == NULL) {
+		return NULL;  // out of mem
+	}
 
-    mem_chuncks += 1;
-    used_mem += block->size;
+	mem_chuncks += 1;
+	used_mem += block->size;
 
-    block->next = &blk_list;
+	block->next = &blk_list;
 
-    void * to_return =  (void*)  (block + sizeof(MemoryBlock));
-    return to_return;
+	void* to_return = (void*)(block + sizeof(MemoryBlock));
+	return to_return;
 }
 
-void mm_free(void * ptr){
+void
+mm_free(void* ptr)
+{
+	if (ptr == NULL) {
+		return;
+	}
 
-    if (ptr == NULL){
-        return;
-    } 
+	MemoryBlock* block = (MemoryBlock*)(ptr - sizeof(MemoryBlock));
 
-    MemoryBlock* block = (MemoryBlock *) (ptr - sizeof(MemoryBlock));
+	// if it is not allocated
 
-    // if it is not allocated
+	if (block->next != &blk_list) {
+		return;
+	}
 
-    if (block->next != &blk_list){
-        return;
-    }
+	insert_block(block);
 
-    insert_block(block);
+	mem_chuncks -= 1;
+	used_mem -= block->size;
 
-    mem_chuncks -= 1;
-    used_mem -= block->size;
-    
-    return;
-
+	return;
 }
 
-void* mm_realloc(void* ptr, size_t size){
-
-    void* new_ptr = mm_alloc(size);
+void*
+mm_realloc(void* ptr, size_t size)
+{
+	void* new_ptr = mm_alloc(size);
 
 	if (new_ptr != NULL) {
 		memcpy(new_ptr, ptr, size);
@@ -164,7 +163,6 @@ void* mm_realloc(void* ptr, size_t size){
 	}
 	return new_ptr;
 }
-
 
 static void
 mm_state(MemState* mem_state)
@@ -174,4 +172,5 @@ mm_state(MemState* mem_state)
 	mem_state->chunks = mem_chuncks;
 	mem_state->type = FREE_LIST;
 }
+
 #endif

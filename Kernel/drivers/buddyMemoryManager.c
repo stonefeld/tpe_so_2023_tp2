@@ -1,4 +1,4 @@
-#ifdef BUDDY
+#ifdef USE_BUDDY
 
 /*
     Siguiendo la explicación de Buddy Memory Allocation: https://en.wikipedia.org/wiki/Buddy_memory_allocation
@@ -246,4 +246,5 @@ mm_state(MemState* mem_state)
 	mem_state->chunks = mem_chuncks;
 	mem_state->type = BUDDY;
 }
+
 #endif

@@ -49,5 +49,5 @@
         "variant": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
 }

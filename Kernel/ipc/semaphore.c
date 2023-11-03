@@ -161,7 +161,7 @@ create_semaphore(int idx, int initial_value)
 
 	semaphores[idx]->value = initial_value;
 	semaphores[idx]->linked_processes = 1;
-	semaphores[idx]->waiting_processes = queue_new();
+	semaphores[idx]->waiting_processes = queue_create();
 
 	if (semaphores[idx]->waiting_processes == NULL) {
 		mm_free(semaphores[idx]);

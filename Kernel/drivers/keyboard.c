@@ -3,7 +3,11 @@
 #include <libasm.h>
 #include <libc.h>
 #include <naiveConsole.h>
+#include <process.h>
+#include <queue.h>
+#include <scheduler.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <text.h>
 #include <video.h>
 
@@ -42,8 +46,12 @@ static uint8_t buffer_chars[BUFFER_MAX];
 static uint8_t buffer_states[BUFFER_MAX];
 static uint32_t buffer_size = 0;
 
+// cola de pids esperando input
+static Queue waiting_pids;
+
 static uint8_t get_scancode(uint8_t key);
 static void put_buffer(uint8_t code, uint8_t state);
+static int read_callback(int pid, int fd, char* buf, uint32_t size);
 
 int
 keyboard_handler()
@@ -67,6 +75,11 @@ keyboard_handler()
 
 		// aunque el caracter haya sido soltado, quiero guardar su ASCII
 		state = (key & 0x80 ? RELEASED : PRESSED);
+
+		// TODO: eliminar implementacion de released
+		if (state == RELEASED)
+			return 0;
+
 		key -= (key & 0x80 ? 0x80 : 0);
 		code = get_scancode(key);
 
@@ -77,6 +90,28 @@ keyboard_handler()
 			put_buffer(code, state);
 	}
 	return 0;
+}
+
+void
+kb_init()
+{
+	waiting_pids = queue_create();
+}
+
+int
+kb_read_chars(char* buf, uint32_t size)
+{
+	uint32_t count = buffer_size;
+	if (count > size)
+		count = size;
+	if (count == 0)
+		return 0;
+
+	memcpy(buf, buffer_chars, count);
+	memcpy(buffer_chars, buffer_chars + count, buffer_size - count);
+	memcpy(buffer_states, buffer_states + count, buffer_size - count);
+	buffer_size -= count;
+	return count;
 }
 
 char
@@ -99,13 +134,19 @@ kb_getchar(uint8_t* state)
 	return key;
 }
 
+int
+kb_map_fd(int pid, int fd)
+{
+	return proc_map_fd(pid, fd, read_callback, NULL);
+}
+
 static uint8_t
 get_scancode(uint8_t key)
 {
 	uint8_t c;
 	if (caps_lock && !shift) {
 		c = scancodes[key][0];
-		if (c >= 'A' && c <= 'z')
+		if (c >= 'a' && c <= 'z')
 			c = scancodes[key][1];
 	} else {
 		c = scancodes[key][shift];
@@ -119,5 +160,26 @@ put_buffer(uint8_t code, uint8_t state)
 	if (buffer_size < BUFFER_MAX) {
 		buffer_chars[buffer_size] = code;
 		buffer_states[buffer_size++] = state;
+		queue_unblock_all(waiting_pids);
 	}
+}
+
+static int
+read_callback(int pid, int fd, char* buf, uint32_t size)
+{
+	// TODO: chequear si esta en foreground
+	if (size == 0)
+		return 0;
+
+	if (size > BUFFER_MAX)
+		size = BUFFER_MAX;
+
+	int count = 0;
+	while ((count = kb_read_chars(buf, size)) == 0) {
+		queue_add(waiting_pids, pid);
+		sch_block(pid);
+		sch_yield();
+	}
+
+	return count;
 }

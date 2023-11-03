@@ -8,10 +8,6 @@ global asm_pic_slave_mask
 
 global asm_irq00_handler
 global asm_irq01_handler
-global asm_irq02_handler
-global asm_irq03_handler
-global asm_irq04_handler
-global asm_irq05_handler
 
 global asm_syscall_handler
 global asm_scheduler_handler

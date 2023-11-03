@@ -71,7 +71,8 @@ init_shell()
 		.argc = 0,
 		.argv = NULL,
 	};
-	proc_create(&info);
+	int pid = proc_create(&info);
+	kb_map_fd(pid, STDIN);
 }
 
 int
@@ -83,6 +84,8 @@ main()
 	idt_loader();
 	mm_init(heap_start_addr, (heap_end_addr - heap_start_addr));
 	sch_init();
+	kb_init();
+
 	init_shell();
 
 	// vuelvo a habilitar las interrupciones

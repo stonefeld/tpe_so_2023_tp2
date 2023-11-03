@@ -1,5 +1,5 @@
 ; i/o interaction
-global asm_getchar
+global asm_read
 global asm_putchar
 sys_read         equ 1
 sys_write        equ 2
@@ -27,12 +27,16 @@ global asm_sound
 global asm_malloc
 global asm_free
 global asm_realloc
-
 sys_ticks        equ 8
 sys_sleep        equ 9
 sys_regs         equ 10
 sys_rtc          equ 11
 sys_sound        equ 12
+
+; memory
+global asm_malloc
+global asm_free
+global asm_realloc
 sys_malloc       equ 13
 sys_free         equ 14
 sys_realloc      equ 15
@@ -51,7 +55,7 @@ sys_realloc      equ 15
     ret
 %endmacro
 
-asm_getchar:
+asm_read:
     syscall_handler sys_read
 
 asm_putchar:
@@ -89,8 +93,9 @@ asm_sound:
 
 asm_malloc:
     syscall_handler sys_malloc
-    
+
 asm_free:
     syscall_handler sys_free
+
 asm_realloc:
     syscall_handler sys_realloc

@@ -5,52 +5,26 @@
 
 typedef struct
 {
+	ReadCallback read_callback;
+	WriteCallback write_callback;
+} FileDescriptor;
+
+typedef struct
+{
 	void *stack_end, *stack_start;
 	uint8_t is_fg;
 	char* name;
 
-	void** mem;
-	uint32_t mem_count, mem_bufsize;
-
 	int argc;
 	char** argv;
+
+	FileDescriptor fds[MAX_FDS];
 } ProcessContext;
 
 static ProcessContext processes[MAX_PROCESSES];
 
 static uint8_t valid_name(const char* name);
 static uint8_t get_process_from_pid(int pid, ProcessContext** process);
-
-static uint8_t
-valid_name(const char* name)
-{
-	if (name == NULL)
-		return 0;
-
-	char c;
-	for (int i = 0; i < MAX_NAME_LEN; i++) {
-		c = name[i];
-		if (c == '\0')
-			return 1;
-
-		if ((c < 'a' || c > 'z') && (c < 'A' && c > 'Z') && c != '_') {
-			if (i == 0 || c < '0' || c > '9')
-				return 0;
-		}
-	}
-
-	return 0;
-}
-
-static uint8_t
-get_process_from_pid(int pid, ProcessContext** process)
-{
-	if (pid < 0 || pid >= MAX_PROCESSES || processes[pid].stack_end == NULL)
-		return 0;
-
-	*process = &processes[pid];
-	return 1;
-}
 
 int
 proc_create(const ProcessCreateInfo* create_info)
@@ -119,10 +93,6 @@ proc_kill(int pid)
 	if (!get_process_from_pid(pid, &process))
 		return -1;
 
-	for (int i = 0; i < process->mem_count; i++)
-		mm_free(process->mem[i]);
-	mm_free(process->mem);
-
 	sch_on_process_killed(pid);
 
 	for (int i = 0; i < process->argc; i++)
@@ -134,4 +104,62 @@ proc_kill(int pid)
 	memset(process, 0, sizeof(ProcessContext));
 
 	return 0;
+}
+
+int
+proc_map_fd(int pid, int fd, ReadCallback read_callback, WriteCallback write_callback)
+{
+	ProcessContext* process;
+	if (!get_process_from_pid(pid, &process) || fd > MAX_FDS)
+		return -1;
+
+	if (fd < 0) {
+		for (fd = 3; process->fds[fd].write_callback != NULL && process->fds[fd].read_callback != NULL; fd++)
+			continue;
+	}
+
+	process->fds[fd].read_callback = read_callback;
+	process->fds[fd].write_callback = write_callback;
+
+	return fd;
+}
+
+int
+proc_read(int pid, int fd, char* buf, uint32_t size)
+{
+	ProcessContext* process;
+	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].read_callback == NULL)
+		return -1;
+	return process->fds[fd].read_callback(pid, fd, buf, size);
+}
+
+static uint8_t
+valid_name(const char* name)
+{
+	if (name == NULL)
+		return 0;
+
+	char c;
+	for (int i = 0; i < MAX_NAME_LEN; i++) {
+		c = name[i];
+		if (c == '\0')
+			return 1;
+
+		if ((c < 'a' || c > 'z') && (c < 'A' && c > 'Z') && c != '_') {
+			if (i == 0 || c < '0' || c > '9')
+				return 0;
+		}
+	}
+
+	return 0;
+}
+
+static uint8_t
+get_process_from_pid(int pid, ProcessContext** process)
+{
+	if (pid < 0 || pid >= MAX_PROCESSES || processes[pid].stack_end == NULL)
+		return 0;
+
+	*process = &processes[pid];
+	return 1;
 }

@@ -62,7 +62,7 @@ shell_init()
 	while (running) {
 		prompt(status);
 		len = gets(input_buffer, INPUT_SIZE, color.fg);
-		status = process_input(input_buffer, len);
+		// status = process_input(input_buffer, len);
 	}
 
 	return status;

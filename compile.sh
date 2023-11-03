@@ -5,21 +5,21 @@ print_error() {
     exit 1
 }
 
-command -v docker >/dev/null 2>&1 || print_error "please install docker first"
-container_name="tpe_so_2023_tp2"
+command -v docker >/dev/null 2>&1 || print_error 'please install docker first'
+container_name='tpe_so_2023_tp2'
 
 DEBUG=false
 RUN=false
 
 for i in $@; do
     case "$i" in
-        "-d") DEBUG=true;;
-        "-r") RUN=true;;
+        '-d') DEBUG=true;;
+        '-r') RUN=true;;
     esac
 done
 
-[ "$DEBUG" = true ] && makecmd="clean debug" || makecmd="clean all"
-[ "$DEBUG" = true ] && runcmd="-d"
+[ "$DEBUG" = true ] && makecmd='clean debug' || makecmd='clean all'
+[ "$DEBUG" = true ] && runcmd='-d'
 
 # if container doesn't exist create it
 if ! docker ps -a | grep "$container_name" >/dev/null 2>&1; then

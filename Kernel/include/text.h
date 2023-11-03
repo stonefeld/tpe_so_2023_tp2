@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+void tx_init();
+
 /*
  * Imprime en pantalla un caracter
  */
@@ -28,5 +30,7 @@ void tx_show_cursor(uint8_t show);
  * Limpia la pantalla y posiciona el cursor en el origen (0, 0).
  */
 void tx_clear(uint32_t color);
+
+int tx_map_fd(int pid, int fd);
 
 #endif

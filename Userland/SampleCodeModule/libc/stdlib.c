@@ -55,18 +55,29 @@ fgetchar(int fd)
 	return c;
 }
 
-void
-puts(char* str, uint32_t color)
+uint32_t
+puts(char* buf, uint32_t color)
 {
-	uint64_t len = strlen(str);
-	for (int i = 0; i < len; i++)
-		putchar(str[i], color);
+	return fputs(STDOUT, buf, color);
+}
+
+uint32_t
+fputs(int fd, char* buf, uint32_t color)
+{
+	uint64_t len = strlen(buf);
+	return asm_write(fd, buf, len, color);
 }
 
 void
 putchar(char c, uint32_t color)
 {
-	asm_putchar(c, color);
+	fputs(STDOUT, &c, color);
+}
+
+void
+fputchar(int fd, char c, uint32_t color)
+{
+	fputs(fd, &c, color);
 }
 
 uint64_t

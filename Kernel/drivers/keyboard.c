@@ -174,7 +174,7 @@ read_callback(int pid, int fd, char* buf, uint32_t size)
 	if (size > BUFFER_MAX)
 		size = BUFFER_MAX;
 
-	int count = 0;
+	int count;
 	while ((count = kb_read_chars(buf, size)) == 0) {
 		queue_add(waiting_pids, pid);
 		sch_block(pid);

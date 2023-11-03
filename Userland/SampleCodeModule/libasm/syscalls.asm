@@ -1,6 +1,6 @@
 ; i/o interaction
 global asm_read
-global asm_putchar
+global asm_write
 sys_read         equ 1
 sys_write        equ 2
 
@@ -58,7 +58,7 @@ sys_realloc      equ 15
 asm_read:
     syscall_handler sys_read
 
-asm_putchar:
+asm_write:
     syscall_handler sys_write
 
 asm_draw:

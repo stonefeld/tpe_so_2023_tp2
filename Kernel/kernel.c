@@ -73,6 +73,8 @@ init_shell()
 	};
 	int pid = proc_create(&info);
 	kb_map_fd(pid, STDIN);
+	tx_map_fd(pid, STDOUT);
+	tx_map_fd(pid, STDERR);
 }
 
 int
@@ -85,6 +87,7 @@ main()
 	mm_init(heap_start_addr, (heap_end_addr - heap_start_addr));
 	sch_init();
 	kb_init();
+	tx_init();
 
 	init_shell();
 

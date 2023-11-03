@@ -12,7 +12,7 @@
 #define STDERR 2
 
 typedef int (*ReadCallback)(int pid, int fd, char* buf, uint32_t size);
-typedef int (*WriteCallback)(int pid, int fd, char* buf, uint32_t size);
+typedef int (*WriteCallback)(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 typedef void (*ProcessEntryPoint)(int argc, char* argv[]);
 
 typedef enum
@@ -49,6 +49,7 @@ int proc_kill(int pid);
 
 int proc_map_fd(int pid, int fd, ReadCallback read_callback, WriteCallback write_callback);
 int proc_read(int pid, int fd, char* buf, uint32_t size);
+int proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 
 // asm functions
 extern void* asm_create_process_context(int argc, const char* const argv[], void* rsp, ProcessEntryPoint entry_point);

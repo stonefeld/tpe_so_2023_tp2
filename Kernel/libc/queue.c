@@ -15,7 +15,7 @@ struct queue_adt
 	int count;
 };
 
-void free_rec(struct node* current);
+static void free_rec(struct node* current);
 
 Queue
 queue_create()
@@ -112,15 +112,14 @@ queue_unblock_all(Queue queue)
 {
 	if (queue == NULL)
 		return -1;
-	if (queue->first != NULL)
-		free_rec(queue->first);
+	free_rec(queue->first);
 	queue->first = NULL;
 	queue->last = NULL;
 	queue->count = 0;
 	return 0;
 }
 
-void
+static void
 free_rec(struct node* node)
 {
 	if (node == NULL)

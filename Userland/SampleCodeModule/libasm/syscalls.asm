@@ -1,45 +1,24 @@
 ; i/o interaction
 global asm_read
 global asm_write
-sys_read         equ 1
-sys_write        equ 2
+sys_read         equ 3
+sys_write        equ 4
 
 ; drawing
-global asm_draw
-global asm_clear
-global asm_cursor
 global asm_show_cursor
-sys_draw         equ 3
-sys_clear        equ 4
-sys_cursor       equ 5
 sys_show_cursor  equ 6
 
-; properties
-global asm_winprops
-sys_winprops     equ 7
-
 ; system
-global asm_ticked
-global asm_sleep
-global asm_printreg
-global asm_datetime
-global asm_sound
-global asm_malloc
-global asm_free
-global asm_realloc
-sys_ticks        equ 8
-sys_sleep        equ 9
-sys_regs         equ 10
-sys_rtc          equ 11
-sys_sound        equ 12
+global asm_time
+sys_time         equ 11
 
 ; memory
 global asm_malloc
 global asm_free
 global asm_realloc
-sys_malloc       equ 13
-sys_free         equ 14
-sys_realloc      equ 15
+sys_malloc       equ 90
+sys_free         equ 91
+sys_realloc      equ 92
 
 %macro syscall_handler 1
     push rbp
@@ -61,35 +40,11 @@ asm_read:
 asm_write:
     syscall_handler sys_write
 
-asm_draw:
-    syscall_handler sys_draw
-
-asm_clear:
-    syscall_handler sys_clear
-
-asm_cursor:
-    syscall_handler sys_cursor
-
 asm_show_cursor:
     syscall_handler sys_show_cursor
 
-asm_winprops:
-    syscall_handler sys_winprops
-
-asm_ticked:
-    syscall_handler sys_ticks
-
-asm_sleep:
-    syscall_handler sys_sleep
-
-asm_printreg:
-    syscall_handler sys_regs
-
-asm_datetime:
-    syscall_handler sys_rtc
-
-asm_sound:
-    syscall_handler sys_sound
+asm_time:
+    syscall_handler sys_time
 
 asm_malloc:
     syscall_handler sys_malloc

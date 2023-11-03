@@ -20,6 +20,8 @@ uint32_t fputs(int fd, char* buf, uint32_t color);
 void putchar(char c, uint32_t color);
 void fputchar(int fd, char c, uint32_t color);
 
+void clear(uint32_t color);
+
 /*
  * Devuelve el largo de un string.
  */

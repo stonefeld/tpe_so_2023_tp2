@@ -1,11 +1,10 @@
-#include "scheduler.h"
-
 #include <exceptions.h>
 #include <font.h>
 #include <keyboard.h>
 #include <libasm.h>
 #include <memoryManager.h>
 #include <rtc.h>
+#include <scheduler.h>
 #include <sound.h>
 #include <stddef.h>
 #include <syscalls.h>
@@ -13,121 +12,70 @@
 #include <time.h>
 #include <video.h>
 
-#define REGS_SIZE 19
+typedef uint64_t (*SyscallHandler)(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 
-enum syscalls
-{
-	// i/o interaction
-	SYS_READ = 1,
-	SYS_WRITE,
+static uint64_t exit_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t read_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t write_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t time_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t malloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t free_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t realloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 
-	// drawing
-	SYS_DRAW,
-	SYS_CLEAR,
-	SYS_CURSOR,
-	SYS_SHOW_CURSOR,
-
-	// properties
-	SYS_WINPROPS,
-
-	// system
-	SYS_TICKS,
-	SYS_SLEEP,
-	SYS_REGS,
-	SYS_RTC,
-	SYS_SOUND,
-
-	// memory
-	SYS_MALLOC,
-	SYS_FREE,
-	SYS_REALLOC,
-
-	// processes
-	SYS_EXIT
+static SyscallHandler syscalls[] = {
+	[1] = exit_handler,    [3] = read_handler,  [4] = write_handler,    [11] = time_handler,
+	[90] = malloc_handler, [91] = free_handler, [92] = realloc_handler,
 };
 
-static uint8_t regs_flag = 0;
-static uint64_t registers[REGS_SIZE];
-
 uint64_t
-syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r9, uint64_t r8)
 {
-	switch (rdi) {
-		case SYS_READ: {
-			return proc_read(sch_get_current_pid(), rsi, (char*)rdx, rcx);
-		} break;
+	if (syscalls[rdi] == NULL)
+		return -1;
+	return syscalls[rdi](rsi, rdx, r10, r9, r8);
+}
 
-		case SYS_WRITE: {
-			return proc_write(sch_get_current_pid(), rsi, (char*)rdx, rcx, r8);
-		} break;
-
-		case SYS_DRAW: {
-			vd_draw(rsi, rdx, rcx, r8, r9);
-		} break;
-
-		case SYS_CLEAR: {
-			tx_clear(rsi);
-		} break;
-
-		case SYS_CURSOR: {
-			tx_set_cursor(rsi, rdx, rcx);
-		} break;
-
-		case SYS_SHOW_CURSOR: {
-			tx_show_cursor(rsi);
-		} break;
-
-		case SYS_WINPROPS: {
-			*((uint32_t*)rsi) = vd_get_winwidth();
-			*((uint32_t*)rdx) = vd_get_winheight();
-			*((uint32_t*)rcx) = CHAR_WIDTH;
-			*((uint32_t*)r8) = CHAR_HEIGHT;
-		} break;
-
-		case SYS_TICKS: {
-			return ti_ticked();
-		} break;
-
-		case SYS_SLEEP: {
-			ti_sleep(rsi);
-		} break;
-
-		case SYS_REGS: {
-			exc_printreg(regs_flag ? registers : NULL, rsi);
-		} break;
-
-		case SYS_RTC: {
-			rtc_datetime(rsi);
-		} break;
-
-		case SYS_SOUND: {
-			sd_play(rsi, rdx);
-		} break;
-
-		case SYS_MALLOC: {
-			return (uint64_t)mm_alloc(rsi);
-		} break;
-
-		case SYS_FREE: {
-			mm_free((void*)rsi);
-		} break;
-
-		case SYS_REALLOC: {
-			mm_realloc((void*)rsi, rdx);
-		} break;
-
-		case SYS_EXIT: {
-			proc_kill(sch_get_current_pid());
-			sch_yield();
-		} break;
-	}
+static uint64_t
+exit_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	proc_kill(sch_get_current_pid());
+	sch_yield();
 	return 0;
 }
 
-void
-save_registers(uint64_t* stack)
+static uint64_t
+read_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	regs_flag = 1;
-	for (int i = 0; i < REGS_SIZE; i++)
-		registers[i] = stack[i];
+	return proc_read(sch_get_current_pid(), rsi, (char*)rdx, rcx);
+}
+
+static uint64_t
+write_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	return proc_write(sch_get_current_pid(), rsi, (char*)rdx, rcx, r8);
+}
+
+static uint64_t
+time_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	return 0;
+}
+
+static uint64_t
+malloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	return (uint64_t)mm_alloc(rsi);
+}
+
+static uint64_t
+free_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	mm_free((void*)rsi);
+	return 0;
+}
+
+static uint64_t
+realloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	return (uint64_t)mm_realloc((void*)rsi, rdx);
 }

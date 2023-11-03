@@ -18,7 +18,7 @@ global asm_exception06_handler
 extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
-extern save_registers
+extern sc_save_regs
 extern sch_switch
 
 section .text
@@ -83,12 +83,6 @@ REGISTER_CAPTURE equ 9
     out 20h,al
     pop rax
 
-    cmp rax,REGISTER_CAPTURE
-    jne .fin
-    mov rdi,rsp
-    call save_registers
-
-.fin:
     pop_state_full
     iretq
 %endmacro

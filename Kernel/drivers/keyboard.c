@@ -19,10 +19,7 @@
 #define KC_L_CTRL 29
 #define KC_L_CTRL_RELEASE KC_L_CTRL + 128
 
-#define BUFFER_MAX 10
-#define REGISTER_CAPTURE 9
-#define RELEASED 0
-#define PRESSED 1
+#define BUFFER_MAX 32
 
 // define los caracteres para cada código. al presionar shift se utiliza la segunda columna
 static const uint8_t scancodes[][2] = {
@@ -43,14 +40,13 @@ static uint8_t shift = 0, caps_lock = 0, control = 0;
 
 // buffers de almacenamiento para el caracter y el estado del mismo (PRESSED o RELEASED)
 static uint8_t buffer_chars[BUFFER_MAX];
-static uint8_t buffer_states[BUFFER_MAX];
 static uint32_t buffer_size = 0;
 
 // cola de pids esperando input
 static Queue waiting_pids;
 
 static uint8_t get_scancode(uint8_t key);
-static void put_buffer(uint8_t code, uint8_t state);
+static void put_buffer(uint8_t code);
 static int read_callback(int pid, int fd, char* buf, uint32_t size);
 
 int
@@ -71,23 +67,14 @@ keyboard_handler()
 		else if (key == KC_L_CTRL_RELEASE)
 			control = 0;
 
-		uint8_t code, state;
+		if (key & 0x80)
+			continue;
 
-		// aunque el caracter haya sido soltado, quiero guardar su ASCII
-		state = (key & 0x80 ? RELEASED : PRESSED);
-
-		// TODO: eliminar implementacion de released
-		if (state == RELEASED)
-			return 0;
-
-		key -= (key & 0x80 ? 0x80 : 0);
+		uint8_t code;
 		code = get_scancode(key);
 
-		// handle para el snapshot de registros
-		if (control && (code == 'r' || code == 'R'))
-			return REGISTER_CAPTURE;
-		else if (key >= 0 && key < keys && code != 0)
-			put_buffer(code, state);
+		if (key >= 0 && key < keys && code != 0)
+			put_buffer(code);
 	}
 	return 0;
 }
@@ -109,29 +96,8 @@ kb_read_chars(char* buf, uint32_t size)
 
 	memcpy(buf, buffer_chars, count);
 	memcpy(buffer_chars, buffer_chars + count, buffer_size - count);
-	memcpy(buffer_states, buffer_states + count, buffer_size - count);
 	buffer_size -= count;
 	return count;
-}
-
-char
-kb_getchar(uint8_t* state)
-{
-	if (buffer_size <= 0)
-		return 0;
-
-	// agarramos el primero agregado (como una queue)
-	uint8_t key = buffer_chars[0];
-	*state = buffer_states[0];
-
-	// movemos los valores restantes una posición adelante
-	for (int i = 1; i < buffer_size; i++) {
-		buffer_chars[i - 1] = buffer_chars[i];
-		buffer_states[i - 1] = buffer_states[i];
-	}
-
-	buffer_size--;
-	return key;
 }
 
 int
@@ -155,11 +121,10 @@ get_scancode(uint8_t key)
 }
 
 static void
-put_buffer(uint8_t code, uint8_t state)
+put_buffer(uint8_t code)
 {
 	if (buffer_size < BUFFER_MAX) {
-		buffer_chars[buffer_size] = code;
-		buffer_states[buffer_size++] = state;
+		buffer_chars[buffer_size++] = code;
 		queue_unblock_all(waiting_pids);
 	}
 }

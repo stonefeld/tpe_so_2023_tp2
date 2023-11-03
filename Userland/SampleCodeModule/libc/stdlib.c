@@ -2,12 +2,6 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-void
-sleep(int time)
-{
-	asm_sleep(time);
-}
-
 uint32_t
 gets(char* buf, uint32_t size, uint32_t color)
 {
@@ -78,6 +72,12 @@ void
 fputchar(int fd, char c, uint32_t color)
 {
 	fputs(fd, &c, color);
+}
+
+void
+clear(uint32_t color)
+{
+	putchar('\e', color);
 }
 
 uint64_t
@@ -193,10 +193,11 @@ hex_to_uint(char* code)
 
 	return ret;
 }
+
 void*
-malloc(size_t memoryToAllocate)
+malloc(size_t size)
 {
-	return asm_malloc(memoryToAllocate);
+	return asm_malloc(size);
 }
 
 void

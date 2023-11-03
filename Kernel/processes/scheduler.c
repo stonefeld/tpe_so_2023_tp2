@@ -14,7 +14,7 @@ typedef struct
 	void* rsp;
 } ProcessState;
 
-static void* main_rsp;
+static void* kernel_rsp;
 static ProcessState processes_states[MAX_PROCESSES];
 static int current_running_pid;
 static uint8_t quantums;
@@ -106,7 +106,7 @@ sch_switch(void* current_rsp)
 		if (processes_states[current_running_pid].status == RUNNING)
 			processes_states[current_running_pid].status = READY;
 	} else if (current_running_pid == KERNEL_PROC_PID) {
-		main_rsp = current_rsp;
+		kernel_rsp = current_rsp;
 	}
 
 	if (!is_ready(current_running_pid) || quantums == 0) {
@@ -114,7 +114,7 @@ sch_switch(void* current_rsp)
 
 		if (current_running_pid == KERNEL_PROC_PID) {
 			quantums = 0;
-			return main_rsp;
+			return kernel_rsp;
 		}
 
 		quantums = get_quantums(current_running_pid);

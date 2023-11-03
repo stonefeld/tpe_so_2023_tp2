@@ -142,6 +142,15 @@ proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color)
 	return process->fds[fd].write_callback(pid, fd, buf, size, color);
 }
 
+int
+proc_is_fg(int pid)
+{
+	ProcessContext* process;
+	if (!get_process_from_pid(pid, &process))
+		return -1;
+	return process->is_fg;
+}
+
 static uint8_t
 valid_name(const char* name)
 {

@@ -58,7 +58,7 @@ tx_put_char(char c, uint32_t color)
 		} break;
 
 		case '\e': {
-			vd_clear(color);
+			tx_clear(color);
 		} break;
 
 		default: {

@@ -132,10 +132,10 @@ put_buffer(uint8_t code)
 static int
 read_callback(int pid, int fd, char* buf, uint32_t size)
 {
-	// TODO: chequear si esta en foreground
+	if (proc_is_fg(pid) != 1)
+		return -1;
 	if (size == 0)
 		return 0;
-
 	if (size > BUFFER_MAX)
 		size = BUFFER_MAX;
 

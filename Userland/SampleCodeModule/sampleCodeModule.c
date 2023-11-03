@@ -1,6 +1,5 @@
 #include <shell.h>
-#include <stdint.h>
-#include <stdlib.h>
+#include <stdio.h>
 #include <syscalls.h>
 
 #define WHITE 0xffffff

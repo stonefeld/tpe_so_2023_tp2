@@ -1,5 +1,6 @@
 #include <libasm.h>
 #include <shell.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <syscalls.h>
 #include <test_mm.h>

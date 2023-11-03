@@ -1,5 +1,5 @@
-
-#include <stdlib.h>
+#include <memory.h>
+#include <stdio.h>
 #include <test_syscalls.h>
 #include <test_util.h>
 #include <time.h>
@@ -58,5 +58,3 @@ test_mm()
 		return 0;
 	}
 }
-
-// b test_mm.c:56

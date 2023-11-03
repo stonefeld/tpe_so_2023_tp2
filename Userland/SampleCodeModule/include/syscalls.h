@@ -6,8 +6,8 @@
 #ifndef SYSCALLS_H
 #define SYSCALLS_H
 
+#include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 extern uint32_t asm_read(int fd, char* buf, uint32_t size);
 extern uint32_t asm_write(int fd, char* buf, uint32_t size, uint32_t color);

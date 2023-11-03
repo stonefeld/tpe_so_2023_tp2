@@ -18,7 +18,7 @@ typedef struct
 } MemState;
 
 void mm_init(void* const restrict start_address, size_t size);
-void* mm_alloc(const size_t memory_to_allocate);
+void* mm_alloc(const size_t size);
 void mm_free(void* ptr);
 void* mm_realloc(void* ptr, size_t size);
 

@@ -54,11 +54,11 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 {
 	switch (rdi) {
 		case SYS_READ: {
-			return kb_getchar((uint8_t*)rsi);
+			return proc_read(sch_get_current_pid(), rsi, (char*)rdx, rcx);
 		} break;
 
 		case SYS_WRITE: {
-			tx_put_char(rsi, rdx);
+			return proc_write(sch_get_current_pid(), rsi, (char*)rdx, rcx, r8);
 		} break;
 
 		case SYS_DRAW: {

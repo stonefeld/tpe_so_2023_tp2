@@ -24,61 +24,6 @@ static int get_quantums(uint64_t pid);
 static uint64_t get_next_ready_pid();
 static int get_process_state(uint64_t pid, ProcessState** state);
 
-static int
-valid_pid(uint64_t pid)
-{
-	return pid >= 0 && pid < MAX_PROCESSES;
-}
-
-static int
-valid_priority(int8_t priority)
-{
-	return priority >= MAX_PRIORITY && priority <= MIN_PRIORITY;
-}
-
-static int
-is_active(uint64_t pid)
-{
-	return valid_pid(pid) && processes_states[pid].rsp != NULL;
-}
-
-static int
-is_ready(uint64_t pid)
-{
-	return is_active(pid) && processes_states[pid].status == READY;
-}
-
-static int
-get_quantums(uint64_t pid)
-{
-	return MIN_PRIORITY - processes_states[pid].priority;
-}
-
-static uint64_t
-get_next_ready_pid()
-{
-	uint64_t first = current_running_pid < 0 ? 0 : current_running_pid;
-	uint64_t next = first;
-
-	do {
-		next = (next + 1) % MAX_PROCESSES;
-		if (is_ready(next))
-			return next;
-	} while (next != first);
-
-	return -1;
-}
-
-static int
-get_process_state(uint64_t pid, ProcessState** state)
-{
-	if (!is_active(pid))
-		return 0;
-
-	*state = &processes_states[pid];
-	return 1;
-}
-
 void
 sch_init()
 {
@@ -217,4 +162,59 @@ sch_set_priority(int pid, int8_t new_priority)
 		return 0;
 	}
 	return -1;
+}
+
+static int
+valid_pid(uint64_t pid)
+{
+	return pid >= 0 && pid < MAX_PROCESSES;
+}
+
+static int
+valid_priority(int8_t priority)
+{
+	return priority >= MAX_PRIORITY && priority <= MIN_PRIORITY;
+}
+
+static int
+is_active(uint64_t pid)
+{
+	return valid_pid(pid) && processes_states[pid].rsp != NULL;
+}
+
+static int
+is_ready(uint64_t pid)
+{
+	return is_active(pid) && processes_states[pid].status == READY;
+}
+
+static int
+get_quantums(uint64_t pid)
+{
+	return MIN_PRIORITY - processes_states[pid].priority;
+}
+
+static uint64_t
+get_next_ready_pid()
+{
+	uint64_t first = current_running_pid < 0 ? 0 : current_running_pid;
+	uint64_t next = first;
+
+	do {
+		next = (next + 1) % MAX_PROCESSES;
+		if (is_ready(next))
+			return next;
+	} while (next != first);
+
+	return -1;
+}
+
+static int
+get_process_state(uint64_t pid, ProcessState** state)
+{
+	if (!is_active(pid))
+		return 0;
+
+	*state = &processes_states[pid];
+	return 1;
 }

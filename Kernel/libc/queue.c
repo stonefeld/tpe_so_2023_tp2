@@ -1,5 +1,6 @@
 #include <memoryManager.h>
 #include <queue.h>
+#include <scheduler.h>
 
 struct node
 {
@@ -14,15 +15,14 @@ struct queue_adt
 	int count;
 };
 
-void free_rec(struct node* current);
+static void free_rec(struct node* current);
 
 Queue
-queue_new()
+queue_create()
 {
 	Queue queue = mm_alloc(sizeof(struct queue_adt));
-	if (queue == NULL) {
+	if (queue == NULL)
 		return NULL;
-	}
 	queue->first = NULL;
 	queue->last = NULL;
 	queue->count = 0;
@@ -32,12 +32,10 @@ queue_new()
 int
 queue_free(Queue queue)
 {
-	if (queue == NULL) {
+	if (queue == NULL)
 		return -1;
-	}
-	if (queue->first != NULL) {
+	if (queue->first != NULL)
 		free_rec(queue->first);
-	}
 	mm_free(queue);
 	return 0;
 }
@@ -45,14 +43,12 @@ queue_free(Queue queue)
 int
 queue_add(Queue queue, uint8_t elem)
 {
-	if (queue == NULL) {
+	if (queue == NULL)
 		return -1;
-	}
 
 	struct node* node = mm_alloc(sizeof(struct node));
-	if (node == NULL) {
+	if (node == NULL)
 		return -1;
-	}
 	node->elem = elem;
 	node->next = NULL;
 
@@ -61,9 +57,8 @@ queue_add(Queue queue, uint8_t elem)
 	if (queue->first == NULL) {
 		queue->first = node;
 	} else {
-		while (current->next != NULL) {
+		while (current->next != NULL)
 			current = current->next;
-		}
 		current->next = node;
 	}
 
@@ -75,24 +70,35 @@ queue_add(Queue queue, uint8_t elem)
 int
 queue_count(Queue queue)
 {
-	if (queue == NULL) {
+	if (queue == NULL)
 		return -1;
-	}
-
 	return queue->count;
+}
+
+int
+queue_contains(Queue queue, uint8_t elem)
+{
+	if (queue == NULL || queue->first == NULL)
+		return -1;
+
+	struct node* current = queue->first;
+	while (current != NULL) {
+		if (current->elem == elem)
+			return 0;
+		current = current->next;
+	}
+	return -1;
 }
 
 int
 queue_remove(Queue queue)
 {
-	if (queue == NULL) {
+	if (queue == NULL)
 		return -1;
-	}
 
 	if (queue->first != NULL) {
-		if (queue->first->next == NULL) {
+		if (queue->first->next == NULL)
 			queue->last = NULL;
-		}
 		struct node* current = queue->first;
 		queue->first = queue->first->next;
 		mm_free(current);
@@ -102,42 +108,23 @@ queue_remove(Queue queue)
 }
 
 int
-queue_contains(Queue queue, uint8_t elem)
+queue_unblock_all(Queue queue)
 {
-	if (queue == NULL || queue->first == NULL) {
+	if (queue == NULL)
 		return -1;
-	}
-
-	struct node* current = queue->first;
-	while (current != NULL) {
-		if (current->elem == elem) {
-			return 0;
-		}
-		current = current->next;
-	}
-	return -1;
-}
-
-int
-queue_remove_all(Queue queue)
-{
-	if (queue == NULL) {
-		return -1;
-	}
-	if (queue->first != NULL) {
-		free_rec(queue->first);
-	}
+	free_rec(queue->first);
 	queue->first = NULL;
 	queue->last = NULL;
 	queue->count = 0;
 	return 0;
 }
 
-void
+static void
 free_rec(struct node* node)
 {
-	if (node->next != NULL) {
-		free_rec(node->next);
-	}
+	if (node == NULL)
+		return;
+	free_rec(node->next);
+	sch_unblock(node->elem);
 	mm_free(node);
 }

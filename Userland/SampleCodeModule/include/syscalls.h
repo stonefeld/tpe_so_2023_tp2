@@ -11,18 +11,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <stddef.h>
 
-
-/*
- * Devuele el caracter presionado por teclado y el estado (presionado o soltado).
- */
-extern uint8_t asm_getchar(uint8_t* state);
-
-/*
- * Imprime un caracter por pantalla.
- */
-extern void asm_putchar(uint8_t c, uint32_t color);
+extern uint32_t asm_read(int fd, char* buf, uint32_t size);
+extern uint32_t asm_write(int fd, char* buf, uint32_t size, uint32_t color);
 
 /*
  * Dibuja un rectángulo determinado por las coordenadas y sus dimensiones.
@@ -79,8 +70,8 @@ extern void asm_sound(uint32_t freq, uint32_t duration);
 
 extern void* asm_malloc(size_t memoryToAllocate);
 
-extern void asm_free(void * ptr);
+extern void asm_free(void* ptr);
 
-extern void* asm_realloc(void * ptr, size_t size);
+extern void* asm_realloc(void* ptr, size_t size);
 
 #endif

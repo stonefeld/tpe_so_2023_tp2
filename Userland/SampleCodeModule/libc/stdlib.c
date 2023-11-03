@@ -9,50 +9,75 @@ sleep(int time)
 }
 
 uint32_t
-gets(char* buff, uint32_t size, uint32_t color)
+gets(char* buf, uint32_t size, uint32_t color)
 {
-	uint8_t c, state;
+	return fgets(STDIN, buf, size, color);
+}
+
+uint32_t
+fgets(int fd, char* buf, uint32_t size, uint32_t color)
+{
+	char c;
 	uint32_t len = 0;
 
-	while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
-		if (c && state == PRESSED) {
-			if (c != '\b') {
-				if (len < size - 1) {
-					putchar(c, color);
-					buff[len++] = c;
-				}
-			} else if (len > 0 && c != '\n') {
-				if (buff[len - 1] == '\t')
-					for (int i = 0; i < 7; i++)
-						putchar(c, color);
+	while ((c = fgetchar(fd)) >= 0 && c != '\n') {
+		if (c != '\b') {
+			if (len < size - 1) {
 				putchar(c, color);
-				len--;
+				buf[len++] = c;
 			}
+		} else if (len > 0 && c != '\n') {
+			if (buf[len - 1] == '\t')
+				for (int i = 0; i < 7; i++)
+					putchar(c, color);
+			putchar(c, color);
+			len--;
 		}
 	}
+
 	putchar('\n', color);
-	buff[len] = 0;
+	buf[len] = 0;
 	return len;
 }
 
-uint8_t
-getchar(uint8_t* state)
+char
+getchar()
 {
-	return asm_getchar(state);
+	return fgetchar(STDIN);
 }
 
-void
-puts(char* str, uint32_t color)
+char
+fgetchar(int fd)
 {
-	uint64_t len = strlen(str);
-	for (int i = 0; i < len; i++)
-		putchar(str[i], color);
+	char c;
+	if (asm_read(fd, &c, 1) <= 0)
+		return -1;
+	return c;
+}
+
+uint32_t
+puts(char* buf, uint32_t color)
+{
+	return fputs(STDOUT, buf, color);
+}
+
+uint32_t
+fputs(int fd, char* buf, uint32_t color)
+{
+	uint64_t len = strlen(buf);
+	return asm_write(fd, buf, len, color);
 }
 
 void
 putchar(char c, uint32_t color)
 {
-	asm_putchar(c, color);
+	fputs(STDOUT, &c, color);
+}
+
+void
+fputchar(int fd, char c, uint32_t color)
+{
+	fputs(fd, &c, color);
 }
 
 uint64_t

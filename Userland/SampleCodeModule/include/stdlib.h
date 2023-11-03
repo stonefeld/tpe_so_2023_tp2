@@ -3,27 +3,22 @@
 
 #include <stddef.h>
 #include <stdint.h>
-/*
- * Devuelve el caracter presionado por teclado y su estado
- * (presionado o soltado).
- */
-uint8_t getchar(uint8_t* state);
 
-/*
- * Carga en buff los caracteres recibidos por teclado y los
- * imprime por pantalla.
- */
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+
 uint32_t gets(char* buff, uint32_t size, uint32_t color);
+uint32_t fgets(int fd, char* buf, uint32_t size, uint32_t color);
 
-/*
- * Imprime un caracter por pantalla.
- */
+char getchar();
+char fgetchar(int fd);
+
+uint32_t puts(char* buf, uint32_t color);
+uint32_t fputs(int fd, char* buf, uint32_t color);
+
 void putchar(char c, uint32_t color);
-
-/*
- * Imprime un string por pantalla.
- */
-void puts(char* str, uint32_t color);
+void fputchar(int fd, char c, uint32_t color);
 
 /*
  * Devuelve el largo de un string.
@@ -59,4 +54,5 @@ void* malloc(size_t memoryToAllocate);
 void free(void* ptr);
 void* realloc(void* ptr, size_t size);
 void sleep(int time);
+
 #endif

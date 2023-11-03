@@ -19,10 +19,10 @@ static SemInfo* semaphores[MAX_SEMAPHORES] = {};
 extern int _lock(int8_t* lock);
 extern void _unlock(int8_t* lock);
 
-int search_next();
-int search_semaphore(const char* name);
-int create_semaphore(int idx, int initial_value);
-void sem_free(semaphore sem);
+static int search_next();
+static int search_semaphore(const char* name);
+static int create_semaphore(int idx, int initial_value);
+static void sem_free(semaphore sem);
 static int is_valid_id(semaphore sem);
 static int is_valid_sem(semaphore sem);
 
@@ -129,7 +129,7 @@ sem_post(semaphore sem)
 	return 0;
 }
 
-int
+static int
 search_semaphore(const char* name)
 {
 	for (int i = 0; i < MAX_SEMAPHORES; i++) {
@@ -140,7 +140,7 @@ search_semaphore(const char* name)
 	return -1;
 }
 
-int
+static int
 search_next()
 {
 	for (int i = 0; i < MAX_SEMAPHORES; i++) {
@@ -151,7 +151,7 @@ search_next()
 	return -1;
 }
 
-int
+static int
 create_semaphore(int idx, int initial_value)
 {
 	semaphores[idx] = mm_alloc(sizeof(SemInfo));
@@ -172,7 +172,7 @@ create_semaphore(int idx, int initial_value)
 	return (semaphore)idx;
 }
 
-void
+static void
 sem_free(semaphore sem)
 {
 	queue_free(semaphores[sem]->waiting_processes);

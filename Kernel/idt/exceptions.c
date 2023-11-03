@@ -1,4 +1,6 @@
 #include <exceptions.h>
+#include <interrupts.h>
+#include <keyboard.h>
 #include <libc.h>
 #include <process.h>
 #include <scheduler.h>
@@ -8,6 +10,7 @@
 
 #define BUFF_SIZE 30
 #define ERROR_MSG 0xff0000
+#define INFO_MSG 0x00ff00
 
 enum exceptions
 {
@@ -26,6 +29,8 @@ static void exception_handler(int pid, char* msg);
 static void printreg(uint64_t* stack);
 static void fill_and_print(uint64_t data);
 
+extern void init_shell();
+
 void
 exception_dispatcher(uint32_t exception, uint64_t* stack)
 {
@@ -41,11 +46,9 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 	}
 	printreg(stack);
 
-	if (pid == 0) {
-	} else {
-		proc_kill(pid);
-	}
-
+	proc_kill(pid);
+	if (pid == 0)
+		init_shell();
 	sch_yield();
 }
 

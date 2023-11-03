@@ -95,7 +95,7 @@ main()
 	asm_sti();
 
 	while (1) {
-		// el proceso kernel no debe hacer mas nada así
+		// el proceso kernel no debe hacer mas nada
 		sch_yield();
 		asm_hlt();
 	}

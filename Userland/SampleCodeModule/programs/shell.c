@@ -38,7 +38,6 @@ static void prompt(int32_t status);
 static uint32_t help();
 static uint32_t datetime();
 static uint32_t exit();
-static uint32_t printreg();
 static uint32_t clear_scr();
 static uint32_t testioe();
 static uint32_t testzde();

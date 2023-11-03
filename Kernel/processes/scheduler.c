@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define KERNEL_PROC_PID -1
+#define KILLED_PROC_PID -2
+
 typedef struct
 {
 	int8_t priority;
@@ -16,18 +19,18 @@ static ProcessState processes_states[MAX_PROCESSES];
 static int current_running_pid;
 static uint8_t quantums;
 
-static int valid_pid(uint64_t pid);
+static int valid_pid(int pid);
 static int valid_priority(int8_t priority);
-static int is_active(uint64_t pid);
-static int is_ready(uint64_t pid);
-static int get_quantums(uint64_t pid);
+static int is_active(int pid);
+static int is_ready(int pid);
+static int get_quantums(int pid);
 static uint64_t get_next_ready_pid();
-static int get_process_state(uint64_t pid, ProcessState** state);
+static int get_process_state(int pid, ProcessState** state);
 
 void
 sch_init()
 {
-	current_running_pid = -1;
+	current_running_pid = KERNEL_PROC_PID;
 	quantums = 0;
 }
 
@@ -49,34 +52,7 @@ sch_on_process_create(int pid,
 }
 
 int
-sch_block(uint64_t pid)
-{
-	ProcessState* process_state = NULL;
-	if (!get_process_state(pid, &process_state))
-		return -1;
-
-	process_state->status = BLOCKED;
-	if (current_running_pid == pid)
-		quantums = 0;
-	return 0;
-}
-
-int
-sch_unblock(uint64_t pid)
-{
-	ProcessState* process_state = NULL;
-	if (!get_process_state(pid, &process_state))
-		return -1;
-
-	if (process_state->status == READY || process_state->status == RUNNING)
-		return 0;
-
-	process_state->status = READY;
-	return 0;
-}
-
-int
-sch_on_process_killed(uint64_t pid)
+sch_on_process_killed(int pid)
 {
 	ProcessState* process_state = NULL;
 	if (!get_process_state(pid, &process_state))
@@ -89,8 +65,35 @@ sch_on_process_killed(uint64_t pid)
 	process_state->rsp = NULL;
 
 	if (current_running_pid == pid)
-		current_running_pid = -1;
+		current_running_pid = KILLED_PROC_PID;
 
+	return 0;
+}
+
+int
+sch_block(int pid)
+{
+	ProcessState* process_state = NULL;
+	if (!get_process_state(pid, &process_state))
+		return -1;
+
+	process_state->status = BLOCKED;
+	if (current_running_pid == pid)
+		quantums = 0;
+	return 0;
+}
+
+int
+sch_unblock(int pid)
+{
+	ProcessState* process_state = NULL;
+	if (!get_process_state(pid, &process_state))
+		return -1;
+
+	if (process_state->status == READY || process_state->status == RUNNING)
+		return 0;
+
+	process_state->status = READY;
 	return 0;
 }
 
@@ -102,14 +105,14 @@ sch_switch(void* current_rsp)
 		processes_states[current_running_pid].rsp = current_rsp;
 		if (processes_states[current_running_pid].status == RUNNING)
 			processes_states[current_running_pid].status = READY;
-	} else if (current_running_pid == -1) {
+	} else if (current_running_pid == KERNEL_PROC_PID) {
 		main_rsp = current_rsp;
 	}
 
 	if (!is_ready(current_running_pid) || quantums == 0) {
 		current_running_pid = get_next_ready_pid();
 
-		if (current_running_pid == -1) {
+		if (current_running_pid == KERNEL_PROC_PID) {
 			quantums = 0;
 			return main_rsp;
 		}
@@ -139,7 +142,7 @@ sch_get_current_pid()
 }
 
 int
-sch_get_proc_info(uint64_t pid, Process* info)
+sch_get_proc_info(int pid, Process* info)
 {
 	ProcessState* process_state = NULL;
 	if (!get_process_state(pid, &process_state))
@@ -165,7 +168,7 @@ sch_set_priority(int pid, int8_t new_priority)
 }
 
 static int
-valid_pid(uint64_t pid)
+valid_pid(int pid)
 {
 	return pid >= 0 && pid < MAX_PROCESSES;
 }
@@ -177,19 +180,19 @@ valid_priority(int8_t priority)
 }
 
 static int
-is_active(uint64_t pid)
+is_active(int pid)
 {
 	return valid_pid(pid) && processes_states[pid].rsp != NULL;
 }
 
 static int
-is_ready(uint64_t pid)
+is_ready(int pid)
 {
 	return is_active(pid) && processes_states[pid].status == READY;
 }
 
 static int
-get_quantums(uint64_t pid)
+get_quantums(int pid)
 {
 	return MIN_PRIORITY - processes_states[pid].priority;
 }
@@ -206,11 +209,11 @@ get_next_ready_pid()
 			return next;
 	} while (next != first);
 
-	return -1;
+	return KERNEL_PROC_PID;
 }
 
 static int
-get_process_state(uint64_t pid, ProcessState** state)
+get_process_state(int pid, ProcessState** state)
 {
 	if (!is_active(pid))
 		return 0;

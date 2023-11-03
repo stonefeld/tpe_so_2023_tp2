@@ -16,5 +16,6 @@ void* memcpy(void* destination, const void* source, uint64_t length);
 uint32_t strlen(char* str);
 char* strcpy(char* destination, const char* source);
 uint32_t uint_to_base(uint64_t value, char* buff, uint32_t base);
+int strcmp(const char* str1, const char* str2);
 
 #endif

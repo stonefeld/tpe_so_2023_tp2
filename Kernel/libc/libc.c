@@ -92,3 +92,16 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 
 	return digits;
 }
+
+int
+strcmp(const char* str1, const char* str2)
+{
+	while (*str1 != '\0' || *str2 != '\0') {
+		if (*str1 != *str2) {
+			return -1;
+		}
+		str1++;
+		str2++;
+	}
+	return 0;
+}

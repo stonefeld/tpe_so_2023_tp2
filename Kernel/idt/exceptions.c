@@ -9,8 +9,6 @@
 #include <video.h>
 
 #define BUFF_SIZE 30
-#define ERROR_MSG 0xff0000
-#define INFO_MSG 0x00ff00
 
 enum exceptions
 {
@@ -55,12 +53,12 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 static void
 exception_handler(int pid, char* msg)
 {
-	tx_put_word("PID ", ERROR_MSG);
+	tx_put_word("PID ", RED);
 	uint_to_base(pid, buf, DEC);
-	tx_put_word(buf, ERROR_MSG);
-	tx_put_word(" crashed. Exception: '", ERROR_MSG);
-	tx_put_word(msg, ERROR_MSG);
-	tx_put_word("'\n", ERROR_MSG);
+	tx_put_word(buf, RED);
+	tx_put_word(" crashed. Exception: '", RED);
+	tx_put_word(msg, RED);
+	tx_put_word("'\n", RED);
 }
 
 static void
@@ -70,13 +68,13 @@ printreg(uint64_t* stack)
 		return;
 
 	for (int i = 0; i < registers_len - 1; i++) {
-		tx_put_word(regs_descriptor[i], ERROR_MSG);
+		tx_put_word(regs_descriptor[i], RED);
 		fill_and_print(stack[i]);
-		tx_put_char('\n', ERROR_MSG);
+		tx_put_char('\n', RED);
 	}
-	tx_put_word(regs_descriptor[registers_len - 1], ERROR_MSG);
+	tx_put_word(regs_descriptor[registers_len - 1], RED);
 	fill_and_print(stack[registers_len + 1]);
-	tx_put_char('\n', ERROR_MSG);
+	tx_put_char('\n', RED);
 }
 
 static void
@@ -84,6 +82,6 @@ fill_and_print(uint64_t data)
 {
 	uint32_t len = uint_to_base(data, buf, HEX);
 	for (int i = 0; i < 16 - len; i++)
-		tx_put_char('0', ERROR_MSG);
-	tx_put_word(buf, ERROR_MSG);
+		tx_put_char('0', RED);
+	tx_put_word(buf, RED);
 }

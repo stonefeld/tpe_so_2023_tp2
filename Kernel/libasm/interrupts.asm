@@ -18,7 +18,7 @@ global asm_exception06_handler
 extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
-extern sc_save_regs
+
 extern sch_switch
 
 section .text

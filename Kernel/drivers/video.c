@@ -4,12 +4,6 @@
 #include <video.h>
 #include <wallpaper.h>
 
-// colors
-#define RED 0xff0000
-#define GREEN 0x00ff00
-#define BLUE 0x0000ff
-#define WHITE RED | GREEN | BLUE
-
 // pixel size (in bytes)
 #define PIXEL vbe_mode_info->bpp / 8
 

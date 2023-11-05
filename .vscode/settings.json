@@ -47,7 +47,10 @@
         "type_traits": "c",
         "utility": "c",
         "variant": "c",
-        "semaphore.h": "c"
+        "semaphore.h": "c",
+        "pipe.h": "c",
+        "exceptions.h": "c",
+        "scheduler.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "editor.formatOnSave": true,

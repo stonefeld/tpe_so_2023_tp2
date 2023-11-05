@@ -133,6 +133,23 @@ proc_map_fd(int pid,
 }
 
 int
+proc_unmap_fd(int pid, int fd)
+{
+	ProcessContext* process;
+	if (!get_process_from_pid(pid, &process) || fd > MAX_FDS || fd < 0)
+		return -1;
+	int r;
+	if (process->fds[fd].close_callback != NULL && (r = process->fds[fd].close_callback(pid, fd)) != 0)
+		return r;
+
+	process->fds[fd].read_callback = NULL;
+	process->fds[fd].write_callback = NULL;
+	process->fds[fd].close_callback = NULL;
+	process->fds[fd].dup_callback = NULL;
+	return 0;
+}
+
+int
 proc_read(int pid, int fd, void* buf, uint32_t size)
 {
 	ProcessContext* process;

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <text.h>
 #include <video.h>
+
 #define KC_L_SHIFT 42
 #define KC_R_SHIFT 54
 #define KC_L_SHIFT_RELEASE KC_L_SHIFT + 128
@@ -130,7 +131,7 @@ put_buffer(uint8_t code)
 }
 
 static int
-read_callback(int pid, int fd, char* buf, size_t size)
+read_callback(int pid, int fd, char* buf, uint32_t size)
 {
 	if (proc_is_fg(pid) != 1)
 		return -1;

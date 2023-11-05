@@ -11,8 +11,8 @@
 #define STDOUT 1
 #define STDERR 2
 
-typedef int (*ReadCallback)(int pid, int fd, char* buf, size_t size);
-typedef int (*WriteCallback)(int pid, int fd, char* buf, size_t size, uint32_t color);
+typedef int (*ReadCallback)(int pid, int fd, char* buf, uint32_t size);
+typedef int (*WriteCallback)(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 typedef int (*DupCallback)(int pid_from, int fd_from, int pid_to, int fd_to);
 typedef int (*CloseCallback)(int pid, int fd);
 typedef void (*ProcessEntryPoint)(int argc, char* argv[]);
@@ -55,10 +55,10 @@ int proc_map_fd(int pid,
                 WriteCallback write_callback,
                 CloseCallback close_callback,
                 DupCallback dup_callback);
-int proc_read(int pid, int fd, char* buf, uint32_t size);
-int proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 int proc_unmap_fd(int pid, int fd);
 
+int proc_read(int pid, int fd, char* buf, uint32_t size);
+int proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 int proc_is_fg(int pid);
 
 // asm functions

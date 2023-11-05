@@ -2,10 +2,10 @@
 #include <libc.h>
 #include <process.h>
 #include <rtc.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <text.h>
 #include <video.h>
-
 #define RED 0xff0000
 #define GREEN 0x00ff00
 #define BLUE 0x0000ff
@@ -17,7 +17,7 @@ static uint8_t show_cursor = 1;
 
 static void cursor(uint32_t color);
 static void enter();
-static int write_callback(int pid, int fd, char* buf, uint32_t size, uint32_t color);
+static int write_callback(int pid, int fd, void* buf, size_t size, uint32_t color);
 
 void
 tx_init()
@@ -104,7 +104,7 @@ tx_clear(uint32_t color)
 int
 tx_map_fd(int pid, int fd)
 {
-	return proc_map_fd(pid, fd, NULL, write_callback);
+	return proc_map_fd(pid, fd, NULL, write_callback, NULL, NULL);
 }
 
 static void
@@ -125,9 +125,9 @@ enter()
 }
 
 static int
-write_callback(int pid, int fd, char* buf, uint32_t size, uint32_t color)
+write_callback(int pid, int fd, void* buf, size_t size, uint32_t color)
 {
 	for (int i = 0; i < size; i++)
-		tx_put_char(buf[i], color);
+		tx_put_char(((char*)buf)[i], color);
 	return size;
 }

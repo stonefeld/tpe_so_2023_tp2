@@ -6,11 +6,11 @@
 #include <process.h>
 #include <queue.h>
 #include <scheduler.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <text.h>
 #include <video.h>
-
 #define KC_L_SHIFT 42
 #define KC_R_SHIFT 54
 #define KC_L_SHIFT_RELEASE KC_L_SHIFT + 128
@@ -51,7 +51,7 @@ static Queue waiting_pids;
 
 static uint8_t get_scancode(uint8_t key);
 static void put_buffer(uint8_t code, uint8_t state);
-static int read_callback(int pid, int fd, char* buf, uint32_t size);
+static int read_callback(int pid, int fd, void* buf, size_t size);
 
 int
 keyboard_handler()
@@ -137,7 +137,7 @@ kb_getchar(uint8_t* state)
 int
 kb_map_fd(int pid, int fd)
 {
-	return proc_map_fd(pid, fd, read_callback, NULL);
+	return proc_map_fd(pid, fd, read_callback, NULL, NULL, NULL);
 }
 
 static uint8_t
@@ -165,7 +165,7 @@ put_buffer(uint8_t code, uint8_t state)
 }
 
 static int
-read_callback(int pid, int fd, char* buf, uint32_t size)
+read_callback(int pid, int fd, void* buf, size_t size)
 {
 	// TODO: chequear si esta en foreground
 	if (size == 0)

@@ -10,7 +10,6 @@
 #define BUFFER_MIN_SIZE 512
 #define BUFFER_MAX_SIZE (1024 * 4)
 #define PIPE_MAX_FD (MAX_PIPES * 16)
-#define MAX_NAME_LEN 16
 
 typedef struct
 {
@@ -41,22 +40,25 @@ typedef struct
 
 typedef int PipeId;
 
+static size_t round_up_buffer_size(size_t size);
+
 static Pipe* pipe_table[MAX_PIPES];
 static PipeFd* pipe_fd_table[PIPE_MAX_FD];
 
-static PipeId
-get_pipe_id(int pid, int fd)
+static PipeFd*
+get_pipe_fd(int pid, int fd)
 {
 	PipeFd* pipe_fd;
 	for (int i = 0; i < PIPE_MAX_FD; i++) {
 		pipe_fd = pipe_fd_table[i];
 		if (pipe_fd != NULL && pipe_fd->pid == pid && pipe_fd->fd == fd) {
-			return pipe_fd->pipe_id;
+			return pipe_fd;
 		}
 	}
-	return -1;
+	return NULL;
 }
-static find_free_pipe_fd(void)
+static int
+find_free_pipe_fd(void)
 {
 	int i;
 	for (i = 0; i < PIPE_MAX_FD; i++) {
@@ -67,10 +69,10 @@ static find_free_pipe_fd(void)
 	return -1;
 }
 static int
-is_name_valid(const char* name)
+is_name_valid(char* name)
 {
 	// The first character must be a letter or a slash. Subsequent characters may be a letter or a number.
-	if (name == NULL || strlen(name) > MAX_NAME_LEN || !isalpha(name[0])) {
+	if (name == NULL || strlen(name) > MAX_NAME_LENGHT || !isalpha(name[0])) {
 		return 0;
 	}
 
@@ -82,7 +84,7 @@ is_name_valid(const char* name)
 	return 1;
 }
 
-static PipeId*
+static PipeId
 find_named_pipe(const char* name)
 {
 	if (name == NULL)
@@ -166,7 +168,7 @@ free_pipe(PipeId id)
 	return 0;
 }
 PipeId
-open_pipe(const char* name)
+open_pipe(char* name)
 {
 	PipeId pipe_id = find_named_pipe(name);
 
@@ -184,7 +186,7 @@ open_pipe(const char* name)
 }
 
 int
-unlink_pipe(const char* name)
+unlink_pipe(char* name)
 {
 	PipeId pipe_id = find_named_pipe(name);
 	if (pipe_id == -1)
@@ -207,26 +209,6 @@ unlink_pipe(const char* name)
 	return 0;
 }
 
-size_t
-write_pipe(PipeId id, void* buf, size_t count)
-{
-	Pipe* pipe = get_pipe(id);
-	if (pipe == NULL)
-		return -1;
-
-	return write_pipe_buffer(pipe, buf, count);
-}
-
-size_t
-read_pipe(PipeId id, void* buf, size_t count)
-{
-	Pipe* pipe = get_pipe(id);
-	if (pipe == NULL)
-		return -1;
-
-	return read_pipe_buffer(pipe, buf, count);
-}
-
 static size_t
 read_pipe_buffer(Pipe* pipe, void* buf, size_t count)
 {
@@ -236,9 +218,7 @@ read_pipe_buffer(Pipe* pipe, void* buf, size_t count)
 
 	size_t read_idx = pipe->read_idx;
 
-	size_t bytes_left = pipe->size - read_idx;
-
-	size_t count = count < pipe->bytes_to_read ? count : pipe->bytes_to_read;
+	count = count < pipe->bytes_to_read ? count : pipe->bytes_to_read;
 
 	if (read_idx + count <= pipe->size) {
 		memcpy(buf, pipe->buffer + read_idx, count);
@@ -295,7 +275,7 @@ write_pipe_buffer(Pipe* pipe, void* buf, size_t count)
 
 	size_t avail_space = pipe->size - pipe->bytes_to_read;
 
-	size_t count = count < avail_space ? count : avail_space;
+	count = count < avail_space ? count : avail_space;
 
 	if (count == 0)
 		return 0;
@@ -316,7 +296,27 @@ write_pipe_buffer(Pipe* pipe, void* buf, size_t count)
 	return count;
 }
 
-static inline size_t
+size_t
+write_pipe(PipeId id, void* buf, size_t count)
+{
+	Pipe* pipe = get_pipe(id);
+	if (pipe == NULL)
+		return -1;
+
+	return write_pipe_buffer(pipe, buf, count);
+}
+
+size_t
+read_pipe(PipeId id, void* buf, size_t count)
+{
+	Pipe* pipe = get_pipe(id);
+	if (pipe == NULL)
+		return -1;
+
+	return read_pipe_buffer(pipe, buf, count);
+}
+
+static size_t
 round_up_buffer_size(size_t size)
 {
 	size--;
@@ -330,10 +330,10 @@ round_up_buffer_size(size_t size)
 	return size;
 }
 
-static size_t
+static int
 handle_read(int pid, int fd, void* buf, size_t count)
 {
-	PipeFd* pipe_fd = get_pipe_id(pid, fd);
+	PipeFd* pipe_fd = get_pipe_fd(pid, fd);
 	Pipe* pipe = get_pipe(pipe_fd->pipe_id);
 
 	size_t bytes_read = 0;
@@ -355,10 +355,10 @@ handle_read(int pid, int fd, void* buf, size_t count)
 	return bytes_read;
 }
 
-static size_t
-handle_write(int pid, int fd, void* buf, size_t count)
+static int
+handle_write(int pid, int fd, void* buf, size_t count, uint32_t color)
 {
-	PipeFd* pipe_fd = get_pipe_id(pid, fd);
+	PipeFd* pipe_fd = get_pipe_fd(pid, fd);
 	Pipe* pipe = get_pipe(pipe_fd->pipe_id);
 
 	size_t bytes_written = 0;
@@ -383,7 +383,7 @@ handle_write(int pid, int fd, void* buf, size_t count)
 static int
 handle_close(int pid, int fd)
 {
-	PipeFd* pipe_fd = get_pipe_id(pid, fd);
+	PipeFd* pipe_fd = get_pipe_fd(pid, fd);
 	Pipe* pipe = get_pipe(pipe_fd->pipe_id);
 
 	if (pipe_fd->allow_rd) {
@@ -412,7 +412,14 @@ handle_close(int pid, int fd)
 static int
 handle_dup(int pid_from, int pid_to, int fd_from, int fd_to)
 {
-	PipeFd* pipe_fd = get_pipe_id(pid_from, fd_from);
+	PipeFd* pipe_fd = get_pipe_fd(pid_from, fd_from);
+	if (pipe_fd == NULL)
+		return -1;
+	Pipe* pipe = get_pipe(pipe_fd->pipe_id);
+	if (pipe == NULL)
+		return -1;
+
+	return pipe_map_process(pid_to, fd_to, pipe_fd->pipe_id, pipe_fd->allow_rd, pipe_fd->allow_wr);
 }
 
 int

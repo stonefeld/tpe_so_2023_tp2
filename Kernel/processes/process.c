@@ -7,6 +7,8 @@ typedef struct
 {
 	ReadCallback read_callback;
 	WriteCallback write_callback;
+	CloseCallback close_callback;
+	DupCallback dup_callback;
 } FileDescriptor;
 
 typedef struct
@@ -107,7 +109,12 @@ proc_kill(int pid)
 }
 
 int
-proc_map_fd(int pid, int fd, ReadCallback read_callback, WriteCallback write_callback)
+proc_map_fd(int pid,
+            int fd,
+            ReadCallback read_callback,
+            WriteCallback write_callback,
+            CloseCallback close_callback,
+            DupCallback dup_callback)
 {
 	ProcessContext* process;
 	if (!get_process_from_pid(pid, &process) || fd > MAX_FDS)
@@ -120,7 +127,8 @@ proc_map_fd(int pid, int fd, ReadCallback read_callback, WriteCallback write_cal
 
 	process->fds[fd].read_callback = read_callback;
 	process->fds[fd].write_callback = write_callback;
-
+	process->fds[fd].close_callback = close_callback;
+	process->fds[fd].dup_callback = dup_callback;
 	return fd;
 }
 
@@ -130,7 +138,7 @@ proc_read(int pid, int fd, char* buf, uint32_t size)
 	ProcessContext* process;
 	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].read_callback == NULL)
 		return -1;
-	return process->fds[fd].read_callback(pid, fd, buf, size);
+	return process->fds[fd].read_callback(pid, fd, buf, size, NULL);
 }
 
 int
@@ -139,7 +147,7 @@ proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color)
 	ProcessContext* process;
 	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].write_callback == NULL)
 		return -1;
-	return process->fds[fd].write_callback(pid, fd, buf, size, color);
+	return process->fds[fd].write_callback(pid, fd, buf, size, color, NULL);
 }
 
 static uint8_t

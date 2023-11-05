@@ -11,8 +11,10 @@
 #define STDOUT 1
 #define STDERR 2
 
-typedef int (*ReadCallback)(int pid, int fd, char* buf, uint32_t size);
-typedef int (*WriteCallback)(int pid, int fd, char* buf, uint32_t size, uint32_t color);
+typedef int (*ReadCallback)(int pid, int fd, void* data, char* buf, uint32_t size);
+typedef int (*WriteCallback)(int pid, int fd, void* data, char* buf, uint32_t size, uint32_t color);
+typedef int (*DupCallback)(int pid_from, int fd_from, int pid_to, int fd_to, void* data);
+typedef int (*CloseCallback)(int pid, int fd, void* data);
 typedef void (*ProcessEntryPoint)(int argc, char* argv[]);
 
 typedef enum
@@ -47,7 +49,12 @@ typedef struct
 int proc_create(const ProcessCreateInfo* create_info);
 int proc_kill(int pid);
 
-int proc_map_fd(int pid, int fd, ReadCallback read_callback, WriteCallback write_callback);
+int proc_map_fd(int pid,
+                int fd,
+                ReadCallback read_callback,
+                WriteCallback write_callback,
+                CloseCallback close_callback,
+                DupCallback dup_callback);
 int proc_read(int pid, int fd, char* buf, uint32_t size);
 int proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 

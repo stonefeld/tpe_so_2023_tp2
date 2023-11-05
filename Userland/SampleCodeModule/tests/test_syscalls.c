@@ -1,6 +1,5 @@
-#include "test_syscalls.h"
-
 #include <stdint.h>
+#include <test_syscalls.h>
 
 int64_t
 my_getpid()

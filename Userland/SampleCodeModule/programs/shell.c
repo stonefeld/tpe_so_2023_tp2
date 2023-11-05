@@ -1,6 +1,6 @@
 #include <libasm.h>
-#include <pong.h>
 #include <shell.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <syscalls.h>
 #include <test_mm.h>
@@ -8,9 +8,6 @@
 #define MAX_COMMANDS 20
 #define MAX_ARGS 3
 #define INPUT_SIZE 200
-
-#define PONG_FG 0xf5ebbc
-#define PONG_BG 0x151f42
 
 typedef struct
 {
@@ -42,11 +39,9 @@ static void prompt(int32_t status);
 static uint32_t help();
 static uint32_t datetime();
 static uint32_t exit();
-static uint32_t printreg();
-static uint32_t clear();
+static uint32_t clear_scr();
 static uint32_t testioe();
 static uint32_t testzde();
-static uint32_t pong();
 static uint32_t setcolor();
 static uint32_t switchcolors();
 static uint32_t testmm();
@@ -73,11 +68,9 @@ load_commands()
 {
 	load_command(help, "help", "          Displays this help message");
 	load_command(datetime, "datetime", "      Prints the current datetime");
-	load_command(printreg, "printreg", "      Prints all the registers values saved in the last key press of 'Ctrl+r'");
-	load_command(pong, "pong", "          Pong (The Game)");
 	load_command(setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
 	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
-	load_command(clear, "clear", "         Clears the screen");
+	load_command(clear_scr, "clear", "         Clears the screen");
 	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(exit, "exit", "          Exits the shell");
@@ -139,14 +132,14 @@ help()
 static uint32_t
 datetime()
 {
-	asm_datetime(color.output);
+	asm_time(color.output);
 	return 0;
 }
 
 static uint32_t
-clear()
+clear_scr()
 {
-	asm_clear(color.bg);
+	clear(color.bg);
 	return 0;
 }
 
@@ -154,13 +147,6 @@ static uint32_t
 exit()
 {
 	return running = 0;
-}
-
-static uint32_t
-printreg()
-{
-	asm_printreg(color.output);
-	return 0;
 }
 
 static uint32_t
@@ -174,31 +160,6 @@ static uint32_t
 testzde()
 {
 	asm_testzde();
-	return 0;
-}
-
-static uint32_t
-pong()
-{
-	char* usage = "USAGE: pong [fg] [bg]\nWhen leaving empty, <fg> and <bg> will get default values\n";
-
-	if (args_len == 1) {
-		start_game(PONG_FG, PONG_BG);
-	} else if (args_len == 3) {
-		if (!is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
-			puts("Invalid arguments\n", color.output);
-			puts(usage, color.output);
-			return -1;
-		}
-		uint32_t fg = hex_to_uint(args[1]);
-		uint32_t bg = hex_to_uint(args[2]);
-		start_game(fg, bg);
-	} else {
-		puts("Invalid ammount of arguments\n", color.output);
-		puts(usage, color.output);
-		return -1;
-	}
-	asm_clear(color.bg);
 	return 0;
 }
 
@@ -232,7 +193,7 @@ setcolor()
 
 				case 1: {
 					color.bg = col;
-					clear();
+					clear_scr();
 				} break;
 
 				case 2: {
@@ -263,6 +224,6 @@ switchcolors()
 	uint32_t aux = color.bg;
 	color.bg = color.fg;
 	color.fg = aux;
-	clear();
+	clear_scr();
 	return 0;
 }

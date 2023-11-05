@@ -58,6 +58,9 @@ int proc_map_fd(int pid,
 int proc_read(int pid, int fd, char* buf, uint32_t size);
 int proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 int proc_unmap_fd(int pid, int fd);
+
+int proc_is_fg(int pid);
+
 // asm functions
 extern void* asm_create_process_context(int argc, const char* const argv[], void* rsp, ProcessEntryPoint entry_point);
 

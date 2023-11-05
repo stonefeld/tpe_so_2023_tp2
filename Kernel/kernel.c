@@ -16,11 +16,6 @@
 #include <time.h>
 #include <video.h>
 
-#define BLACK 0x000000
-#define WHITE 0xffffff
-
-typedef int (*EntryPoint)();
-
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -89,13 +84,14 @@ main()
 	kb_init();
 	tx_init();
 
+	// inicializamos la shell
 	init_shell();
 
 	// vuelvo a habilitar las interrupciones
 	asm_sti();
 
 	while (1) {
-		// el proceso kernel no debe hacer mas nada así
+		// el proceso kernel no debe hacer mas nada
 		sch_yield();
 		asm_hlt();
 	}

@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 
+// colors
+#define BLACK 0x000000
+#define RED 0xff0000
+#define GREEN 0x00ff00
+#define BLUE 0x0000ff
+#define WHITE RED | GREEN | BLUE
+
 /*
  * Devuelve el ancho de la pantalla.
  */

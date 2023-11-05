@@ -12,13 +12,6 @@ int keyboard_handler();
 
 void kb_init();
 int kb_read_chars(char* buf, uint32_t size);
-
-/*
- * Devuelve el siguiente caracter del buffer y el estado del mismo (presionado
- * o soltado).
- */
-char kb_getchar(uint8_t* state);
-
 int kb_map_fd(int pid, int fd);
 
 #endif

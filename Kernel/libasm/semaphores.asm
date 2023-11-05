@@ -1,14 +1,14 @@
-GLOBAL _lock
-GLOBAL _unlock
+global asm_lock
+global asm_unlock
 
-_lock:
+asm_lock:
   mov rax, 0
   mov al, 1
-  xchg al, [rdi]
+  xchg al,[rdi]
   cmp al, 0
-  jne _lock
+  jne asm_lock
   ret
 
-_unlock:
-    mov byte [rdi], 0
+asm_unlock:
+    mov byte [rdi],0
     ret

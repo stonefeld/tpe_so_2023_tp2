@@ -41,6 +41,16 @@ sys_malloc       equ 13
 sys_free         equ 14
 sys_realloc      equ 15
 
+;pipes
+global asm_pipe
+global asm_pipe_unlink
+global asm_pipe_open
+global asm_pipe_status
+sys_pipe        equ 17
+sys_pipe_unlink  equ 18
+sys_pipe_open   equ 19
+sys_pipe_status equ 20
+
 %macro syscall_handler 1
     push rbp
     mov rbp,rsp
@@ -99,3 +109,12 @@ asm_free:
 
 asm_realloc:
     syscall_handler sys_realloc
+
+asm_pipe:
+    syscall_handler sys_pipe
+asm_pipe_unlink:
+    syscall_handler sys_pipe_unlink
+asm_pipe_open:
+    syscall_handler sys_pipe_open
+asm_pipe_status:
+    syscall_handler sys_pipe_status

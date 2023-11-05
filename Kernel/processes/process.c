@@ -150,7 +150,7 @@ proc_unmap_fd(int pid, int fd)
 }
 
 int
-proc_read(int pid, int fd, void* buf, uint32_t size)
+proc_read(int pid, int fd, char* buf, uint32_t size)
 {
 	ProcessContext* process;
 	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].read_callback == NULL)
@@ -159,7 +159,7 @@ proc_read(int pid, int fd, void* buf, uint32_t size)
 }
 
 int
-proc_write(int pid, int fd, void* buf, uint32_t size, uint32_t color)
+proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color)
 {
 	ProcessContext* process;
 	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].write_callback == NULL)

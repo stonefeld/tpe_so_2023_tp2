@@ -21,8 +21,8 @@ PipeId create_pipe(void);
 PipeId open_pipe(char* name);
 int unlink_pipe(char* name);
 int free_pipe(PipeId id);
-size_t write_pipe(PipeId id, void* buf, size_t count);
-size_t read_pipe(PipeId id, void* buf, size_t count);
+size_t write_pipe(PipeId id, char* buf, size_t count);
+size_t read_pipe(PipeId id, char* buf, size_t count);
 int pipe_map_process(int pid, int fd, PipeId pipe_id, int allow_rd, int allow_wr);
 int pipe_status(PipeStatus* status_arr, int max_size);
 

@@ -210,7 +210,7 @@ unlink_pipe(char* name)
 }
 
 static size_t
-read_pipe_buffer(Pipe* pipe, void* buf, size_t count)
+read_pipe_buffer(Pipe* pipe, char* buf, size_t count)
 {
 	if (pipe->bytes_to_read == 0) {
 		return 0;
@@ -238,7 +238,7 @@ read_pipe_buffer(Pipe* pipe, void* buf, size_t count)
 }
 
 static size_t
-write_pipe_buffer(Pipe* pipe, void* buf, size_t count)
+write_pipe_buffer(Pipe* pipe, char* buf, size_t count)
 {
 	size_t required = pipe->bytes_to_read + count;
 
@@ -297,7 +297,7 @@ write_pipe_buffer(Pipe* pipe, void* buf, size_t count)
 }
 
 size_t
-write_pipe(PipeId id, void* buf, size_t count)
+write_pipe(PipeId id, char* buf, size_t count)
 {
 	Pipe* pipe = get_pipe(id);
 	if (pipe == NULL)
@@ -307,7 +307,7 @@ write_pipe(PipeId id, void* buf, size_t count)
 }
 
 size_t
-read_pipe(PipeId id, void* buf, size_t count)
+read_pipe(PipeId id, char* buf, size_t count)
 {
 	Pipe* pipe = get_pipe(id);
 	if (pipe == NULL)
@@ -331,7 +331,7 @@ round_up_buffer_size(size_t size)
 }
 
 static int
-handle_read(int pid, int fd, void* buf, size_t count)
+handle_read(int pid, int fd, char* buf, size_t count)
 {
 	PipeFd* pipe_fd = get_pipe_fd(pid, fd);
 	Pipe* pipe = get_pipe(pipe_fd->pipe_id);
@@ -356,7 +356,7 @@ handle_read(int pid, int fd, void* buf, size_t count)
 }
 
 static int
-handle_write(int pid, int fd, void* buf, size_t count, uint32_t color)
+handle_write(int pid, int fd, char* buf, size_t count, uint32_t color)
 {
 	PipeFd* pipe_fd = get_pipe_fd(pid, fd);
 	Pipe* pipe = get_pipe(pipe_fd->pipe_id);

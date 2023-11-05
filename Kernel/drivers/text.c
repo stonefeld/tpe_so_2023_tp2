@@ -17,7 +17,7 @@ static uint8_t show_cursor = 1;
 
 static void cursor(uint32_t color);
 static void enter();
-static int write_callback(int pid, int fd, void* buf, size_t size, uint32_t color);
+static int write_callback(int pid, int fd, char* buf, size_t size, uint32_t color);
 
 void
 tx_init()
@@ -125,7 +125,7 @@ enter()
 }
 
 static int
-write_callback(int pid, int fd, void* buf, size_t size, uint32_t color)
+write_callback(int pid, int fd, char* buf, size_t size, uint32_t color)
 {
 	for (int i = 0; i < size; i++)
 		tx_put_char(((char*)buf)[i], color);

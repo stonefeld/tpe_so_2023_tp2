@@ -51,7 +51,7 @@ static Queue waiting_pids;
 
 static uint8_t get_scancode(uint8_t key);
 static void put_buffer(uint8_t code, uint8_t state);
-static int read_callback(int pid, int fd, void* buf, size_t size);
+static int read_callback(int pid, int fd, char* buf, size_t size);
 
 int
 keyboard_handler()
@@ -165,7 +165,7 @@ put_buffer(uint8_t code, uint8_t state)
 }
 
 static int
-read_callback(int pid, int fd, void* buf, size_t size)
+read_callback(int pid, int fd, char* buf, size_t size)
 {
 	// TODO: chequear si esta en foreground
 	if (size == 0)

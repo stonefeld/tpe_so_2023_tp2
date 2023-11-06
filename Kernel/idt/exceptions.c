@@ -44,7 +44,7 @@ exception_dispatcher(uint32_t exception, uint64_t* stack)
 	}
 	printreg(stack);
 
-	proc_kill(pid);
+	proc_kill(pid, 1);
 	if (pid == 0)
 		init_shell();
 	sch_yield();

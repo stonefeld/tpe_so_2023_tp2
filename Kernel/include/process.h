@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
 #define MAX_NAME_LEN 256
 #define PROCESS_STACK_SIZE 4096
 #define MAX_FDS 20
@@ -11,11 +12,11 @@
 #define STDOUT 1
 #define STDERR 2
 
+typedef int (*ProcessEntryPoint)(int argc, char* argv[]);
 typedef int (*ReadCallback)(int pid, int fd, char* buf, uint32_t size);
 typedef int (*WriteCallback)(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 typedef int (*DupCallback)(int pid_from, int fd_from, int pid_to, int fd_to);
 typedef int (*CloseCallback)(int pid, int fd);
-typedef void (*ProcessEntryPoint)(int argc, char* argv[]);
 
 typedef enum
 {
@@ -47,7 +48,9 @@ typedef struct
 } ProcessCreateInfo;
 
 int proc_create(const ProcessCreateInfo* create_info);
-int proc_kill(int pid);
+int proc_kill(int pid, uint8_t status);
+int proc_unblock_on_killed(int waiting_pid, int working_pid);
+int proc_list(Process* processes, int max_procs);
 
 int proc_map_fd(int pid,
                 int fd,

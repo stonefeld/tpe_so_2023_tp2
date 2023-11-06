@@ -62,7 +62,7 @@ init_shell()
 		.name = "shell",
 		.entry_point = (ProcessEntryPoint)sample_code_module_addr,
 		.is_fg = 1,
-		.priority = DEFAULT_PRIORITY,
+		.priority = MAX_PRIORITY,
 		.argc = 0,
 		.argv = NULL,
 	};

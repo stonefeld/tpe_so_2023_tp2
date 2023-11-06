@@ -23,9 +23,6 @@ extern sch_switch
 
 section .text
 
-; constantes
-REGISTER_CAPTURE equ 9
-
 %macro push_state 0
     push rbx
     push rcx

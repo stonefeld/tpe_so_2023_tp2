@@ -1,6 +1,7 @@
 #include <libc.h>
 #include <memoryManager.h>
 #include <process.h>
+#include <queue.h>
 #include <scheduler.h>
 
 typedef struct
@@ -21,6 +22,7 @@ typedef struct
 	char** argv;
 
 	FileDescriptor fds[MAX_FDS];
+	Queue waiting_pids;
 } ProcessContext;
 
 static ProcessContext processes[MAX_PROCESSES];
@@ -64,7 +66,6 @@ proc_create(const ProcessCreateInfo* create_info)
 			mm_free(argv);
 			return -1;
 		}
-
 		memcpy(argv[i], create_info->argv[i], len);
 	}
 
@@ -89,13 +90,16 @@ proc_create(const ProcessCreateInfo* create_info)
 }
 
 int
-proc_kill(int pid)
+proc_kill(int pid, uint8_t status)
 {
 	ProcessContext* process;
 	if (!get_process_from_pid(pid, &process))
 		return -1;
 
-	sch_on_process_killed(pid);
+	sch_on_process_killed(pid, status);
+
+	if (process->waiting_pids != NULL)
+		queue_unblock_all(process->waiting_pids);
 
 	for (int i = 0; i < process->argc; i++)
 		mm_free(process->argv[i]);
@@ -106,6 +110,42 @@ proc_kill(int pid)
 	memset(process, 0, sizeof(ProcessContext));
 
 	return 0;
+}
+
+int
+proc_unblock_on_killed(int waiting_pid, int working_pid)
+{
+	ProcessContext* process;
+	if (!get_process_from_pid(working_pid, &process))
+		return -1;
+	if (process->waiting_pids == NULL && (process->waiting_pids = queue_create()) == NULL)
+		return -1;
+	queue_add(process->waiting_pids, waiting_pid);
+	return 0;
+}
+
+int
+proc_list(Process* procs, int max_procs)
+{
+	int count = 0;
+	ProcessContext* context;
+
+	for (int i = 0; i < MAX_PROCESSES && count < max_procs; i++) {
+		context = &processes[i];
+
+		if (context->stack_end != NULL) {
+			procs[count].pid = i;
+			strcpy(procs[count].name, context->name);
+			procs[count].stack_end = context->stack_end;
+			procs[count].stack_start = context->stack_start;
+			procs[count].is_fg = context->is_fg;
+			sch_get_proc_info(i, &procs[count]);
+
+			count++;
+		}
+	}
+
+	return count;
 }
 
 int

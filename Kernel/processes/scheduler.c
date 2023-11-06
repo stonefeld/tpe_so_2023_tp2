@@ -3,6 +3,7 @@
 #include <scheduler.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <text.h>
 
 #define KERNEL_PROC_PID -1
 #define KILLED_PROC_PID -2
@@ -10,13 +11,14 @@
 typedef struct
 {
 	int8_t priority;
+	uint8_t exit_status;
 	ProcessStatus status;
 	void* rsp;
 } ProcessState;
 
 static void* kernel_rsp;
 static ProcessState processes_states[MAX_PROCESSES];
-static int current_running_pid;
+static int current_running_pid, force_next_pid;
 static uint8_t quantums;
 
 static int valid_pid(int pid);
@@ -26,11 +28,13 @@ static int is_ready(int pid);
 static int get_quantums(int pid);
 static uint64_t get_next_ready_pid();
 static int get_process_state(int pid, ProcessState** state);
+static int get_killed_state(int pid, ProcessState** state);
 
 void
 sch_init()
 {
 	current_running_pid = KERNEL_PROC_PID;
+	force_next_pid = KILLED_PROC_PID;
 	quantums = 0;
 }
 
@@ -52,7 +56,7 @@ sch_on_process_create(int pid,
 }
 
 int
-sch_on_process_killed(int pid)
+sch_on_process_killed(int pid, uint8_t status)
 {
 	ProcessState* process_state = NULL;
 	if (!get_process_state(pid, &process_state))
@@ -63,6 +67,7 @@ sch_on_process_killed(int pid)
 
 	process_state->status = KILLED;
 	process_state->rsp = NULL;
+	process_state->exit_status = status;
 
 	if (current_running_pid == pid)
 		current_running_pid = KILLED_PROC_PID;
@@ -93,11 +98,13 @@ sch_unblock(int pid)
 	if (process_state->status == READY || process_state->status == RUNNING)
 		return 0;
 
+	if (process_state->priority <= REALTIME_PRIORITY)
+		force_next_pid = pid;
+
 	process_state->status = READY;
 	return 0;
 }
 
-// TODO: revisar
 void*
 sch_switch(void* current_rsp)
 {
@@ -109,7 +116,11 @@ sch_switch(void* current_rsp)
 		kernel_rsp = current_rsp;
 	}
 
-	if (!is_ready(current_running_pid) || quantums == 0) {
+	if (is_ready(force_next_pid)) {
+		current_running_pid = force_next_pid;
+		force_next_pid = KILLED_PROC_PID;
+		quantums = get_quantums(current_running_pid);
+	} else if (!is_ready(current_running_pid) || quantums == 0) {
 		current_running_pid = get_next_ready_pid();
 
 		if (current_running_pid == KERNEL_PROC_PID) {
@@ -151,6 +162,15 @@ sch_get_proc_info(int pid, Process* info)
 	info->priority = process_state->priority;
 	info->rsp = process_state->rsp;
 	return 0;
+}
+
+int
+sch_get_status(int pid)
+{
+	ProcessState* process_state = NULL;
+	if (!get_killed_state(pid, &process_state))
+		return -1;
+	return process_state->exit_status;
 }
 
 int
@@ -218,6 +238,15 @@ get_process_state(int pid, ProcessState** state)
 	if (!is_active(pid))
 		return 0;
 
+	*state = &processes_states[pid];
+	return 1;
+}
+
+static int
+get_killed_state(int pid, ProcessState** state)
+{
+	if (!valid_pid(pid) || processes_states[pid].status != KILLED)
+		return -1;
 	*state = &processes_states[pid];
 	return 1;
 }

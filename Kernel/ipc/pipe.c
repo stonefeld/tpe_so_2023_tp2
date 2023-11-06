@@ -93,9 +93,8 @@ pipe_free(PipeId id)
 {
 	Pipe* pipe = get_pipe(id);
 
-	if (pipe == NULL) {
+	if (pipe == NULL)
 		return -1;
-	}
 
 	pipe_table[id] = NULL;
 

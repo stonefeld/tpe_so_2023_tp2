@@ -1,128 +1,32 @@
-#include <libasm.h>
+#include <commands.h>
 #include <shell.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <syscalls.h>
-#include <test_mm.h>
 
-#define MAX_COMMANDS 20
-#define MAX_ARGS 3
 #define INPUT_SIZE 200
 
-typedef struct
-{
-	uint32_t (*fn)();
-	char *name, *desc;
-} Command;
+static void prompt(int32_t status);
 
-typedef struct
-{
-	volatile uint32_t fg, bg, output, prompt, error;
-} Color;
-
-static Command commands[MAX_COMMANDS];
-static char* args[MAX_ARGS];
 static char input_buffer[INPUT_SIZE];
-static uint32_t commands_len = 0;
-static uint32_t args_len = 0;
 static uint8_t running = 1;
 
 // colors
-static Color color = { .fg = 0xffffff, .bg = 0x000000, .output = 0xa0a0a0, .prompt = 0x00ff00, .error = 0xff0000 };
-
-static void load_commands();
-static void load_command(uint32_t (*fn)(), char* name, char* desc);
-static int32_t process_input(char* buff, uint32_t size);
-static void prompt(int32_t status);
-
-// commands
-static uint32_t help();
-static uint32_t datetime();
-static uint32_t exit();
-static uint32_t clear_scr();
-static uint32_t testioe();
-static uint32_t testzde();
-static uint32_t setcolor();
-static uint32_t switchcolors();
-static uint32_t testmm();
-static uint32_t mem();
-static uint32_t ps();
-static uint32_t loop();
-static uint32_t kill();
-static uint32_t nice();
-static uint32_t block();
-static uint32_t cat();
-static uint32_t wc();
-static uint32_t filter();
-static uint32_t phylo();
+Color color = { .fg = 0xffffff, .bg = 0x000000, .output = 0xa0a0a0, .prompt = 0x00ff00, .error = 0xff0000 };
 
 uint32_t
 shell_init()
 {
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n", color.output);
-	load_commands();
+	cmd_init();
 	running = 1;
 
 	int32_t len, status = 0;
 	while (running) {
 		prompt(status);
 		len = gets(input_buffer, INPUT_SIZE, color.fg);
-		status = process_input(input_buffer, len);
+		status = cmd_execute(input_buffer, len);
 	}
 
 	return status;
-}
-
-static void
-load_commands()
-{
-	load_command(help, "help", "          Displays this help message");
-	load_command(datetime, "datetime", "      Prints the current datetime");
-	load_command(setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
-	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
-	load_command(clear_scr, "clear", "         Clears the screen");
-	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
-	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
-	load_command(exit, "exit", "          Exits the shell");
-	load_command(testmm, "testmm", "        Test Memory Manager");
-	load_command(mem, "mem", "           Imprime estado de la memoria");
-	load_command(ps, "ps", "            Imprime la lista de todos los procesos con sus propiedades");
-	load_command(loop, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
-	load_command(kill, "kill", "          Mata un proceso dado su ID");
-	load_command(nice, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad");
-	load_command(block, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID");
-	load_command(cat, "cat", "           Imprime el stdin tal como lo recibe");
-	load_command(wc, "wc", "            Cuenta la cantidad de lineas del input");
-	load_command(filter, "filter", "        Filtra las vocales del input");
-	load_command(phylo, "phylo", "         Implementa el problema de los filosofos comensales");
-}
-
-static void
-load_command(uint32_t (*fn)(), char* name, char* desc)
-{
-	if (commands_len >= MAX_COMMANDS)
-		return;
-	commands[commands_len].fn = fn;
-	commands[commands_len].name = name;
-	commands[commands_len].desc = desc;
-	commands_len++;
-}
-
-static int32_t
-process_input(char* buff, uint32_t size)
-{
-	args_len = strtok(buff, ' ', args, MAX_ARGS);
-	if (args_len == 0)
-		return -1;
-
-	for (int i = 0; i < commands_len; i++) {
-		if (strcmp(args[0], commands[i].name))
-			return commands[i].fn();
-	}
-	puts("Command not found: ", color.output);
-	puts(args[0], color.output);
-	putchar('\n', color.output);
-	return -1;
 }
 
 static void
@@ -130,190 +34,4 @@ prompt(int32_t status)
 {
 	puts(">>>", status == 0 ? color.prompt : color.error);
 	putchar(' ', color.fg);
-}
-
-static uint32_t
-testmm()
-{
-	test_mm();
-	return 0;
-}
-static uint32_t
-help()
-{
-	for (int i = 0; i < commands_len; i++) {
-		puts(commands[i].name, color.output);
-		puts(commands[i].desc, color.output);
-		putchar('\n', color.output);
-	}
-	return 0;
-}
-
-static uint32_t
-datetime()
-{
-	asm_time(color.output);
-	return 0;
-}
-
-static uint32_t
-clear_scr()
-{
-	clear(color.bg);
-	return 0;
-}
-
-static uint32_t
-exit()
-{
-	return running = 0;
-}
-
-static uint32_t
-testioe()
-{
-	asm_testioe();
-	return 0;
-}
-
-static uint32_t
-testzde()
-{
-	asm_testzde();
-	return 0;
-}
-
-static uint32_t
-setcolor()
-{
-	if (args_len != 3) {
-		puts("USAGE: setcolor <target> <color>\n<target>   fg | bg | output | prompt | error\n<color>    The color in "
-		     "hex format ('0xXXXXXX' or '#XXXXXX')\n",
-		     color.output);
-		return -1;
-	}
-
-	if (!is_hex_color_code(args[2])) {
-		puts("Invalid color '", color.output);
-		puts(args[2], color.output);
-		puts("'\n", color.output);
-		return -1;
-	}
-
-	char* targets[] = { "fg", "bg", "output", "prompt", "error" };
-	uint32_t targets_len = sizeof(targets) / sizeof(targets[0]);
-
-	for (int i = 0; i < targets_len; i++) {
-		if (strcmp(targets[i], args[1])) {
-			uint32_t col = hex_to_uint(args[2]);
-			switch (i) {
-				case 0: {
-					color.fg = col;
-				} break;
-
-				case 1: {
-					color.bg = col;
-					clear_scr();
-				} break;
-
-				case 2: {
-					color.output = col;
-				} break;
-
-				case 3: {
-					color.prompt = col;
-				} break;
-
-				case 4: {
-					color.error = col;
-				} break;
-			}
-			return 0;
-		}
-	}
-
-	puts("Invalid target '", color.output);
-	puts(args[1], color.output);
-	puts("'\n", color.output);
-	return -1;
-}
-
-static uint32_t
-switchcolors()
-{
-	uint32_t aux = color.bg;
-	color.bg = color.fg;
-	color.fg = aux;
-	clear_scr();
-	return 0;
-}
-
-static uint32_t
-mem()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-ps()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-loop()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-kill()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-nice()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-block()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-cat()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-wc()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-filter()
-{
-	help();
-	return 0;
-}
-
-static uint32_t
-phylo()
-{
-	help();
-	return 0;
 }

@@ -1,3 +1,4 @@
+#include <libasm.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <test_syscalls.h>
@@ -35,6 +36,7 @@ memcheck(void* start, uint8_t value, uint32_t size)
 
 	return 1;
 }
+
 void*
 setmem(void* destiation, int32_t c, size_t length)
 {
@@ -80,11 +82,11 @@ bussy_wait(uint64_t n)
 		;
 }
 
-void
-endless_loop()
+int
+endless_loop(int argc, char** argv)
 {
 	while (1)
-		;
+		asm_hlt();
 }
 
 void

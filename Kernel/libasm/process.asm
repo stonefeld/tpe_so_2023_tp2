@@ -3,6 +3,7 @@ global asm_create_process_context
 asm_entry_point_wrapper:
     call rdx
     mov rdi,1   ; sys_exit
+    mov rsi,rax
     int 80h
 
 asm_create_process_context:
@@ -10,10 +11,10 @@ asm_create_process_context:
     mov rbp,rsp
 
     mov rsp,rdx
-    push 0h     ; SS
-    push rdx    ; RSP
-    push 202h   ; RFLAGS
-    push 8h     ; CS
+    push 0h     ; ss
+    push rdx    ; rsp
+    push 202h   ; rflags
+    push 8h     ; cs
     push asm_entry_point_wrapper
 
     push 01h    ; rax

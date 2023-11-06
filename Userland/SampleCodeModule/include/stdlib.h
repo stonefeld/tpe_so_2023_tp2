@@ -38,4 +38,6 @@ uint8_t is_hex_color_code(char* code);
  */
 uint32_t hex_to_uint(char* code);
 
+int str_to_int(char* str);
+
 #endif

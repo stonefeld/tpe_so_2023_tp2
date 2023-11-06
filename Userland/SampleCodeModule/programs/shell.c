@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <syscalls.h>
 #include <test_mm.h>
+#include <test_processes.h>
+#include <test_syscalls.h>
 
 #define MAX_COMMANDS 20
 #define MAX_ARGS 3
@@ -37,6 +39,7 @@ static void prompt(int32_t status);
 
 // commands
 static uint32_t help();
+static uint32_t ps();
 static uint32_t datetime();
 static uint32_t exit();
 static uint32_t clear_scr();
@@ -44,7 +47,7 @@ static uint32_t testioe();
 static uint32_t testzde();
 static uint32_t setcolor();
 static uint32_t switchcolors();
-static uint32_t testmm();
+static uint32_t testproc();
 
 uint32_t
 shell_init()
@@ -67,6 +70,7 @@ static void
 load_commands()
 {
 	load_command(help, "help", "          Displays this help message");
+	load_command(ps, "ps", "            Lists all processes");
 	load_command(datetime, "datetime", "      Prints the current datetime");
 	load_command(setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
 	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
@@ -74,7 +78,8 @@ load_commands()
 	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(exit, "exit", "          Exits the shell");
-	load_command(testmm, "testmm", "        Test Memory Manager");
+	load_command(test_mm, "testmm", "        Test memory manager");
+	load_command(testproc, "testproc", "      Test processes");
 }
 
 static void
@@ -113,12 +118,6 @@ prompt(int32_t status)
 }
 
 static uint32_t
-testmm()
-{
-	test_mm();
-	return 0;
-}
-static uint32_t
 help()
 {
 	for (int i = 0; i < commands_len; i++) {
@@ -126,6 +125,13 @@ help()
 		puts(commands[i].desc, color.output);
 		putchar('\n', color.output);
 	}
+	return 0;
+}
+
+static uint32_t
+ps()
+{
+	asm_ps(color.output);
 	return 0;
 }
 
@@ -226,4 +232,10 @@ switchcolors()
 	color.fg = aux;
 	clear_scr();
 	return 0;
+}
+
+static uint32_t
+testproc()
+{
+	return test_processes(1, (char*[]){ "100" });
 }

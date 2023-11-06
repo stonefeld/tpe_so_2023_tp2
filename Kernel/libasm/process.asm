@@ -10,10 +10,10 @@ asm_create_process_context:
     mov rbp,rsp
 
     mov rsp,rdx
-    push 0h     ; SS
-    push rdx    ; RSP
-    push 202h   ; RFLAGS
-    push 8h     ; CS
+    push 0h     ; ss
+    push rdx    ; rsp
+    push 202h   ; rflags
+    push 8h     ; cs
     push asm_entry_point_wrapper
 
     push 01h    ; rax

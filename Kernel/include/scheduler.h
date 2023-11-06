@@ -7,6 +7,8 @@
 #define DEFAULT_PRIORITY 0
 #define MAX_PRIORITY -20
 #define MIN_PRIORITY 19
+#define REALTIME_PRIORITY -5
+
 #define MAX_PROCESSES 32
 
 void sch_init();

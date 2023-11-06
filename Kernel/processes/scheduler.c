@@ -3,6 +3,7 @@
 #include <scheduler.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <text.h>
 
 #define KERNEL_PROC_PID -1
 #define KILLED_PROC_PID -2
@@ -16,7 +17,7 @@ typedef struct
 
 static void* kernel_rsp;
 static ProcessState processes_states[MAX_PROCESSES];
-static int current_running_pid;
+static int current_running_pid, force_next_pid;
 static uint8_t quantums;
 
 static int valid_pid(int pid);
@@ -31,6 +32,7 @@ void
 sch_init()
 {
 	current_running_pid = KERNEL_PROC_PID;
+	force_next_pid = KILLED_PROC_PID;
 	quantums = 0;
 }
 
@@ -93,11 +95,13 @@ sch_unblock(int pid)
 	if (process_state->status == READY || process_state->status == RUNNING)
 		return 0;
 
+	if (process_state->priority <= REALTIME_PRIORITY)
+		force_next_pid = pid;
+
 	process_state->status = READY;
 	return 0;
 }
 
-// TODO: revisar
 void*
 sch_switch(void* current_rsp)
 {
@@ -109,7 +113,11 @@ sch_switch(void* current_rsp)
 		kernel_rsp = current_rsp;
 	}
 
-	if (!is_ready(current_running_pid) || quantums == 0) {
+	if (is_ready(force_next_pid)) {
+		current_running_pid = force_next_pid;
+		force_next_pid = KILLED_PROC_PID;
+		quantums = get_quantums(current_running_pid);
+	} else if (!is_ready(current_running_pid) || quantums == 0) {
 		current_running_pid = get_next_ready_pid();
 
 		if (current_running_pid == KERNEL_PROC_PID) {

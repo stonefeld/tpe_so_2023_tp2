@@ -1,16 +1,26 @@
 ; i/o interaction
+global asm_exit
 global asm_read
 global asm_write
+sys_exit         equ 1
 sys_read         equ 3
 sys_write        equ 4
 
-; drawing
-global asm_show_cursor
-sys_show_cursor  equ 6
-
 ; system
 global asm_time
-sys_time         equ 11
+sys_time         equ 13
+
+; processes
+global asm_execve
+global asm_getpid
+global asm_ps
+global asm_nice
+global asm_kill
+sys_execve       equ 2
+sys_getpid       equ 20
+sys_ps           equ 21
+sys_nice         equ 34
+sys_kill         equ 37
 
 ; pipes
 global asm_pipe
@@ -50,20 +60,23 @@ asm_read:
 asm_write:
     syscall_handler sys_write
 
-asm_show_cursor:
-    syscall_handler sys_show_cursor
-
 asm_time:
     syscall_handler sys_time
 
-asm_malloc:
-    syscall_handler sys_malloc
+asm_execve:
+    syscall_handler sys_execve
 
-asm_free:
-    syscall_handler sys_free
+asm_getpid:
+    syscall_handler sys_getpid
 
-asm_realloc:
-    syscall_handler sys_realloc
+asm_ps:
+    syscall_handler sys_ps
+
+asm_nice:
+    syscall_handler sys_nice
+
+asm_kill:
+    syscall_handler sys_kill
 
 asm_pipe:
     syscall_handler sys_pipe
@@ -76,3 +89,12 @@ asm_pipe_unlink:
 
 asm_pipe_status:
     syscall_handler sys_pipe_status
+
+asm_malloc:
+    syscall_handler sys_malloc
+
+asm_free:
+    syscall_handler sys_free
+
+asm_realloc:
+    syscall_handler sys_realloc

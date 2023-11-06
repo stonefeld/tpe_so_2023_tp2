@@ -8,9 +8,17 @@ my_getpid()
 }
 
 int64_t
-my_create_process(char* name, uint64_t argc, char* argv[])
+my_create_process(char* name, ProcessEntryPoint entry_point, uint64_t argc, char* argv[])
 {
-	return 0;
+	ProcessCreateInfo create_info = {
+		.argc = argc,
+		.argv = argv,
+		.name = name,
+		.entry_point = entry_point,
+		.is_fg = 1,
+		.priority = 0,
+	};
+	return asm_execve(&create_info);
 }
 
 int64_t

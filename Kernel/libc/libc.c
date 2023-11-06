@@ -103,6 +103,24 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	return digits;
 }
 
+uint32_t
+int_to_str(int64_t value, char* buff)
+{
+	char buff_aux[64];
+	uint8_t is_neg = 0;
+	if (value < 0) {
+		is_neg = 1;
+		value = -value;
+	}
+
+	uint32_t digits = uint_to_base(value, buff_aux, DEC);
+	memcpy(buff + (is_neg == 1), buff_aux, digits + 1);
+	if (is_neg)
+		buff[0] = '-';
+
+	return digits;
+}
+
 int
 strcmp(const char* str1, const char* str2)
 {

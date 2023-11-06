@@ -64,7 +64,6 @@ proc_create(const ProcessCreateInfo* create_info)
 			mm_free(argv);
 			return -1;
 		}
-
 		memcpy(argv[i], create_info->argv[i], len);
 	}
 
@@ -106,6 +105,30 @@ proc_kill(int pid)
 	memset(process, 0, sizeof(ProcessContext));
 
 	return 0;
+}
+
+int
+proc_list(Process* procs, int max_procs)
+{
+	int count = 0;
+	ProcessContext* context;
+
+	for (int i = 0; i < MAX_PROCESSES && count < max_procs; i++) {
+		context = &processes[i];
+
+		if (context->stack_end != NULL) {
+			procs[count].pid = i;
+			strcpy(procs[count].name, context->name);
+			procs[count].stack_end = context->stack_end;
+			procs[count].stack_start = context->stack_start;
+			procs[count].is_fg = context->is_fg;
+			sch_get_proc_info(i, &procs[count]);
+
+			count++;
+		}
+	}
+
+	return count;
 }
 
 int

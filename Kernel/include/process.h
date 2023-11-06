@@ -12,7 +12,7 @@
 #define STDOUT 1
 #define STDERR 2
 
-typedef void (*ProcessEntryPoint)(int argc, char* argv[]);
+typedef int (*ProcessEntryPoint)(int argc, char* argv[]);
 typedef int (*ReadCallback)(int pid, int fd, char* buf, uint32_t size);
 typedef int (*WriteCallback)(int pid, int fd, char* buf, uint32_t size, uint32_t color);
 typedef int (*DupCallback)(int pid_from, int fd_from, int pid_to, int fd_to);

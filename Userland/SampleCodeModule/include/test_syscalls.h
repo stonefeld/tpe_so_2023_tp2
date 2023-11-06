@@ -5,7 +5,7 @@
 #include <syscalls.h>
 
 int64_t my_getpid();
-int64_t my_create_process(char* name, ProcessEntryPoint entry_point, uint64_t argc, char* argv[]);
+int64_t my_create_process(char* name, EntryPoint entry_point, uint64_t argc, char* argv[]);
 int64_t my_nice(uint64_t pid, uint64_t newPrio);
 int64_t my_kill(uint64_t pid);
 int64_t my_block(uint64_t pid);

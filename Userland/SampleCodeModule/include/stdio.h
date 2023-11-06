@@ -3,9 +3,20 @@
 
 #include <stdint.h>
 
+#define BLACK 0x000000
+#define RED 0xff0000
+#define GREEN 0x00ff00
+#define BLUE 0x0000ff
+#define WHITE RED | GREEN | BLUE
+
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
+
+typedef struct
+{
+	volatile uint32_t fg, bg, output, prompt, error;
+} Color;
 
 uint32_t gets(char* buff, uint32_t size, uint32_t color);
 uint32_t fgets(int fd, char* buf, uint32_t size, uint32_t color);

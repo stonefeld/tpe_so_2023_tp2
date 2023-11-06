@@ -9,12 +9,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void (*ProcessEntryPoint)(int argc, char* argv[]);
+typedef int (*EntryPoint)(int argc, char* argv[]);
 
 typedef struct
 {
 	const char* name;
-	ProcessEntryPoint entry_point;
+	EntryPoint entry_point;
 	uint8_t is_fg;
 	int8_t priority;
 	int argc;
@@ -35,6 +35,8 @@ extern int asm_getpid();
 extern int asm_ps(uint32_t color);
 extern int asm_nice(int priority, int pid);
 extern int asm_kill(int pid);
+extern int asm_block(int pid);
+extern int asm_unblock(int pid);
 
 extern uint8_t asm_pipe(int* pipe_fd);
 extern uint8_t asm_pipe_open(char* name, int* pipe_fd);

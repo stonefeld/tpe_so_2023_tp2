@@ -16,11 +16,15 @@ global asm_getpid
 global asm_ps
 global asm_nice
 global asm_kill
+global asm_block
+global asm_unblock
 sys_execve       equ 2
 sys_getpid       equ 20
 sys_ps           equ 21
 sys_nice         equ 34
 sys_kill         equ 37
+sys_block        equ 38
+sys_unblock      equ 39
 
 ; pipes
 global asm_pipe
@@ -77,6 +81,12 @@ asm_nice:
 
 asm_kill:
     syscall_handler sys_kill
+
+asm_block:
+    syscall_handler sys_block
+
+asm_unblock:
+    syscall_handler sys_unblock
 
 asm_pipe:
     syscall_handler sys_pipe

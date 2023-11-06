@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <syscalls.h>
 
-#define WHITE 0xffffff
-
 int
 main()
 {

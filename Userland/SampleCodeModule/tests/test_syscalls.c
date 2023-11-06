@@ -1,3 +1,5 @@
+#include "syscalls.h"
+
 #include <stdint.h>
 #include <test_syscalls.h>
 
@@ -8,7 +10,7 @@ my_getpid()
 }
 
 int64_t
-my_create_process(char* name, ProcessEntryPoint entry_point, uint64_t argc, char* argv[])
+my_create_process(char* name, EntryPoint entry_point, uint64_t argc, char* argv[])
 {
 	ProcessCreateInfo create_info = {
 		.argc = argc,
@@ -30,19 +32,19 @@ my_nice(uint64_t pid, uint64_t newPrio)
 int64_t
 my_kill(uint64_t pid)
 {
-	return 0;
+	return asm_kill(pid);
 }
 
 int64_t
 my_block(uint64_t pid)
 {
-	return 0;
+	return asm_block(pid);
 }
 
 int64_t
 my_unblock(uint64_t pid)
 {
-	return 0;
+	return asm_unblock(pid);
 }
 
 int64_t

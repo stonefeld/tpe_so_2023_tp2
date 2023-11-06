@@ -11,6 +11,7 @@
 typedef struct
 {
 	int8_t priority;
+	uint8_t exit_status;
 	ProcessStatus status;
 	void* rsp;
 } ProcessState;
@@ -27,6 +28,7 @@ static int is_ready(int pid);
 static int get_quantums(int pid);
 static uint64_t get_next_ready_pid();
 static int get_process_state(int pid, ProcessState** state);
+static int get_killed_state(int pid, ProcessState** state);
 
 void
 sch_init()
@@ -54,7 +56,7 @@ sch_on_process_create(int pid,
 }
 
 int
-sch_on_process_killed(int pid)
+sch_on_process_killed(int pid, uint8_t status)
 {
 	ProcessState* process_state = NULL;
 	if (!get_process_state(pid, &process_state))
@@ -65,6 +67,7 @@ sch_on_process_killed(int pid)
 
 	process_state->status = KILLED;
 	process_state->rsp = NULL;
+	process_state->exit_status = status;
 
 	if (current_running_pid == pid)
 		current_running_pid = KILLED_PROC_PID;
@@ -162,6 +165,15 @@ sch_get_proc_info(int pid, Process* info)
 }
 
 int
+sch_get_status(int pid)
+{
+	ProcessState* process_state = NULL;
+	if (!get_killed_state(pid, &process_state))
+		return -1;
+	return process_state->exit_status;
+}
+
+int
 sch_set_priority(int pid, int8_t new_priority)
 {
 	ProcessState* process_state = NULL;
@@ -226,6 +238,15 @@ get_process_state(int pid, ProcessState** state)
 	if (!is_active(pid))
 		return 0;
 
+	*state = &processes_states[pid];
+	return 1;
+}
+
+static int
+get_killed_state(int pid, ProcessState** state)
+{
+	if (!valid_pid(pid) || processes_states[pid].status != KILLED)
+		return -1;
 	*state = &processes_states[pid];
 	return 1;
 }

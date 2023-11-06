@@ -16,13 +16,14 @@ uint32_t
 shell_init()
 {
 	puts("Welcome to the shell!\nStart by typing 'help' on the prompt\n", color.output);
+	cmd_init();
 	running = 1;
 
 	int32_t len, status = 0;
 	while (running) {
 		prompt(status);
 		len = gets(input_buffer, INPUT_SIZE, color.fg);
-		cmd_execute(input_buffer, len);
+		status = cmd_execute(input_buffer, len);
 	}
 
 	return status;

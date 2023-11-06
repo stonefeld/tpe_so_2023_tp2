@@ -17,7 +17,7 @@ my_create_process(char* name, EntryPoint entry_point, uint64_t argc, char* argv[
 		.argv = argv,
 		.name = name,
 		.entry_point = entry_point,
-		.is_fg = 1,
+		.is_fg = 0,
 		.priority = 0,
 	};
 	return asm_execve(&create_info);

@@ -12,6 +12,7 @@ sys_time         equ 13
 
 ; processes
 global asm_execve
+global asm_waitpid
 global asm_getpid
 global asm_ps
 global asm_nice
@@ -19,6 +20,7 @@ global asm_kill
 global asm_block
 global asm_unblock
 sys_execve       equ 2
+sys_waitpid      equ 7
 sys_getpid       equ 20
 sys_ps           equ 21
 sys_nice         equ 34
@@ -69,6 +71,9 @@ asm_time:
 
 asm_execve:
     syscall_handler sys_execve
+
+asm_waitpid:
+    syscall_handler sys_waitpid
 
 asm_getpid:
     syscall_handler sys_getpid

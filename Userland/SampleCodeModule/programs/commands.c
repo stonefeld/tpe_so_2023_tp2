@@ -7,6 +7,7 @@
 #include <test_processes.h>
 
 #define MAX_ARGS 10
+#define MAX_COMMANDS 30
 
 typedef struct
 {
@@ -14,6 +15,9 @@ typedef struct
 	char *name, *desc;
 } Command;
 
+static void load_command(EntryPoint entry_point, char* name, char* desc);
+
+// commands
 static int help(int argc, char** argv);
 static int datetime(int argc, char** argv);
 static int exit(int argc, char** argv);
@@ -35,35 +39,39 @@ static int testzde(int argc, char** argv);
 static int testmm(int argc, char** argv);
 static int testproc(int argc, char** argv);
 
-static Command commands[] = {
-	// TODO: revisar idiomas
-	{ help, "help", "          Displays this help message" },
-	{ datetime, "datetime", "      Prints the current datetime" },
-	{ setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors" },
-	{ switchcolors, "switchcolors", "  Inverts the background and foreground colors" },
-	{ clear_scr, "clear", "         Clears the screen" },
-	{ mem, "mem", "           Imprime estado de la memoria" },
-	{ ps, "ps", "            Imprime la lista de todos los procesos con sus propiedades" },
-	{ loop, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos" },
-	{ kill, "kill", "          Mata un proceso dado su ID" },
-	{ nice, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad" },
-	{ block, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID" },
-	{ cat, "cat", "           Imprime el stdin tal como lo recibe" },
-	{ wc, "wc", "            Cuenta la cantidad de lineas del input" },
-	{ filter, "filter", "        Filtra las vocales del input" },
-	{ phylo, "phylo", "         Implementa el problema de los filosofos comensales" },
-	{ testioe, "testioe", "       Tests the 'Invalid Opcode Exception'" },
-	{ testzde, "testzde", "       Tests the 'Zero Division Error Exception'" },
-	{ testmm, "testmm", "        Test memory manager" },
-	{ testproc, "testproc", "      Test processes" },
-	{ exit, "exit", "          Exits the shell" },
-};
-static uint32_t commands_len = sizeof(commands);
+static Command commands[MAX_COMMANDS];
+static uint16_t commands_len = 0;
 
 static char* args[MAX_ARGS];
-static uint32_t args_len;
+static uint8_t args_len;
 
 extern Color color;
+
+void
+cmd_init()
+{
+	// TODO: revisar idiomas
+	load_command(help, "help", "          Displays this help message");
+	load_command(datetime, "datetime", "      Prints the current datetime");
+	load_command(setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
+	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
+	load_command(clear_scr, "clear", "         Clears the screen");
+	load_command(mem, "mem", "           Imprime estado de la memoria");
+	load_command(ps, "ps", "            Imprime la lista de todos los procesos con sus propiedades");
+	load_command(loop, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
+	load_command(kill, "kill", "          Mata un proceso dado su ID");
+	load_command(nice, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad");
+	load_command(block, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID");
+	load_command(cat, "cat", "           Imprime el stdin tal como lo recibe");
+	load_command(wc, "wc", "            Cuenta la cantidad de lineas del input");
+	load_command(filter, "filter", "        Filtra las vocales del input");
+	load_command(phylo, "phylo", "         Implementa el problema de los filosofos comensales");
+	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
+	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
+	load_command(testmm, "testmm", "        Test memory manager");
+	load_command(testproc, "testproc", "      Test processes");
+	load_command(exit, "exit", "          Exits the shell");
+}
 
 int
 cmd_execute(char* buf, uint32_t len)
@@ -72,24 +80,40 @@ cmd_execute(char* buf, uint32_t len)
 	if (args_len == 0)
 		return -1;
 
+	uint8_t is_fg = 1;
+	if (strcmp(args[args_len - 1], "&")) {
+		is_fg = 0;
+		args_len--;
+	}
+
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name)) {
 			ProcessCreateInfo create_info = {
 				.name = args[0],
-				.argc = args_len,
+				.argc = args_len - 1,
 				.argv = args + 1,
 				.entry_point = commands[i].entry_point,
-				.is_fg = 1,
+				.is_fg = is_fg,
 				.priority = 0,
 			};
 			int pid = asm_execve(&create_info);
-			// return asm_waitpid(pid);
+			return is_fg ? asm_waitpid(pid) : 0;
 		}
 	}
 	puts("Command not found: ", color.output);
 	puts(args[0], color.output);
 	putchar('\n', color.output);
 	return -1;
+}
+
+static void
+load_command(EntryPoint entry_point, char* name, char* desc)
+{
+	if (commands_len >= MAX_COMMANDS)
+		return;
+	commands[commands_len].entry_point = entry_point;
+	commands[commands_len].name = name;
+	commands[commands_len++].desc = desc;
 }
 
 static int
@@ -224,7 +248,10 @@ loop(int argc, char** argv)
 static int
 kill(int argc, char** argv)
 {
-	return 0;
+	if (argc != 1)
+		return -1;
+	int pid = str_to_int(argv[0]);
+	return asm_kill(pid);
 }
 
 static int
@@ -273,5 +300,5 @@ testmm(int argc, char** argv)
 static int
 testproc(int argc, char** argv)
 {
-	return test_processes(1, (char*[]){ "5" });
+	return test_processes(argc, argv);
 }

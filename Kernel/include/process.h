@@ -48,7 +48,8 @@ typedef struct
 } ProcessCreateInfo;
 
 int proc_create(const ProcessCreateInfo* create_info);
-int proc_kill(int pid);
+int proc_kill(int pid, uint8_t status);
+int proc_unblock_on_killed(int waiting_pid, int working_pid);
 int proc_list(Process* processes, int max_procs);
 
 int proc_map_fd(int pid,

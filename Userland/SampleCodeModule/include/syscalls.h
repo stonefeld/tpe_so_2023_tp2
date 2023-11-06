@@ -31,6 +31,7 @@ extern uint32_t asm_write(int fd, char* buf, uint32_t size, uint32_t color);
 extern void asm_time(uint32_t color);
 
 extern int asm_execve(const ProcessCreateInfo* create_info);
+extern int asm_waitpid(int pid);
 extern int asm_getpid();
 extern int asm_ps(uint32_t color);
 extern int asm_nice(int priority, int pid);

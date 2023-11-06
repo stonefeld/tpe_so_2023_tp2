@@ -45,6 +45,16 @@ static uint32_t testzde();
 static uint32_t setcolor();
 static uint32_t switchcolors();
 static uint32_t testmm();
+static uint32_t mem();
+static uint32_t ps();
+static uint32_t loop();
+static uint32_t kill();
+static uint32_t nice();
+static uint32_t block();
+static uint32_t cat();
+static uint32_t wc();
+static uint32_t filter();
+static uint32_t phylo();
 
 uint32_t
 shell_init()
@@ -75,6 +85,16 @@ load_commands()
 	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(exit, "exit", "          Exits the shell");
 	load_command(testmm, "testmm", "        Test Memory Manager");
+	load_command(mem, "mem", "           Imprime estado de la memoria");
+	load_command(ps, "ps", "            Imprime la lista de todos los procesos con sus propiedades");
+	load_command(loop, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
+	load_command(kill, "kill", "          Mata un proceso dado su ID");
+	load_command(nice, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad");
+	load_command(block, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID");
+	load_command(cat, "cat", "           Imprime el stdin tal como lo recibe");
+	load_command(wc, "wc", "            Cuenta la cantidad de lineas del input");
+	load_command(filter, "filter", "        Filtra las vocales del input");
+	load_command(phylo, "phylo", "         Implementa el problema de los filosofos comensales");
 }
 
 static void
@@ -225,5 +245,75 @@ switchcolors()
 	color.bg = color.fg;
 	color.fg = aux;
 	clear_scr();
+	return 0;
+}
+
+static uint32_t
+mem()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+ps()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+loop()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+kill()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+nice()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+block()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+cat()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+wc()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+filter()
+{
+	help();
+	return 0;
+}
+
+static uint32_t
+phylo()
+{
+	help();
 	return 0;
 }

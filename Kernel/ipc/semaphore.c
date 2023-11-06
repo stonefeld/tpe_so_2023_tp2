@@ -133,8 +133,10 @@ static int
 search_semaphore(const char* name)
 {
 	for (int i = 0; i < MAX_SEMAPHORES; i++) {
-		if (strcmp(name, semaphores[i]->name) == 0) {
-			return i;
+		if (semaphores[i] != NULL) {
+			if (strcmp(name, semaphores[i]->name) == 0) {
+				return i;
+			}
 		}
 	}
 	return -1;

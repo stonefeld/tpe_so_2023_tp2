@@ -51,10 +51,8 @@ rtc_datetime(uint32_t color)
 		}
 	}
 
-	tx_put_word("Datetime: ", color);
-	len = uint_to_base(day, buff, DEC);
-	if (len == 1)
-		tx_put_char('0', color);
+	uint_to_base(year, buff, DEC);
+	tx_put_word("20", color);
 	tx_put_word(buff, color);
 	tx_put_char('/', color);
 
@@ -64,8 +62,9 @@ rtc_datetime(uint32_t color)
 	tx_put_word(buff, color);
 	tx_put_char('/', color);
 
-	uint_to_base(year, buff, DEC);
-	tx_put_word("20", color);
+	len = uint_to_base(day, buff, DEC);
+	if (len == 1)
+		tx_put_char('0', color);
 	tx_put_word(buff, color);
 	tx_put_char(' ', color);
 

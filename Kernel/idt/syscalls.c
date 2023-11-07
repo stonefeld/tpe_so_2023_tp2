@@ -28,7 +28,6 @@ static uint64_t ps_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8
 static uint64_t nice_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t kill_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t block_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
-static uint64_t unblock_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t pipe_create_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t pipe_open_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t pipe_unlink_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
@@ -41,11 +40,11 @@ static uint64_t realloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64
 // Revisar: https://faculty.nps.edu/cseagle/assembly/sys_call.html
 // y buscar syscalls equivalentes para poner en dicho id
 static SyscallHandler syscalls[] = {
-	[1] = exit_handler,         [2] = process_create_handler, [3] = read_handler,         [4] = write_handler,
-	[7] = waitpid_handler,      [13] = time_handler,          [20] = getpid_handler,      [21] = ps_handler,
-	[34] = nice_handler,        [37] = kill_handler,          [38] = block_handler,       [39] = unblock_handler,
-	[42] = pipe_create_handler, [43] = pipe_open_handler,     [44] = pipe_unlink_handler, [45] = pipe_status_handler,
-	[90] = malloc_handler,      [91] = free_handler,          [92] = realloc_handler,
+	[1] = exit_handler,       [2] = process_create_handler, [3] = read_handler,         [4] = write_handler,
+	[7] = waitpid_handler,    [13] = time_handler,          [20] = getpid_handler,      [21] = ps_handler,
+	[34] = nice_handler,      [37] = kill_handler,          [38] = block_handler,       [42] = pipe_create_handler,
+	[43] = pipe_open_handler, [44] = pipe_unlink_handler,   [45] = pipe_status_handler, [90] = malloc_handler,
+	[91] = free_handler,      [92] = realloc_handler,
 };
 
 uint64_t
@@ -94,7 +93,7 @@ waitpid_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t 
 		return -1;
 	sch_block(pid);
 	sch_yield();
-	return sch_get_status(rsi);
+	return sch_get_proc_exit_status(rsi);
 }
 
 static uint64_t
@@ -182,13 +181,20 @@ kill_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 static uint64_t
 block_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	return sch_block(rsi);
-}
+	switch (sch_get_proc_status(rsi)) {
+		case RUNNING:
+		case READY: {
+			return sch_block(rsi);
+		} break;
 
-static uint64_t
-unblock_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
-{
-	return sch_unblock(rsi);
+		case BLOCKED: {
+			return sch_unblock(rsi);
+		} break;
+
+		default: {
+			return -1;
+		} break;
+	}
 }
 
 static uint64_t

@@ -12,15 +12,15 @@
 typedef struct
 {
 	EntryPoint entry_point;
+	int priority;
 	char *name, *desc;
 } Command;
 
-static void load_command(EntryPoint entry_point, char* name, char* desc);
+static void load_command(EntryPoint entry_point, int priority, char* name, char* desc);
 
 // commands
 static int help(int argc, char** argv);
 static int datetime(int argc, char** argv);
-static int exit(int argc, char** argv);
 static int clear_scr(int argc, char** argv);
 static int setcolor(int argc, char** argv);
 static int switchcolors(int argc, char** argv);
@@ -51,26 +51,25 @@ void
 cmd_init()
 {
 	// TODO: revisar idiomas
-	load_command(help, "help", "          Displays this help message");
-	load_command(datetime, "datetime", "      Prints the current datetime");
-	load_command(setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
-	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
-	load_command(clear_scr, "clear", "         Clears the screen");
-	load_command(mem, "mem", "           Imprime estado de la memoria");
-	load_command(ps, "ps", "            Imprime la lista de todos los procesos con sus propiedades");
-	load_command(loop, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
-	load_command(kill, "kill", "          Mata un proceso dado su ID");
-	load_command(nice, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad");
-	load_command(block, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID");
-	load_command(cat, "cat", "           Imprime el stdin tal como lo recibe");
-	load_command(wc, "wc", "            Cuenta la cantidad de lineas del input");
-	load_command(filter, "filter", "        Filtra las vocales del input");
-	load_command(phylo, "phylo", "         Implementa el problema de los filosofos comensales");
-	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
-	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
-	load_command(testmm, "testmm", "        Test memory manager");
-	load_command(testproc, "testproc", "      Test processes");
-	load_command(exit, "exit", "          Exits the shell");
+	load_command(help, 0, "help", "          Displays this help message");
+	load_command(datetime, 0, "datetime", "      Prints the current datetime");
+	load_command(setcolor, 0, "setcolor", "      Sets foreground, background, prompt, output or error colors");
+	load_command(switchcolors, 0, "switchcolors", "  Inverts the background and foreground colors");
+	load_command(clear_scr, -20, "clear", "         Clears the screen");
+	load_command(mem, 0, "mem", "           Imprime estado de la memoria");
+	load_command(ps, -5, "ps", "            Imprime la lista de todos los procesos con sus propiedades");
+	load_command(loop, 0, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
+	load_command(kill, -5, "kill", "          Mata un proceso dado su ID");
+	load_command(nice, -5, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad");
+	load_command(block, -5, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID");
+	load_command(cat, 0, "cat", "           Imprime el stdin tal como lo recibe");
+	load_command(wc, 0, "wc", "            Cuenta la cantidad de lineas del input");
+	load_command(filter, 0, "filter", "        Filtra las vocales del input");
+	load_command(phylo, 0, "phylo", "         Implementa el problema de los filosofos comensales");
+	load_command(testioe, 0, "testioe", "       Tests the 'Invalid Opcode Exception'");
+	load_command(testzde, 0, "testzde", "       Tests the 'Zero Division Error Exception'");
+	load_command(testmm, 0, "testmm", "        Test memory manager");
+	load_command(testproc, 0, "testproc", "      Test processes");
 }
 
 int
@@ -94,7 +93,7 @@ cmd_execute(char* buf, uint32_t len)
 				.argv = args + 1,
 				.entry_point = commands[i].entry_point,
 				.is_fg = is_fg,
-				.priority = 0,
+				.priority = commands[i].priority,
 			};
 			int pid = asm_execve(&create_info);
 			return is_fg ? asm_waitpid(pid) : 0;
@@ -107,11 +106,12 @@ cmd_execute(char* buf, uint32_t len)
 }
 
 static void
-load_command(EntryPoint entry_point, char* name, char* desc)
+load_command(EntryPoint entry_point, int priority, char* name, char* desc)
 {
 	if (commands_len >= MAX_COMMANDS)
 		return;
 	commands[commands_len].entry_point = entry_point;
+	commands[commands_len].priority = priority;
 	commands[commands_len].name = name;
 	commands[commands_len++].desc = desc;
 }
@@ -138,12 +138,6 @@ static int
 clear_scr(int argc, char** argv)
 {
 	clear(color.bg);
-	return 0;
-}
-
-static int
-exit(int argc, char** argv)
-{
 	return 0;
 }
 
@@ -267,7 +261,10 @@ nice(int argc, char** argv)
 static int
 block(int argc, char** argv)
 {
-	return 0;
+	if (argc != 1)
+		return -1;
+	int pid = str_to_int(argv[0]);
+	return asm_block(pid);
 }
 
 static int

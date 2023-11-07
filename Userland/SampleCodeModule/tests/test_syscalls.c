@@ -43,7 +43,7 @@ my_block(uint64_t pid)
 int64_t
 my_unblock(uint64_t pid)
 {
-	return asm_unblock(pid);
+	return asm_block(pid);
 }
 
 int64_t

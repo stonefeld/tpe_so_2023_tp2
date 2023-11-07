@@ -49,6 +49,9 @@ sch_on_process_create(int pid,
 	if (!valid_priority(priority))
 		priority = DEFAULT_PRIORITY;
 
+	if (priority <= REALTIME_PRIORITY)
+		force_next_pid = pid;
+
 	processes_states[pid].priority = priority;
 	processes_states[pid].status = READY;
 	processes_states[pid].rsp = asm_create_process_context(argc, argv, rsp, entry_point);
@@ -164,8 +167,17 @@ sch_get_proc_info(int pid, Process* info)
 	return 0;
 }
 
+ProcessStatus
+sch_get_proc_status(int pid)
+{
+	ProcessState* process_state = NULL;
+	if (!get_process_state(pid, &process_state))
+		return -1;
+	return process_state->status;
+}
+
 int
-sch_get_status(int pid)
+sch_get_proc_exit_status(int pid)
 {
 	ProcessState* process_state = NULL;
 	if (!get_killed_state(pid, &process_state))

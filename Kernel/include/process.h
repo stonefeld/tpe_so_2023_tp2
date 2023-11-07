@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MAX_NAME_LEN 256
+#define MAX_NAME_LEN 16
 #define PROCESS_STACK_SIZE 4096
 #define MAX_FDS 20
 

@@ -13,7 +13,7 @@ void tx_put_char(char c, uint32_t color);
 /*
  * Imprime en pantalla un string
  */
-void tx_put_word(char* str, uint32_t color);
+int tx_put_word(char* str, uint32_t color);
 
 /*
  * Posiciona el cursor en las coordenadas indicadas y si está habilitado

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <text.h>
 #include <video.h>
+
 #define RED 0xff0000
 #define GREEN 0x00ff00
 #define BLUE 0x0000ff
@@ -71,11 +72,13 @@ tx_put_char(char c, uint32_t color)
 	cursor(color);
 }
 
-void
+int
 tx_put_word(char* str, uint32_t color)
 {
-	while (*str != 0)
-		tx_put_char(*str++, color);
+	int i = 0;
+	while (str[i] != 0)
+		tx_put_char(str[i++], color);
+	return i;
 }
 
 void

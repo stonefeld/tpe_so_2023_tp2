@@ -118,7 +118,7 @@ int_to_str(int64_t value, char* buff)
 	if (is_neg)
 		buff[0] = '-';
 
-	return digits;
+	return digits + (is_neg == 1);
 }
 
 int

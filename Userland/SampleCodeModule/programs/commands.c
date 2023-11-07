@@ -257,7 +257,11 @@ kill(int argc, char** argv)
 static int
 nice(int argc, char** argv)
 {
-	return 0;
+	if (argc != 2)
+		return -1;
+	int pid = str_to_int(argv[0]);
+	int nice = str_to_int(argv[1]);
+	return asm_nice(nice, pid);
 }
 
 static int

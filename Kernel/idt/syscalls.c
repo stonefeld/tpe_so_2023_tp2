@@ -114,44 +114,50 @@ ps_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
 	Process procs[MAX_PROCESSES];
 	int count = proc_list(procs, MAX_PROCESSES);
+	int len;
 	char buf[MAX_NAME_LEN];
 
-	tx_put_word("Process list\n", rsi);
+	tx_put_word("PID            NAME            PRIORITY        STATUS          STACK START     STACK END\n", rsi);
 	for (int i = 0; i < count; i++) {
-		uint_to_base(procs[i].pid, buf, DEC);
+		len = uint_to_base(procs[i].pid, buf, DEC);
 		tx_put_word(buf, rsi);
+		for (int j = len + 1; j < MAX_NAME_LEN; j++)
+			tx_put_char(' ', rsi);
 
-		tx_put_char('\t', rsi);
-		tx_put_word(procs[i].name, rsi);
+		len = tx_put_word(procs[i].name, rsi);
+		for (int j = len; j < MAX_NAME_LEN; j++)
+			tx_put_char(' ', rsi);
 
-		tx_put_char('\t', rsi);
+		len = int_to_str(procs[i].priority, buf);
+		tx_put_word(buf, rsi);
+		for (int j = len; j < MAX_NAME_LEN; j++)
+			tx_put_char(' ', rsi);
+
 		switch (procs[i].status) {
 			case RUNNING: {
-				tx_put_word("running", rsi);
+				tx_put_word("RUNNING         ", rsi);
 			} break;
 
 			case BLOCKED: {
-				tx_put_word("blocked", rsi);
+				tx_put_word("BLOCKED         ", rsi);
 			} break;
 
 			case READY: {
-				tx_put_word("ready", rsi);
+				tx_put_word("READY           ", rsi);
 			} break;
 
 			case KILLED: {
-				tx_put_word("killed", rsi);
+				tx_put_word("KILLED          ", rsi);
 			} break;
 		}
 
-		tx_put_char('\t', rsi);
-		int_to_str(procs[i].priority, buf);
+		len = tx_put_word("0x", rsi);
+		len += uint_to_base((uint64_t)procs[i].stack_start, buf, HEX);
 		tx_put_word(buf, rsi);
+		for (int j = len; j < MAX_NAME_LEN; j++)
+			tx_put_char(' ', rsi);
 
-		tx_put_word("\t0x", rsi);
-		uint_to_base((uint64_t)procs[i].stack_start, buf, HEX);
-		tx_put_word(buf, rsi);
-
-		tx_put_word("\t0x", rsi);
+		tx_put_word("0x", rsi);
 		uint_to_base((uint64_t)procs[i].stack_end, buf, HEX);
 		tx_put_word(buf, rsi);
 

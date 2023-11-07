@@ -1,6 +1,5 @@
-#include "syscalls.h"
-
 #include <stdint.h>
+#include <syscalls.h>
 #include <test_syscalls.h>
 
 int64_t

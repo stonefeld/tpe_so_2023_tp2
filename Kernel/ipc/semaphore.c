@@ -14,32 +14,29 @@ typedef struct
 	Queue waiting_processes;
 } SemInfo;
 
-static SemInfo* semaphores[MAX_SEMAPHORES] = {};
-
-extern int asm_lock(int8_t* lock);
-extern void asm_unlock(int8_t* lock);
+static SemInfo* semaphores[MAX_SEMAPHORES];
+static int8_t big_lock;
 
 static int search_next();
 static int search_semaphore(const char* name);
 static int create(int idx, int initial_value);
-static void free(semaphore sem);
-static int is_valid_id(semaphore sem);
-static int is_valid_sem(semaphore sem);
+static void free(Semaphore sem);
+static int is_valid_id(Semaphore sem);
+static int is_valid_sem(Semaphore sem);
 
-int8_t big_lock;
+extern int asm_lock(int8_t* lock);
+extern void asm_unlock(int8_t* lock);
 
 int
-sem_init(semaphore sem, uint8_t initial_value)
+sem_init(Semaphore sem, uint8_t initial_value)
 {
 	big_lock = 0;
-
-	if (!is_valid_id(sem) || create(sem, initial_value) == -1) {
+	if (!is_valid_id(sem) || create(sem, initial_value) == -1)
 		return -1;
-	}
 	return 0;
 }
 
-semaphore
+Semaphore
 sem_open(const char* name, uint8_t initial_value)
 {
 	asm_lock(&big_lock);
@@ -47,7 +44,7 @@ sem_open(const char* name, uint8_t initial_value)
 	if (i != -1) {
 		semaphores[i]->linked_processes++;
 		asm_unlock(&big_lock);
-		return (semaphore)i;
+		return (Semaphore)i;
 	}
 
 	i = search_next();
@@ -63,11 +60,11 @@ sem_open(const char* name, uint8_t initial_value)
 	}
 	semaphores[idx]->name = name;
 	asm_unlock(&big_lock);
-	return (semaphore)idx;
+	return (Semaphore)idx;
 }
 
 int
-sem_close(semaphore sem)
+sem_close(Semaphore sem)
 {
 	asm_lock(&big_lock);
 	if (!is_valid_sem(sem)) {
@@ -87,7 +84,7 @@ sem_close(semaphore sem)
 }
 
 int
-sem_wait(semaphore sem)
+sem_wait(Semaphore sem)
 {
 	asm_lock(&big_lock);
 	if (!is_valid_sem(sem)) {
@@ -113,7 +110,7 @@ sem_wait(semaphore sem)
 }
 
 int
-sem_post(semaphore sem)
+sem_post(Semaphore sem)
 {
 	asm_lock(&big_lock);
 	if (!is_valid_sem(sem)) {
@@ -124,7 +121,7 @@ sem_post(semaphore sem)
 	asm_unlock(&big_lock);
 
 	semaphores[sem]->value++;
-	queue_remove(semaphores[sem]->waiting_processes);
+	queue_unblock(semaphores[sem]->waiting_processes);
 	asm_unlock(&semaphores[sem]->lock);
 	return 0;
 }
@@ -133,11 +130,8 @@ static int
 search_semaphore(const char* name)
 {
 	for (int i = 0; i < MAX_SEMAPHORES; i++) {
-		if (semaphores[i] != NULL) {
-			if (strcmp(name, semaphores[i]->name) == 0) {
-				return i;
-			}
-		}
+		if (semaphores[i] != NULL && strcmp(name, semaphores[i]->name) == 0)
+			return i;
 	}
 	return -1;
 }
@@ -146,9 +140,8 @@ static int
 search_next()
 {
 	for (int i = 0; i < MAX_SEMAPHORES; i++) {
-		if (semaphores[i] == NULL) {
+		if (semaphores[i] == NULL)
 			return i;
-		}
 	}
 	return -1;
 }
@@ -171,11 +164,11 @@ create(int idx, int initial_value)
 		return -1;
 	}
 
-	return (semaphore)idx;
+	return (Semaphore)idx;
 }
 
 static void
-free(semaphore sem)
+free(Semaphore sem)
 {
 	queue_free(semaphores[sem]->waiting_processes);
 	mm_free(semaphores[sem]);
@@ -183,13 +176,13 @@ free(semaphore sem)
 }
 
 static int
-is_valid_id(semaphore sem)
+is_valid_id(Semaphore sem)
 {
-	return sem > 0 && sem < MAX_SEMAPHORES;
+	return sem >= 0 && sem < MAX_SEMAPHORES;
 }
 
 static int
-is_valid_sem(semaphore sem)
+is_valid_sem(Semaphore sem)
 {
 	return is_valid_id(sem) && semaphores[sem] != NULL;
 }

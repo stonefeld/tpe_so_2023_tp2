@@ -1,4 +1,28 @@
 #include <stdint.h>
+#include <stdlib.h>
+
+void*
+memcpy(void* destination, const void* source, uint64_t length)
+{
+	uint64_t i;
+
+	if ((uint64_t)destination % sizeof(uint32_t) == 0 && (uint64_t)source % sizeof(uint32_t) == 0 &&
+	    length % sizeof(uint32_t) == 0) {
+		uint32_t* d = (uint32_t*)destination;
+		const uint32_t* s = (const uint32_t*)source;
+
+		for (i = 0; i < length / sizeof(uint32_t); i++)
+			d[i] = s[i];
+	} else {
+		uint8_t* d = (uint8_t*)destination;
+		const uint8_t* s = (const uint8_t*)source;
+
+		for (i = 0; i < length; i++)
+			d[i] = s[i];
+	}
+
+	return destination;
+}
 
 uint64_t
 strlen(char* buff)
@@ -69,6 +93,24 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	return digits;
 }
 
+uint32_t
+int_to_str(int64_t value, char* buff)
+{
+	char buff_aux[64];
+	uint8_t is_neg = 0;
+	if (value < 0) {
+		is_neg = 1;
+		value = -value;
+	}
+
+	uint32_t digits = uint_to_base(value, buff_aux, DEC);
+	memcpy(buff + (is_neg == 1), buff_aux, digits + 1);
+	if (is_neg)
+		buff[0] = '-';
+
+	return digits + (is_neg == 1);
+}
+
 uint8_t
 is_hex_color_code(char* code)
 {
@@ -121,9 +163,8 @@ str_to_int(char* str)
 	int sign = 1;
 	int i = 0;
 
-	while (str[i] == ' ') {
+	while (str[i] == ' ')
 		i++;
-	}
 
 	if (str[i] == '-') {
 		sign = -1;

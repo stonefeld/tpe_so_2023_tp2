@@ -3,16 +3,16 @@
 
 #include <stdint.h>
 
-#define MAX_SEMAPHORES 255
+#define MAX_SEMAPHORES 32
 
-typedef uint8_t semaphore;
+typedef int Semaphore;
 
-int sem_init(semaphore sem, uint8_t initialValue);
+int sem_init(Semaphore sem, uint8_t init_value);
 
-semaphore sem_open(const char* name, uint8_t initialValue);
-int sem_close(semaphore sem);
+Semaphore sem_open(const char* name, uint8_t init_value);
+int sem_close(Semaphore sem);
 
-int sem_wait(semaphore sem);
-int sem_post(semaphore sem);
+int sem_wait(Semaphore sem);
+int sem_post(Semaphore sem);
 
 #endif

@@ -8,6 +8,8 @@
 #define DEC 10
 #define HEX 16
 
+void* memcpy(void* destination, const void* source, uint64_t length);
+
 /*
  * Devuelve el largo de un string.
  */
@@ -27,6 +29,7 @@ uint32_t strcmp(char* s1, char* s2);
  * Transforma un entero en un string formateado en cierta base.
  */
 uint32_t uint_to_base(uint64_t value, char* buff, uint32_t base);
+uint32_t int_to_str(int64_t value, char* buff);
 
 /*
  * Devuelve si un string es un código hexadecimal válido.

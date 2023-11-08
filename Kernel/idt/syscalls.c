@@ -22,25 +22,27 @@ typedef uint64_t (*SyscallHandler)(uint64_t rsi, uint64_t rdx, uint64_t rcx, uin
 static uint64_t exit_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t read_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t write_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t time_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+
 static uint64_t process_create_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t waitpid_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
-static uint64_t time_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t getpid_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t ps_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t nice_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t kill_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t block_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t yield_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 
 static uint64_t sem_open_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t sem_wait_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t sem_post_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t sem_close_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
-static uint64_t yield_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 
 static uint64_t pipe_create_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t pipe_open_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t pipe_unlink_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t pipe_status_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+
 static uint64_t malloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t free_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t realloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
@@ -211,25 +213,25 @@ block_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9
 static uint64_t
 sem_open_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	return sem_init(rdx, rsi);
+	return sem_open((char*)rsi, rdx);
 }
 
 static uint64_t
 sem_wait_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	return sem_wait(rdx);
+	return sem_wait(rsi);
 }
 
 static uint64_t
 sem_post_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	return sem_post(rdx);
+	return sem_post(rsi);
 }
 
 static uint64_t
 sem_close_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	return sem_close(rdx);
+	return sem_close(rsi);
 }
 
 static uint64_t

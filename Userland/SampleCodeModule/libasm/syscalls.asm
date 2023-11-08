@@ -28,7 +28,7 @@ sys_nice         equ 34
 sys_kill         equ 37
 sys_block        equ 38
 sys_unblock      equ 39
-sys_yield      equ 158
+sys_yield        equ 158
 
 ; pipes
 global asm_pipe
@@ -48,7 +48,7 @@ sys_malloc       equ 90
 sys_free         equ 91
 sys_realloc      equ 92
 
-;semaphores
+; semaphores
 global asm_sem_open
 global asm_sem_wait
 global asm_sem_post
@@ -56,7 +56,7 @@ global asm_sem_close
 sys_sem_open     equ 50
 sys_sem_wait     equ 51
 sys_sem_post     equ 52
-sys_sem_close     equ 53
+sys_sem_close    equ 53
 
 %macro syscall_handler 1
     push rbp

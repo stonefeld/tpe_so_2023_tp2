@@ -1,19 +1,22 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <syscalls.h>
 #include <test_syscalls.h>
 #include <test_util.h>
 #include <tests.h>
 
 #define SEM_ID "sem"
-#define TOTAL_PAIR_PROCESSES 2
+#define TOTAL_PAIR_PROCESSES 3
 
 int64_t global;  // shared memory
 
+extern Color color;
+
 void
-slowInc(int64_t* p, int64_t inc)
+slow_inc(int64_t* p, int64_t inc)
 {
-	uint64_t aux = *p;
+	int aux = *p;
 	my_yield();  // This makes the race condition highly probable
 	aux += inc;
 	*p = aux;
@@ -23,6 +26,7 @@ int
 my_process_inc(int argc, char* argv[])
 {
 	uint64_t n;
+	int sem;
 	int8_t inc;
 	int8_t use_sem;
 
@@ -36,23 +40,25 @@ my_process_inc(int argc, char* argv[])
 	if ((use_sem = satoi(argv[2])) < 0)
 		return -1;
 
-	if (use_sem)
-		if (!my_sem_open(SEM_ID, 1)) {
-			puts("test_sync: ERROR opening semaphore\n", 0xff0000);
+	if (use_sem) {
+		sem = my_sem_open(SEM_ID, 1);
+		if (sem == -1) {
+			puts("test_sync: ERROR opening semaphore\n", color.error);
 			return -1;
 		}
+	}
 
 	uint64_t i;
 	for (i = 0; i < n; i++) {
 		if (use_sem)
-			my_sem_wait(SEM_ID);
-		slowInc(&global, inc);
+			my_sem_wait(sem);
+		slow_inc(&global, inc);
 		if (use_sem)
-			my_sem_post(SEM_ID);
+			my_sem_post(sem);
 	}
 
 	if (use_sem)
-		my_sem_close(SEM_ID);
+		my_sem_close(sem);
 
 	return 0;
 }
@@ -66,26 +72,27 @@ test_sync(int argc, char* argv[])
 	if (argc != 2)
 		return -1;
 
-	char* argvDec[] = { argv[0], "-1", argv[1], NULL };
-	char* argvInc[] = { argv[0], "1", argv[1], NULL };
+	char* argv_dec[] = { argv[0], "-1", argv[1], NULL };
+	char* argv_inc[] = { argv[0], "1", argv[1], NULL };
 
 	global = 0;
 
 	uint64_t i;
 	for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-		pids[i] = my_create_process("my_process_inc", my_process_inc, 3, argvDec);
-		pids[i + TOTAL_PAIR_PROCESSES] = my_create_process("my_process_inc", my_process_inc, 3, argvInc);
+		pids[i] = my_create_process("my_process_inc", my_process_inc, 3, argv_dec);
+		pids[i + TOTAL_PAIR_PROCESSES] = my_create_process("my_process_inc", my_process_inc, 3, argv_inc);
 	}
 
 	for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-		my_wait(pids[i]);
-		my_wait(pids[i + TOTAL_PAIR_PROCESSES]);
+		asm_waitpid(pids[i]);
+		asm_waitpid(pids[i + TOTAL_PAIR_PROCESSES]);
 	}
 
-	puts("Final value: ", 0xffffff);
+	puts("Final value: ", color.output);
 	char buf[256];
-	uint_to_base(global, buf, DEC);
-	puts(buf, 0xffffff);
+	int_to_str(global, buf);
+	puts(buf, color.output);
+	putchar('\n', color.output);
 
 	return 0;
 }

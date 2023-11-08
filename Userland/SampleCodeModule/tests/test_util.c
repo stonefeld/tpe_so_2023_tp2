@@ -2,12 +2,19 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <syscalls.h>
 #include <test_syscalls.h>
 #include <test_util.h>
+
+#define BUFSIZE 16
 
 // Random
 static uint32_t m_z = 362436069;
 static uint32_t m_w = 521288629;
+
+static char buf[BUFSIZE];
+
+extern Color color;
 
 uint32_t
 GetUint()
@@ -93,14 +100,16 @@ endless_loop(int argc, char** argv)
 int
 endless_loop_print(int argc, char** argv)
 {
-	if (argc != 1)
+	if (argc != 0)
 		return -1;
 
-	// int64_t pid = my_getpid();
-	uint64_t wait = str_to_int(argv[0]);
+	int pid = asm_getpid();
 
 	while (1) {
-		// printf("%d ", pid);
-		bussy_wait(wait);
+		puts("PID: ", color.output);
+		uint_to_base(pid, buf, DEC);
+		puts(buf, color.output);
+		puts("  ", color.output);
+		bussy_wait(9000000);
 	}
 }

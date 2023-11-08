@@ -1,6 +1,7 @@
 #include <commands.h>
 #include <shell.h>
 #include <stdio.h>
+#include <syscalls.h>
 
 #define INPUT_SIZE 200
 

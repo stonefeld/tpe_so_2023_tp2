@@ -29,6 +29,7 @@ void sch_yield();
 int sch_set_priority(int pid, int8_t new_priority);
 int sch_get_current_pid();
 int sch_get_proc_info(int pid, Process* info);
-int sch_get_status(int pid);
+ProcessStatus sch_get_proc_status(int pid);
+int sch_get_proc_exit_status(int pid);
 
 #endif

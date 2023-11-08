@@ -1,6 +1,7 @@
 #include <libasm.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <test_syscalls.h>
 #include <test_util.h>
 
@@ -79,7 +80,7 @@ bussy_wait(uint64_t n)
 {
 	uint64_t i;
 	for (i = 0; i < n; i++)
-		;
+		continue;
 }
 
 int
@@ -89,10 +90,14 @@ endless_loop(int argc, char** argv)
 		asm_hlt();
 }
 
-void
-endless_loop_print(uint64_t wait)
+int
+endless_loop_print(int argc, char** argv)
 {
+	if (argc != 1)
+		return -1;
+
 	// int64_t pid = my_getpid();
+	uint64_t wait = str_to_int(argv[0]);
 
 	while (1) {
 		// printf("%d ", pid);

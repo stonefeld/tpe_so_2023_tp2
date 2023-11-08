@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <syscalls.h>
 #include <test_mm.h>
+#include <test_prio.h>
 #include <test_processes.h>
 
 #define MAX_ARGS 10
@@ -38,6 +39,7 @@ static int testioe(int argc, char** argv);
 static int testzde(int argc, char** argv);
 static int testmm(int argc, char** argv);
 static int testproc(int argc, char** argv);
+static int testprio(int argc, char** argv);
 
 static Command commands[MAX_COMMANDS];
 static uint16_t commands_len = 0;
@@ -70,6 +72,7 @@ cmd_init()
 	load_command(testzde, 0, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(testmm, 0, "testmm", "        Test memory manager");
 	load_command(testproc, 0, "testproc", "      Test processes");
+	load_command(testprio, 0, "testprio", "      Test priorities");
 }
 
 int
@@ -302,4 +305,10 @@ static int
 testproc(int argc, char** argv)
 {
 	return test_processes(argc, argv);
+}
+
+static int
+testprio(int argc, char** argv)
+{
+	return test_prio(argc, argv);
 }

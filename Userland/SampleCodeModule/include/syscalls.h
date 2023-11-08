@@ -38,6 +38,11 @@ extern int asm_nice(int priority, int pid);
 extern int asm_kill(int pid);
 extern int asm_block(int pid);
 extern int asm_unblock(int pid);
+extern int asm_sem_open(char* sem_id, uint64_t init_value);
+extern int asm_sem_wait(char* sem_id);
+extern int asm_sem_post(char* sem_id);
+extern int asm_sem_close(char* sem_id);
+extern int asm_yield();
 
 extern uint8_t asm_pipe(int* pipe_fd);
 extern uint8_t asm_pipe_open(char* name, int* pipe_fd);

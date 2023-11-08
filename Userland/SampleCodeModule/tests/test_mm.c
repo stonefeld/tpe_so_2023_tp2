@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <test_syscalls.h>
 #include <test_util.h>
+#include <tests.h>
 #include <time.h>
 
 #define MAX_BLOCKS 128
@@ -13,7 +14,7 @@ typedef struct MM_rq
 	uint32_t size;
 } mm_rq;
 
-uint64_t
+int
 test_mm()
 {
 	mm_rq mm_rqs[MAX_BLOCKS];

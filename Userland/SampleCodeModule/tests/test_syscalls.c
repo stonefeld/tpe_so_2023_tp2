@@ -49,31 +49,31 @@ my_unblock(uint64_t pid)
 int64_t
 my_sem_open(char* sem_id, uint64_t init_value)
 {
-	return 0;
+	return asm_sem_open(sem_id, init_value);
 }
 
 int64_t
 my_sem_wait(char* sem_id)
 {
-	return 0;
+	return asm_sem_wait(sem_id);
 }
 
 int64_t
 my_sem_post(char* sem_id)
 {
-	return 0;
+	return asm_sem_post(sem_id);
 }
 
 int64_t
 my_sem_close(char* sem_id)
 {
-	return 0;
+	return asm_sem_close(sem_id);
 }
 
 int64_t
 my_yield()
 {
-	return 0;
+	return asm_yield();
 }
 
 int64_t

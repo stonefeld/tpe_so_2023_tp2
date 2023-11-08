@@ -23,9 +23,9 @@ my_create_process(char* name, EntryPoint entry_point, uint64_t argc, char* argv[
 }
 
 int64_t
-my_nice(uint64_t pid, uint64_t newPrio)
+my_nice(uint64_t pid, uint64_t nice)
 {
-	return 0;
+	return asm_nice(nice, pid);
 }
 
 int64_t
@@ -47,7 +47,7 @@ my_unblock(uint64_t pid)
 }
 
 int64_t
-my_sem_open(char* sem_id, uint64_t initialValue)
+my_sem_open(char* sem_id, uint64_t init_value)
 {
 	return 0;
 }

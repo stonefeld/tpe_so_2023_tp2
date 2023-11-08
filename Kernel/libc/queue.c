@@ -91,7 +91,7 @@ queue_contains(Queue queue, uint8_t elem)
 }
 
 int
-queue_remove(Queue queue)
+queue_unblock(Queue queue)
 {
 	if (queue == NULL)
 		return -1;
@@ -101,6 +101,7 @@ queue_remove(Queue queue)
 			queue->last = NULL;
 		struct node* current = queue->first;
 		queue->first = queue->first->next;
+		sch_unblock(current->elem);
 		mm_free(current);
 		queue->count--;
 	}

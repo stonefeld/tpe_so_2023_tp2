@@ -46,34 +46,34 @@ my_unblock(uint64_t pid)
 	return asm_block(pid);
 }
 
-int64_t
-my_sem_open(char* sem_id, uint64_t init_value)
+int
+my_sem_open(char* name, uint64_t init_value)
 {
-	return 0;
+	return asm_sem_open(name, init_value);
 }
 
 int64_t
-my_sem_wait(char* sem_id)
+my_sem_wait(int sem)
 {
-	return 0;
+	return asm_sem_wait(sem);
 }
 
 int64_t
-my_sem_post(char* sem_id)
+my_sem_post(int sem)
 {
-	return 0;
+	return asm_sem_post(sem);
 }
 
 int64_t
-my_sem_close(char* sem_id)
+my_sem_close(int sem)
 {
-	return 0;
+	return asm_sem_close(sem);
 }
 
 int64_t
 my_yield()
 {
-	return 0;
+	return asm_yield();
 }
 
 int64_t

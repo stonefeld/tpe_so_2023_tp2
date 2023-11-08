@@ -19,6 +19,7 @@ global asm_nice
 global asm_kill
 global asm_block
 global asm_unblock
+global asm_yield
 sys_execve       equ 2
 sys_waitpid      equ 7
 sys_getpid       equ 20
@@ -27,6 +28,7 @@ sys_nice         equ 34
 sys_kill         equ 37
 sys_block        equ 38
 sys_unblock      equ 39
+sys_yield        equ 158
 
 ; pipes
 global asm_pipe
@@ -45,6 +47,16 @@ global asm_realloc
 sys_malloc       equ 90
 sys_free         equ 91
 sys_realloc      equ 92
+
+; semaphores
+global asm_sem_open
+global asm_sem_wait
+global asm_sem_post
+global asm_sem_close
+sys_sem_open     equ 50
+sys_sem_wait     equ 51
+sys_sem_post     equ 52
+sys_sem_close    equ 53
 
 %macro syscall_handler 1
     push rbp
@@ -92,6 +104,21 @@ asm_block:
 
 asm_unblock:
     syscall_handler sys_unblock
+
+asm_sem_open:
+    syscall_handler sys_sem_open
+
+asm_sem_wait:
+    syscall_handler sys_sem_wait
+
+asm_sem_post:
+    syscall_handler sys_sem_post
+
+asm_sem_close:
+    syscall_handler sys_sem_close
+
+asm_yield:
+    syscall_handler sys_yield
 
 asm_pipe:
     syscall_handler sys_pipe

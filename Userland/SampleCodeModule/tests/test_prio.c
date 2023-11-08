@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <syscalls.h>
-#include <test_prio.h>
 #include <test_syscalls.h>
 #include <test_util.h>
+#include <tests.h>
 
 #define WAIT 1000000000
 

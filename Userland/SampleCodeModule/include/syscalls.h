@@ -24,10 +24,6 @@ typedef struct
 extern uint32_t asm_exit();
 extern uint32_t asm_read(int fd, char* buf, uint32_t size);
 extern uint32_t asm_write(int fd, char* buf, uint32_t size, uint32_t color);
-
-/*
- * Imprime fecha y hora actual.
- */
 extern void asm_time(uint32_t color);
 
 extern int asm_execve(const ProcessCreateInfo* create_info);
@@ -37,7 +33,12 @@ extern int asm_ps(uint32_t color);
 extern int asm_nice(int priority, int pid);
 extern int asm_kill(int pid);
 extern int asm_block(int pid);
-extern int asm_unblock(int pid);
+extern int asm_yield();
+
+extern int asm_sem_open(char* name, uint64_t init_value);
+extern int asm_sem_wait(int sem);
+extern int asm_sem_post(int sem);
+extern int asm_sem_close(int sem);
 
 extern uint8_t asm_pipe(int* pipe_fd);
 extern uint8_t asm_pipe_open(char* name, int* pipe_fd);

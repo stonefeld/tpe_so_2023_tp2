@@ -242,7 +242,6 @@ get_process_from_pid(int pid, ProcessContext** process)
 {
 	if (pid < 0 || pid >= MAX_PROCESSES || processes[pid].stack_end == NULL)
 		return 0;
-
 	*process = &processes[pid];
 	return 1;
 }

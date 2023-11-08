@@ -3,9 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syscalls.h>
-#include <test_mm.h>
-#include <test_prio.h>
-#include <test_processes.h>
+#include <tests.h>
 
 #define MAX_ARGS 10
 #define MAX_COMMANDS 30
@@ -40,6 +38,7 @@ static int testzde(int argc, char** argv);
 static int testmm(int argc, char** argv);
 static int testproc(int argc, char** argv);
 static int testprio(int argc, char** argv);
+static int testsync(int argc, char** argv);
 
 static Command commands[MAX_COMMANDS];
 static uint16_t commands_len = 0;
@@ -73,6 +72,7 @@ cmd_init()
 	load_command(testmm, 0, "testmm", "        Test memory manager");
 	load_command(testproc, 0, "testproc", "      Test processes");
 	load_command(testprio, 0, "testprio", "      Test priorities");
+	load_command(testsync, 0, "testsync", "      Test semaphores");
 }
 
 int
@@ -311,4 +311,10 @@ static int
 testprio(int argc, char** argv)
 {
 	return test_prio(argc, argv);
+}
+
+static int
+testsync(int argc, char** argv)
+{
+	return test_sync(argc, argv);
 }

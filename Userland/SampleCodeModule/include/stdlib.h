@@ -43,4 +43,6 @@ uint32_t hex_to_uint(char* code);
 
 int str_to_int(char* str);
 
+char* str_cat(char* s1, char* s2);
+
 #endif

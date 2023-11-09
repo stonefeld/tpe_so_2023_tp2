@@ -2,77 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syscalls.h>
+
 uint32_t
 gets(char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 {
 	return fgets(STDIN, buf, size, eof, color);
 }
-uint64_t
-printf_color(uint32_t color, const char* fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
 
-	uint64_t i = 0;
-	while (fmt[i]) {
-		if (fmt[i] == '%') {
-			switch (fmt[++i]) {
-				case 'd':;
-					char buff[20];
-					uint_to_base(va_arg(args, int), buff, 10);
-					puts(buff, color);
-					break;
-				case 's':
-					puts(va_arg(args, char*), color);
-					break;
-
-				case '%':
-					putchar('%', color);
-					break;
-				default:
-					break;
-			}
-		} else {
-			putchar(fmt[i], color);
-		}
-		i++;
-		va_end(args);
-	}
-	return i;
-}
-uint64_t
-fprintf_color(int fd, uint32_t color, const char* fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-
-	uint64_t i = 0;
-	while (fmt[i]) {
-		if (fmt[i] == '%') {
-			switch (fmt[++i]) {
-				case 'd':;
-					char buff[20];
-					uint_to_base(va_arg(args, int), buff, 10);
-					puts(buff, color);
-					break;
-				case 's':
-					fputs(fd, va_arg(args, char*), color);
-					break;
-
-				case '%':
-					fputchar(fd, '%', color);
-					break;
-				default:
-					break;
-			}
-		} else {
-			fputchar(fd, fmt[i], color);
-		}
-		i++;
-		va_end(args);
-	}
-	return i;
-}
 uint32_t
 fgets(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 {
@@ -96,7 +32,7 @@ fgets(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 
 	*eof = c == '\e';
 
-	if (len != 0)
+	if (len != 0 || c == '\n')
 		putchar('\n', color);
 
 	buf[len] = 0;
@@ -147,4 +83,72 @@ void
 clear(uint32_t color)
 {
 	putchar('\v', color);
+}
+
+uint64_t
+printf_color(uint32_t color, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+
+	uint64_t i = 0;
+	while (fmt[i]) {
+		if (fmt[i] == '%') {
+			switch (fmt[++i]) {
+				case 'd':;
+					char buff[20];
+					uint_to_base(va_arg(args, int), buff, 10);
+					puts(buff, color);
+					break;
+				case 's':
+					puts(va_arg(args, char*), color);
+					break;
+
+				case '%':
+					putchar('%', color);
+					break;
+				default:
+					break;
+			}
+		} else {
+			putchar(fmt[i], color);
+		}
+		i++;
+		va_end(args);
+	}
+	return i;
+}
+
+uint64_t
+fprintf_color(int fd, uint32_t color, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+
+	uint64_t i = 0;
+	while (fmt[i]) {
+		if (fmt[i] == '%') {
+			switch (fmt[++i]) {
+				case 'd':;
+					char buff[20];
+					uint_to_base(va_arg(args, int), buff, 10);
+					puts(buff, color);
+					break;
+				case 's':
+					fputs(fd, va_arg(args, char*), color);
+					break;
+
+				case '%':
+					fputchar(fd, '%', color);
+					break;
+				default:
+					break;
+			}
+		} else {
+			fputchar(fd, fmt[i], color);
+		}
+		i++;
+		va_end(args);
+	}
+	return i;
 }

@@ -24,7 +24,7 @@ shell_init()
 	int32_t len, status = 0;
 	uint8_t eof;
 
-	while (running && !eof) {
+	while (running && (len != 0 || !eof)) {
 		prompt(status);
 		len = gets(input_buffer, INPUT_SIZE, &eof, color.fg);
 		status = cmd_execute(input_buffer, len);

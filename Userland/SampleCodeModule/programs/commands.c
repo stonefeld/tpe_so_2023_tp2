@@ -97,7 +97,7 @@ cmd_execute(char* buf, uint32_t len)
 {
 	args_len = strtok(buf, ' ', args, MAX_ARGS);
 	if (args_len == 0)
-		return -1;
+		return 0;
 
 	uint8_t is_fg = 1;
 	if (strcmp(args[args_len - 1], "&")) {

@@ -50,6 +50,7 @@ proc_create(const ProcessCreateInfo* create_info)
 	    (create_info->argc != 0 && (argv = mm_alloc(sizeof(char*) * create_info->argc)) == NULL)) {
 		mm_free(stack_end);
 		mm_free(name);
+		mm_free(argv);
 		return -1;
 	}
 
@@ -71,7 +72,6 @@ proc_create(const ProcessCreateInfo* create_info)
 	}
 
 	ProcessContext* process = &processes[pid];
-	memset(process, 0, sizeof(ProcessContext));
 
 	process->stack_end = stack_end;
 	process->stack_start = stack_end + PROCESS_STACK_SIZE;
@@ -100,23 +100,24 @@ proc_kill(int pid, uint8_t status)
 	sch_on_process_killed(pid, status);
 
 	if (process->waiting_pids != NULL)
-		queue_unblock_all(process->waiting_pids);
+		queue_free(process->waiting_pids);
 
 	for (int i = 0; i < process->argc; i++)
 		mm_free(process->argv[i]);
 
 	// close all fds
-	// tx_put_word("killing process", WHITE);
 	for (int i = 0; i < MAX_FDS; i++) {
-		if (process->fds[i].close_callback != NULL) {
-			// tx_put_word("Closing fd: ", WHITE);
+		if (process->fds[i].close_callback != NULL)
 			process->fds[i].close_callback(pid, i);
-		}
+		process->fds[i].read_callback = NULL;
+		process->fds[i].write_callback = NULL;
+		process->fds[i].close_callback = NULL;
+		process->fds[i].dup_callback = NULL;
 	}
+
 	mm_free(process->argv);
 	mm_free(process->name);
 	mm_free(process->stack_end);
-	mm_free(process->stack_start);
 	memset(process, 0, sizeof(ProcessContext));
 
 	return 0;

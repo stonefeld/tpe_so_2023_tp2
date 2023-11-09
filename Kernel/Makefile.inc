@@ -8,4 +8,4 @@ ARFLAGS=rvs
 ASMFLAGS=-felf64 -g
 LDFLAGS=--warn-common -z max-page-size=0x1000
 
-MEMORY_MANAGER=USE_BUDDY
+MEMORY_MANAGER=USE_LIST

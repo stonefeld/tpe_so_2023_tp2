@@ -21,8 +21,10 @@ Queue
 queue_create()
 {
 	Queue queue = mm_alloc(sizeof(struct queue_adt));
-	if (queue == NULL)
+	if (queue == NULL) {
+		mm_free(queue);
 		return NULL;
+	}
 	queue->first = NULL;
 	queue->last = NULL;
 	queue->count = 0;
@@ -32,12 +34,9 @@ queue_create()
 int
 queue_free(Queue queue)
 {
-	if (queue == NULL)
-		return -1;
-	if (queue->first != NULL)
-		free_rec(queue->first);
+	int ret = queue_unblock_all(queue);
 	mm_free(queue);
-	return 0;
+	return ret;
 }
 
 int
@@ -65,29 +64,6 @@ queue_add(Queue queue, uint8_t elem)
 	queue->last = node;
 	queue->count++;
 	return 0;
-}
-
-int
-queue_count(Queue queue)
-{
-	if (queue == NULL)
-		return -1;
-	return queue->count;
-}
-
-int
-queue_contains(Queue queue, uint8_t elem)
-{
-	if (queue == NULL || queue->first == NULL)
-		return -1;
-
-	struct node* current = queue->first;
-	while (current != NULL) {
-		if (current->elem == elem)
-			return 0;
-		current = current->next;
-	}
-	return -1;
 }
 
 int

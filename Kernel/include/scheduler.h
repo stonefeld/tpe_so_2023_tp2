@@ -4,12 +4,11 @@
 #include <process.h>
 #include <stdint.h>
 
-#define DEFAULT_PRIORITY 0
-#define MAX_PRIORITY -20
-#define MIN_PRIORITY 19
+#define DEFAULT_PRIORITY  0
+#define MAX_PRIORITY      -20
+#define MIN_PRIORITY      19
 #define REALTIME_PRIORITY -5
-
-#define MAX_PROCESSES 32
+#define MAX_PROCESSES     32
 
 void sch_init();
 int sch_on_process_create(int pid,

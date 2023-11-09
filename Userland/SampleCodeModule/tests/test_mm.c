@@ -8,6 +8,8 @@
 #define MAX_BLOCKS 128
 #define MAX_MEMORY (4 * 1024 * 1024)
 
+extern Color color;
+
 typedef struct MM_rq
 {
 	void* address;
@@ -38,24 +40,28 @@ test_mm()
 
 		// Set
 		uint32_t i;
-		for (i = 0; i < rq; i++)
+		for (i = 0; i < rq; i++) {
 			if (mm_rqs[i].address)
 				setmem(mm_rqs[i].address, i, (size_t)mm_rqs[i].size);
+		}
 
 		// Check
-		for (i = 0; i < rq; i++)
-			if (mm_rqs[i].address)
+		for (i = 0; i < rq; i++) {
+			if (mm_rqs[i].address) {
 				if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
-					puts(" test_mm ERROR\n", 0xffffff);
+					puts("test_mm ERROR\n", color.error);
 					return -1;
 				}
+			}
+		}
 
 		// Free
-		for (i = 0; i < rq; i++)
+		for (i = 0; i < rq; i++) {
 			if (mm_rqs[i].address)
 				free(mm_rqs[i].address);
+		}
 
-		puts("OK \n", 0xffffff);
+		puts("OK\n", color.output);
 		return 0;
 	}
 }

@@ -6,7 +6,7 @@
 #include <syscalls.h>
 #include <tests.h>
 
-#define MAX_ARGS 10
+#define MAX_ARGS     10
 #define MAX_COMMANDS 30
 
 typedef struct
@@ -26,10 +26,10 @@ static int setcolor(int argc, char** argv);
 static int switchcolors(int argc, char** argv);
 static int mem(int argc, char** argv);
 static int ps(int argc, char** argv);
-static int loop(int argc, char** argv);
 static int kill(int argc, char** argv);
 static int nice(int argc, char** argv);
 static int block(int argc, char** argv);
+static int loop(int argc, char** argv);
 static int cat(int argc, char** argv);
 static int wc(int argc, char** argv);
 static int filter(int argc, char** argv);

@@ -10,21 +10,21 @@
 #include <memoryManager.h>
 #include <stddef.h>
 
-#define MIN_LEVEL 0
-#define MAX_LEVEL 15  // 16 different orders, so minimum memory block is 256 bytes
-#define MIN_BLOCK 256
+#define MIN_LEVEL   0
+#define MAX_LEVEL   15  // 16 different orders, so minimum memory block is 256 bytes
+#define MIN_BLOCK   256
 #define MEMORY_SIZE (9 * 1024 * 1024)  // Memory needed for heap + tree allocation
-#define HEAP_SIZE (8 * 1024 * 1024)
+#define HEAP_SIZE   (8 * 1024 * 1024)
 
 #define MAX_NODES 65535
 
 #define WORD_ALIGN_DOWN(value) ((value) & (~(size_t)0x07))
-#define WORD_ALIGN_UP(value) (WORD_ALIGN_DOWN((size_t)(value) + 7))
+#define WORD_ALIGN_UP(value)   (WORD_ALIGN_DOWN((size_t)(value) + 7))
 
 #define POSITIVE_DELTA 1
 #define NEGATIVE_DELTA -1
-#define USED 1
-#define FREE 0
+#define USED           1
+#define FREE           0
 
 typedef struct
 {
@@ -161,9 +161,8 @@ mm_init(void* const restrict start_address, size_t size)
 	void* true_start = (void*)WORD_ALIGN_UP(start_address);
 	size -= (true_start - start_address);
 
-	if (size < MEMORY_SIZE) {
+	if (size < MEMORY_SIZE)
 		return;  // fail
-	}
 
 	block_tree = true_start;
 	size_t tree_size = sizeof(Node) * MAX_NODES;

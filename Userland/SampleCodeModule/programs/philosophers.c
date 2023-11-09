@@ -5,11 +5,11 @@
 #include <test_syscalls.h>
 #include <test_util.h>
 
-#define FORK_SEM_NAME "sem_fork"
-#define MAX_PHILOSOPHERS 12
-#define MIN_PHILOSOPHERS 5
-#define EATING_TIME_MIN 2000
-#define EATING_TIME_MAX 5000
+#define FORK_SEM_NAME     "sem_fork"
+#define MAX_PHILOSOPHERS  12
+#define MIN_PHILOSOPHERS  5
+#define EATING_TIME_MIN   2000
+#define EATING_TIME_MAX   5000
 #define THINKING_TIME_MIN 2000
 #define THINKING_TIME_MAX 5000
 
@@ -160,7 +160,7 @@ add_fork(int idx)
 		return -1;
 
 	int_to_str(idx, buff);
-	char* sem_name = str_cat(FORK_SEM_NAME, buff);
+	char* sem_name = strcat(FORK_SEM_NAME, buff);
 
 	forks[idx] = asm_sem_open(sem_name, 1);
 	asm_free(sem_name);

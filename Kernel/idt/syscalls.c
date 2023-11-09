@@ -56,31 +56,16 @@ static uint64_t realloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64
 // Revisar: https://faculty.nps.edu/cseagle/assembly/sys_call.html
 // y buscar syscalls equivalentes para poner en dicho id
 static SyscallHandler syscalls[] = {
-	[1] = exit_handler,         [2] = process_create_handler,
-	[3] = read_handler,         [4] = write_handler,
-	[6] = close_handler,        [7] = waitpid_handler,
-	[13] = time_handler,        [14] = sleep_handler,
-	[20] = getpid_handler,      [21] = ps_handler,
-	[34] = nice_handler,        [37] = kill_handler,
-	[38] = block_handler,       [41] dup_handler,
-	[42] = pipe_create_handler, [43] = pipe_open_handler,
-	[44] = pipe_unlink_handler, [45] = pipe_status_handler,
-	[50] = sem_open_handler,    [51] = sem_wait_handler,
-	[52] = sem_post_handler,    [53] = sem_close_handler,
-	[89] = meminfo_handler,     [90] = malloc_handler,
-	[91] = free_handler,        [92] = realloc_handler,
-	[158] = yield_handler,
+	[1] = exit_handler,       [2] = process_create_handler, [3] = read_handler,
+	[4] = write_handler,      [6] = close_handler,          [7] = waitpid_handler,
+	[13] = time_handler,      [14] = sleep_handler,         [20] = getpid_handler,
+	[21] = ps_handler,        [34] = nice_handler,          [37] = kill_handler,
+	[38] = block_handler,     [41] = dup_handler,           [42] = pipe_create_handler,
+	[43] = pipe_open_handler, [44] = pipe_unlink_handler,   [45] = pipe_status_handler,
+	[50] = sem_open_handler,  [51] = sem_wait_handler,      [52] = sem_post_handler,
+	[53] = sem_close_handler, [89] = meminfo_handler,       [90] = malloc_handler,
+	[91] = free_handler,      [92] = realloc_handler,       [158] = yield_handler,
 };
-static uint64_t
-close_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
-{
-	return proc_unmap_fd(sch_get_current_pid(), rsi);
-}
-static uint64_t
-dup_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
-{
-	return 0;
-}
 
 uint64_t
 syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r9, uint64_t r8)
@@ -108,6 +93,12 @@ static uint64_t
 write_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
 	return proc_write(sch_get_current_pid(), rsi, (char*)rdx, rcx, r8);
+}
+
+static uint64_t
+close_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	return proc_unmap_fd(rsi, rdx);
 }
 
 static uint64_t
@@ -159,7 +150,9 @@ ps_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 	int len;
 	char buf[MAX_NAME_LEN];
 
-	tx_put_word("PID            NAME            PRIORITY        STATUS          STACK START     STACK END\n", rsi);
+	tx_put_word(
+	    "PID            NAME            BACKGROUND      PRIORITY        STATUS          STACK START     STACK END\n",
+	    rsi);
 	for (int i = 0; i < count; i++) {
 		len = uint_to_base(procs[i].pid, buf, DEC);
 		tx_put_word(buf, rsi);
@@ -167,6 +160,10 @@ ps_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 			tx_put_char(' ', rsi);
 
 		len = tx_put_word(procs[i].name, rsi);
+		for (int j = len; j < MAX_NAME_LEN; j++)
+			tx_put_char(' ', rsi);
+
+		len = tx_put_word(procs[i].is_fg ? "False           " : "True            ", rsi);
 		for (int j = len; j < MAX_NAME_LEN; j++)
 			tx_put_char(' ', rsi);
 
@@ -241,6 +238,12 @@ block_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9
 }
 
 static uint64_t
+dup_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	return proc_dup(rsi, rdx, rcx);
+}
+
+static uint64_t
 sem_open_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
 	return sem_open((char*)rsi, rdx);
@@ -274,8 +277,8 @@ yield_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9
 static uint64_t
 pipe_create_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	int* pipe_fd = (int*)rsi;
-	int pid = sch_get_current_pid();
+	int* pipe_fd = (int*)rdx;
+	int pid = rsi;
 	PipeId pipe_id;
 	int fd_rd = -1, fd_wr = -1;
 
@@ -296,9 +299,9 @@ pipe_create_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint6
 static uint64_t
 pipe_open_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
-	char* name = (char*)rsi;
-	int* pipe_fd = (int*)rdx;
-	int pid = sch_get_current_pid();
+	char* name = (char*)rdx;
+	int* pipe_fd = (int*)rcx;
+	int pid = rsi;
 	PipeId pipe_id;
 	int fd_rd = -1, fd_wr = -1;
 
@@ -354,6 +357,10 @@ meminfo_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t 
 
 	tx_put_word("\nUSED:   ", rsi);
 	uint_to_base(state.used, buf, DEC);
+	tx_put_word(buf, rsi);
+
+	tx_put_word("\nFREE:   ", rsi);
+	uint_to_base(state.total - state.used, buf, DEC);
 	tx_put_word(buf, rsi);
 
 	tx_put_word("\nCHUNKS: ", rsi);

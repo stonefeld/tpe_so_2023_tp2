@@ -4,11 +4,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MAX_NAME_LEN 16
+#define MAX_NAME_LEN       16
 #define PROCESS_STACK_SIZE 4096
-#define MAX_FDS 20
+#define MAX_FDS            20
 
-#define STDIN 0
+#define STDIN  0
 #define STDOUT 1
 #define STDERR 2
 
@@ -62,6 +62,7 @@ int proc_unmap_fd(int pid, int fd);
 
 int proc_read(int pid, int fd, char* buf, uint32_t size);
 int proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color);
+int proc_dup(int pid, int fd_original, int fd_final);
 int proc_is_fg(int pid);
 
 // asm functions

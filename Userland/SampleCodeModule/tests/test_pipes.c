@@ -16,7 +16,7 @@ reader()
 
 	int pipe_fd[2];
 
-	if (asm_pipe_open(PIPE_NAME, pipe_fd) < 0) {
+	if (asm_pipe_open(asm_getpid(), PIPE_NAME, pipe_fd) < 0) {
 		printf_color(color.error, "ERROR opening pipe \n");
 		return;
 	}
@@ -38,7 +38,7 @@ writer()
 
 	int pipe_fd[2];
 	printf_color(color.output, "Process %d opening pipe \"%s\" \n", pid, PIPE_NAME);
-	if (asm_pipe_open(PIPE_NAME, pipe_fd) < 0) {
+	if (asm_pipe_open(asm_getpid(), PIPE_NAME, pipe_fd) < 0) {
 		fputs(STDERR, "ERROR opening pipe \n", color.error);
 		return;
 	}

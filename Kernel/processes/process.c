@@ -4,7 +4,7 @@
 #include <queue.h>
 #include <scheduler.h>
 #include <text.h>
-#define WHITE 0xffffff
+
 typedef struct
 {
 	ReadCallback read_callback;
@@ -191,8 +191,7 @@ proc_unmap_fd(int pid, int fd)
 		return -1;
 	int r = 0;
 	if (process->fds[fd].close_callback != NULL && (r = process->fds[fd].close_callback(pid, fd)) != 0)
-		;
-
+		return r;
 	process->fds[fd].read_callback = NULL;
 	process->fds[fd].write_callback = NULL;
 	process->fds[fd].close_callback = NULL;
@@ -216,6 +215,32 @@ proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color)
 	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].write_callback == NULL)
 		return -1;
 	return process->fds[fd].write_callback(pid, fd, buf, size, color);
+}
+
+int
+proc_dup(int pid, int fd_original, int fd_final)
+{
+	ProcessContext* process;
+	if (fd_original < 0 || fd_original > MAX_FDS || fd_final < 0 || fd_final > MAX_FDS ||
+	    !get_process_from_pid(pid, &process))
+		return -1;
+
+	ReadCallback raux = process->fds[fd_original].read_callback;
+	WriteCallback waux = process->fds[fd_original].write_callback;
+	CloseCallback caux = process->fds[fd_original].close_callback;
+	DupCallback daux = process->fds[fd_original].dup_callback;
+
+	process->fds[fd_original].read_callback = process->fds[fd_final].read_callback;
+	process->fds[fd_original].write_callback = process->fds[fd_final].write_callback;
+	process->fds[fd_original].close_callback = process->fds[fd_final].close_callback;
+	process->fds[fd_original].dup_callback = process->fds[fd_final].dup_callback;
+
+	process->fds[fd_final].read_callback = raux;
+	process->fds[fd_final].write_callback = waux;
+	process->fds[fd_final].close_callback = caux;
+	process->fds[fd_final].dup_callback = daux;
+
+	return 0;
 }
 
 int

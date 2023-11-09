@@ -7,8 +7,6 @@
 
 typedef int Semaphore;
 
-int sem_init(Semaphore sem, uint8_t init_value);
-
 Semaphore sem_open(const char* name, uint8_t init_value);
 int sem_close(Semaphore sem);
 

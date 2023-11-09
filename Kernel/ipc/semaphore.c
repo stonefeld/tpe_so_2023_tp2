@@ -27,15 +27,6 @@ static int is_valid_sem(Semaphore sem);
 extern int asm_lock(int8_t* lock);
 extern void asm_unlock(int8_t* lock);
 
-int
-sem_init(Semaphore sem, uint8_t initial_value)
-{
-	big_lock = 0;
-	if (!is_valid_id(sem) || create(sem, initial_value) == -1)
-		return -1;
-	return 0;
-}
-
 Semaphore
 sem_open(const char* name, uint8_t initial_value)
 {

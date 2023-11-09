@@ -5,10 +5,10 @@
 #include <queue.h>
 #include <scheduler.h>
 
-#define MAX_PIPES 32
+#define MAX_PIPES       32
 #define BUFFER_MIN_SIZE 512
 #define BUFFER_MAX_SIZE (1024 * 4)
-#define PIPE_MAX_FD (MAX_PIPES * 16)
+#define PIPE_MAX_FD     (MAX_PIPES * 16)
 
 typedef struct
 {
@@ -107,6 +107,7 @@ pipe_free(PipeId id)
 
 	return 0;
 }
+
 PipeId
 pipe_open(char* name)
 {
@@ -125,6 +126,7 @@ pipe_open(char* name)
 
 	return pipe_id;
 }
+
 static void
 empty_fd_table(int pipe_id, int pid, int fd)
 {

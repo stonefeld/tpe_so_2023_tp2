@@ -195,7 +195,7 @@ str_to_int(char* str)
 }
 
 char*
-str_cat(char* s1, char* s2)
+strcat(char* s1, char* s2)
 {
 	int i = 0, j = 0;
 	char* result = asm_malloc(strlen(s1) + strlen(s2) + 1);

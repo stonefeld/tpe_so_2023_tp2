@@ -19,6 +19,7 @@ typedef struct
 } Command;
 
 static void load_command(EntryPoint entry_point, int priority, char* name, char* desc);
+static int is_valid_command(char* command);
 
 // commands
 static int help(int argc, char** argv);
@@ -63,12 +64,12 @@ cmd_init()
 	load_command(setcolor, 0, "setcolor", "      Sets foreground, background, prompt, output or error colors");
 	load_command(switchcolors, 0, "switchcolors", "  Inverts the background and foreground colors");
 	load_command(clear_scr, -20, "clear", "         Clears the screen");
-	load_command(mem, 0, "mem", "           Imprime estado de la memoria");
+	load_command(mem, -5, "mem", "           Imprime estado de la memoria");
 	load_command(ps, -5, "ps", "            Imprime la lista de todos los procesos con sus propiedades");
-	load_command(loop, 0, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
 	load_command(kill, -5, "kill", "          Mata un proceso dado su ID");
 	load_command(nice, -5, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad");
 	load_command(block, -5, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID");
+	load_command(loop, 0, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
 	load_command(cat, 0, "cat", "           Imprime el stdin tal como lo recibe");
 	load_command(wc, 0, "wc", "            Cuenta la cantidad de lineas del input");
 	load_command(filter, 0, "filter", "        Filtra las vocales del input");
@@ -83,16 +84,6 @@ cmd_init()
 }
 
 int
-is_valid_command(char* command)
-{
-	for (int i = 0; i < commands_len; i++) {
-		if (strcmp(command, commands[i].name)) {
-			return i;
-		}
-	}
-	return -1;
-}
-int
 cmd_execute(char* buf, uint32_t len)
 {
 	args_len = strtok(buf, ' ', args, MAX_ARGS);
@@ -105,59 +96,105 @@ cmd_execute(char* buf, uint32_t len)
 		args_len--;
 	}
 
-	// check if second arg is '/' and if there are valid commands
-	if (args_len == (is_fg ? 3 : 4) && args[1][0] == '/') {
-		int cmd_index_1 = is_valid_command(args[0]);
-		if (cmd_index_1 == -1) {
+	uint8_t is_piped = 0, cmd1_args = 0, cmd2_args = 0;
+	for (int i = 0; i < args_len; i++) {
+		if (strcmp(args[i], "|")) {
+			is_piped = 1;
+			cmd1_args = i;
+			break;
+		}
+	}
+
+	if (is_piped && !is_fg) {
+		puts("Cannot use pipes with background processes\n", color.error);
+		return -1;
+	}
+
+	if (is_piped)
+		cmd2_args = args_len - cmd1_args - 1;
+	else
+		cmd1_args = args_len;
+
+	int cmd1_idx, cmd2_idx;
+	if ((cmd1_idx = is_valid_command(args[0])) == -1) {
+		puts("Command not found: ", color.output);
+		puts(args[0], color.output);
+		putchar('\n', color.output);
+		return -1;
+	}
+
+	if (is_piped) {
+		if ((cmd2_idx = is_valid_command(args[cmd1_args + 1])) == -1) {
 			puts("Command not found: ", color.output);
-			puts(args[0], color.output);
+			puts(args[cmd1_args + 1], color.output);
 			putchar('\n', color.output);
 			return -1;
 		}
-		int cmd_index_2 = is_valid_command(args[2]);
-		if (cmd_index_2 == -1) {
-			puts("Command not found: ", color.output);
-			puts(args[2], color.output);
-			putchar('\n', color.output);
-			return -1;
-		}
-
-		// create pipe
-		int pipe[2];
-		asm_pipe(pipe);
-
-		// TODO: create process 1 and dup fds to STDOUT
-
-		// TODO: create process 2 and dup fd to STDIN
-
-		printf("CLOSING PIPE \n");
-		asm_close(pipe[0]);
-		asm_close(pipe[1]);
-
-		return 0;
-		// create process and map fd to pipe
 	}
 
-	// no pipe
+	ProcessCreateInfo create_info1, create_info2;
+	create_info1 = (ProcessCreateInfo){
+		.name = args[0],
+		.argc = cmd1_args - 1,
+		.argv = args + 1,
+		.entry_point = commands[cmd1_idx].entry_point,
+		.is_fg = is_fg,
+		.priority = commands[cmd1_idx].priority,
+	};
 
-	for (int i = 0; i < commands_len; i++) {
-		if (strcmp(args[0], commands[i].name)) {
-			ProcessCreateInfo create_info = {
-				.name = args[0],
-				.argc = args_len - 1,
-				.argv = args + 1,
-				.entry_point = commands[i].entry_point,
-				.is_fg = is_fg,
-				.priority = commands[i].priority,
-			};
-			int pid = asm_execve(&create_info);
-			return is_fg ? asm_waitpid(pid) : 0;
-		}
+	if (is_piped) {
+		create_info2 = (ProcessCreateInfo){
+			.name = args[cmd1_args + 1],
+			.argc = cmd2_args - 1,
+			.argv = args + cmd1_args + 2,
+			.entry_point = commands[cmd2_idx].entry_point,
+			.is_fg = is_fg,
+			.priority = commands[cmd2_idx].priority,
+		};
 	}
-	puts("Command not found: ", color.output);
-	puts(args[0], color.output);
-	putchar('\n', color.output);
-	return -1;
+
+	int pid1, pid2;
+	if ((pid1 = asm_execve(&create_info1)) == -1) {
+		puts("Error creating process: ", color.output);
+		puts((char*)create_info1.name, color.output);
+		putchar('\n', color.output);
+		return -1;
+	}
+
+	if (is_piped && (pid2 = asm_execve(&create_info2)) == -1) {
+		asm_kill(pid1);
+		puts("Error creating process: ", color.output);
+		puts((char*)create_info2.name, color.output);
+		putchar('\n', color.output);
+		return -1;
+	}
+
+	char* pname;
+	if (is_piped) {
+		int pipes[2];
+		char buf[2];
+		int_to_str(pid2, buf);
+		pname = strcat((char*)create_info1.name, buf);
+
+		asm_pipe_open(pid1, pname, pipes);
+		asm_dup(pid1, STDOUT, pipes[0]);
+		asm_pipe_open(pid2, pname, pipes);
+		asm_dup(pid2, STDIN, pipes[1]);
+		asm_close(pid1, pipes[0]);
+		asm_close(pid2, pipes[1]);
+	}
+
+	int ret1, ret2 = 0;
+	if (is_fg) {
+		ret1 = asm_waitpid(pid1);
+		if (is_piped) {
+			ret2 = asm_waitpid(pid2);
+			asm_pipe_unlink(pname);
+			asm_free(pname);
+		}
+		return ret1 || ret2;
+	}
+	return 0;
 }
 
 static void
@@ -170,6 +207,20 @@ load_command(EntryPoint entry_point, int priority, char* name, char* desc)
 	commands[commands_len].name = name;
 	commands[commands_len++].desc = desc;
 }
+
+static int
+is_valid_command(char* command)
+{
+	for (int i = 0; i < commands_len; i++) {
+		if (strcmp(command, commands[i].name))
+			return i;
+	}
+	return -1;
+}
+
+/******************************************/
+/**************** COMMANDS ****************/
+/******************************************/
 
 static int
 help(int argc, char** argv)

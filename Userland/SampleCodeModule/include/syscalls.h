@@ -24,8 +24,8 @@ typedef struct
 extern uint32_t asm_exit();
 extern uint32_t asm_read(int fd, char* buf, uint32_t size);
 extern uint32_t asm_write(int fd, char* buf, uint32_t size, uint32_t color);
-extern uint32_t asm_close(int fd);
-extern uint32_t asm_dup(int fd_from, int fd_to);
+extern uint32_t asm_close(int pid, int fd);
+extern uint32_t asm_dup(int pid, int fd_from, int fd_to);
 
 extern void asm_time(uint32_t color);
 extern void asm_sleep(uint32_t millis);
@@ -39,8 +39,8 @@ extern int asm_kill(int pid);
 extern int asm_block(int pid);
 extern int asm_yield();
 
-extern uint8_t asm_pipe(int* pipe_fd);
-extern uint8_t asm_pipe_open(char* name, int* pipe_fd);
+extern uint8_t asm_pipe(int pid, int* pipe_fd);
+extern uint8_t asm_pipe_open(int pid, char* name, int* pipe_fd);
 extern int asm_pipe_unlink(char* name);
 extern int asm_pipe_status(void* status, int size);
 

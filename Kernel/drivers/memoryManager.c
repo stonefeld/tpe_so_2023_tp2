@@ -33,4 +33,5 @@ mm_freeAll()
 	next_address = heap_start;
 	return;
 }
+
 #endif

@@ -16,6 +16,5 @@ int my_sem_open(char* name, uint64_t init_value);
 int64_t my_sem_wait(int sem);
 int64_t my_sem_post(int sem);
 int64_t my_sem_close(int sem);
-int64_t my_wait(int64_t pid);
 
 #endif

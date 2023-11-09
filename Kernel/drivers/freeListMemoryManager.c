@@ -176,4 +176,13 @@ mm_realloc(void* ptr, size_t size)
 	return new_ptr;
 }
 
+void
+mm_state(MemState* mem_state)
+{
+	mem_state->total = total_mem;
+	mem_state->used = used_mem;
+	mem_state->chunks = mem_chunks;
+	mem_state->type = FREE_LIST;
+}
+
 #endif

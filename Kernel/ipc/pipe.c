@@ -411,18 +411,11 @@ read_callback(int pid, int fd, char* buf, uint32_t count)
 
 	size_t bytes_read = 0;
 
-	while (bytes_read < count) {
-		size_t read = read_pipe_buffer(pipe, buf + bytes_read, count - bytes_read);
-
-		if (read == 0) {
-			// Si no hay nada que leer, bloqueamos al proceso
-			// y lo ponemos en la cola de lectores
-			queue_add(pipe->rd_q, pid);
-			sch_block(pid);
-			sch_yield();
-		} else {
-			bytes_read += read;
-		}
+	while ((bytes_read = read_pipe_buffer(pipe, buf + bytes_read, count)) == 0 &&
+	       (pipe->name != NULL || pipe->writers > 0)) {
+		queue_add(pipe->rd_q, pid);
+		sch_block(pid);
+		sch_yield();
 	}
 
 	return bytes_read;

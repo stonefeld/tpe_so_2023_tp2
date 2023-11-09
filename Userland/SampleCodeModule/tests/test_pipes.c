@@ -19,7 +19,7 @@ reader()
 	}
 
 	char buffer[101] = { 0 };
-	size_t count = asm_read(pipe_fd[0], buffer, 30);
+	size_t count = asm_read(pipe_fd[0], buffer, 100);
 	buffer[count] = '\0';
 	printf("Process %d read from pipe \"%s\" the content te \"%s\" \n", pid, pipe_name, buffer);
 	asm_pipe_unlink(pipe_name);
@@ -41,7 +41,7 @@ writer()
 	}
 	printf("writing to fd: %d \n", pipe_fd[1]);
 
-	fputs(pipe_fd[1], "This message comes from a dead process \n", WHITE);
+	fputs(pipe_fd[1], "This message comes from a dead process", WHITE);
 }
 
 int

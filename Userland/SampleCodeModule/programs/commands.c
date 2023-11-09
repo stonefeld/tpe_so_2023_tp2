@@ -78,6 +78,16 @@ cmd_init()
 }
 
 int
+is_valid_command(char* command)
+{
+	for (int i = 0; i < commands_len; i++) {
+		if (strcmp(command, commands[i].name)) {
+			return i;
+		}
+	}
+	return -1;
+}
+int
 cmd_execute(char* buf, uint32_t len)
 {
 	args_len = strtok(buf, ' ', args, MAX_ARGS);
@@ -89,6 +99,37 @@ cmd_execute(char* buf, uint32_t len)
 		is_fg = 0;
 		args_len--;
 	}
+
+	// check if second arg is '/' and if there are valid commands
+	if (args_len == (is_fg ? 3 : 4) && args[1][0] == '/') {
+		int cmd_index_1 = is_valid_command(args[0]);
+		if (cmd_index_1 == -1) {
+			puts("Command not found: ", color.output);
+			puts(args[0], color.output);
+			putchar('\n', color.output);
+			return -1;
+		}
+		int cmd_index_2 = is_valid_command(args[2]);
+		if (cmd_index_2 == -1) {
+			puts("Command not found: ", color.output);
+			puts(args[2], color.output);
+			putchar('\n', color.output);
+			return -1;
+		}
+
+		// create pipe
+		int pipe[2];
+		asm_pipe(pipe);
+
+		printf("CLOSING PIPE \n");
+		asm_close(pipe[0]);
+		asm_close(pipe[1]);
+
+		return 0;
+		// create process and map fd to pipe
+	}
+
+	// no pipe
 
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name)) {

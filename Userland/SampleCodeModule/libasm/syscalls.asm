@@ -2,7 +2,7 @@
 global asm_exit
 global asm_read
 global asm_write
-
+global asm_close
 ; system
 global asm_time
 global asm_sleep
@@ -52,6 +52,7 @@ global asm_realloc
 asm_exit: syscall_handler 1
 asm_read: syscall_handler 3
 asm_write: syscall_handler 4
+asm_close: syscall_handler 6
 
 asm_time: syscall_handler 13
 asm_sleep: syscall_handler 14

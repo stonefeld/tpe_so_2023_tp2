@@ -22,6 +22,7 @@ typedef uint64_t (*SyscallHandler)(uint64_t rsi, uint64_t rdx, uint64_t rcx, uin
 static uint64_t exit_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t read_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t write_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
+static uint64_t close_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 
 static uint64_t time_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t sleep_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
@@ -54,15 +55,21 @@ static uint64_t realloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64
 // Revisar: https://faculty.nps.edu/cseagle/assembly/sys_call.html
 // y buscar syscalls equivalentes para poner en dicho id
 static SyscallHandler syscalls[] = {
-	[1] = exit_handler,         [2] = process_create_handler, [3] = read_handler,         [4] = write_handler,
-	[7] = waitpid_handler,      [13] = time_handler,          [14] = sleep_handler,       [20] = getpid_handler,
-	[21] = ps_handler,          [34] = nice_handler,          [37] = kill_handler,        [38] = block_handler,
-	[42] = pipe_create_handler, [43] = pipe_open_handler,     [44] = pipe_unlink_handler, [45] = pipe_status_handler,
-	[50] = sem_open_handler,    [51] = sem_wait_handler,      [52] = sem_post_handler,    [53] = sem_close_handler,
-	[89] = meminfo_handler,     [90] = malloc_handler,        [91] = free_handler,        [92] = realloc_handler,
-	[158] = yield_handler,
+	[1] = exit_handler,         [2] = process_create_handler, [3] = read_handler,
+	[4] = write_handler,        [6] = close_handler,          [7] = waitpid_handler,
+	[13] = time_handler,        [14] = sleep_handler,         [20] = getpid_handler,
+	[21] = ps_handler,          [34] = nice_handler,          [37] = kill_handler,
+	[38] = block_handler,       [42] = pipe_create_handler,   [43] = pipe_open_handler,
+	[44] = pipe_unlink_handler, [45] = pipe_status_handler,   [50] = sem_open_handler,
+	[51] = sem_wait_handler,    [52] = sem_post_handler,      [53] = sem_close_handler,
+	[89] = meminfo_handler,     [90] = malloc_handler,        [91] = free_handler,
+	[92] = realloc_handler,     [158] = yield_handler,
 };
-
+static uint64_t
+close_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	return proc_unmap_fd(sch_get_current_pid(), rsi);
+}
 uint64_t
 syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r9, uint64_t r8)
 {

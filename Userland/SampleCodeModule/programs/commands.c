@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <syscalls.h>
 #include <tests.h>
-
 #define MAX_ARGS 10
 #define MAX_COMMANDS 30
 
@@ -39,6 +38,7 @@ static int testmm(int argc, char** argv);
 static int testproc(int argc, char** argv);
 static int testprio(int argc, char** argv);
 static int testsync(int argc, char** argv);
+static int testpipe(int argc, char** argv);
 
 static Command commands[MAX_COMMANDS];
 static uint16_t commands_len = 0;
@@ -73,6 +73,7 @@ cmd_init()
 	load_command(testproc, 0, "testproc", "      Test processes");
 	load_command(testprio, 0, "testprio", "      Test priorities");
 	load_command(testsync, 0, "testsync", "      Test semaphores");
+	load_command(testpipe, 0, "testpipe", "      Test pipe");
 }
 
 int
@@ -317,4 +318,10 @@ static int
 testsync(int argc, char** argv)
 {
 	return test_sync(argc, argv);
+}
+
+static int
+testpipe(int argc, char** argv)
+{
+	return test_pipes(argc, argv);
 }

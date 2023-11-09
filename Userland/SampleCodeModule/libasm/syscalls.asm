@@ -30,6 +30,7 @@ global asm_sem_post
 global asm_sem_close
 
 ; memory
+global asm_meminfo
 global asm_malloc
 global asm_free
 global asm_realloc
@@ -74,6 +75,7 @@ asm_sem_wait: syscall_handler 51
 asm_sem_post: syscall_handler 52
 asm_sem_close: syscall_handler 53
 
+asm_meminfo: syscall_handler 89
 asm_malloc: syscall_handler 90
 asm_free: syscall_handler 91
 asm_realloc: syscall_handler 92

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <syscalls.h>
 
 void*
 memcpy(void* destination, const void* source, uint64_t length)
@@ -20,6 +21,18 @@ memcpy(void* destination, const void* source, uint64_t length)
 		for (i = 0; i < length; i++)
 			d[i] = s[i];
 	}
+
+	return destination;
+}
+
+void*
+memset(void* destination, int32_t c, uint64_t length)
+{
+	uint8_t chr = (uint8_t)c;
+	char* dst = (char*)destination;
+
+	while (length--)
+		dst[length] = chr;
 
 	return destination;
 }
@@ -179,4 +192,23 @@ str_to_int(char* str)
 	}
 
 	return result * sign;
+}
+
+char*
+str_cat(char* s1, char* s2)
+{
+	int i = 0, j = 0;
+	char* result = asm_malloc(strlen(s1) + strlen(s2) + 1);
+	while (s1[i] != '\0') {
+		result[i] = s1[i];
+		i++;
+	}
+	while (s2[j] != '\0') {
+		result[i] = s2[j];
+		j++;
+		i++;
+	}
+	result[i] = '\0';
+
+	return result;
 }

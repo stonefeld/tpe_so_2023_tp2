@@ -75,9 +75,3 @@ my_yield()
 {
 	return asm_yield();
 }
-
-int64_t
-my_wait(int64_t pid)
-{
-	return 0;
-}

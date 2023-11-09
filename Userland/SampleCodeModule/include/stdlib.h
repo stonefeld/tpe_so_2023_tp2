@@ -9,6 +9,7 @@
 #define HEX 16
 
 void* memcpy(void* destination, const void* source, uint64_t length);
+void* memset(void* destination, int32_t c, uint64_t length);
 
 /*
  * Devuelve el largo de un string.
@@ -42,5 +43,7 @@ uint8_t is_hex_color_code(char* code);
 uint32_t hex_to_uint(char* code);
 
 int str_to_int(char* str);
+
+char* str_cat(char* s1, char* s2);
 
 #endif

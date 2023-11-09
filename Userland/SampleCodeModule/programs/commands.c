@@ -1,5 +1,6 @@
 #include <commands.h>
 #include <libasm.h>
+#include <philosophers.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syscalls.h>
@@ -32,7 +33,7 @@ static int block(int argc, char** argv);
 static int cat(int argc, char** argv);
 static int wc(int argc, char** argv);
 static int filter(int argc, char** argv);
-static int phylo(int argc, char** argv);
+static int philo(int argc, char** argv);
 static int testioe(int argc, char** argv);
 static int testzde(int argc, char** argv);
 static int testmm(int argc, char** argv);
@@ -66,7 +67,7 @@ cmd_init()
 	load_command(cat, 0, "cat", "           Imprime el stdin tal como lo recibe");
 	load_command(wc, 0, "wc", "            Cuenta la cantidad de lineas del input");
 	load_command(filter, 0, "filter", "        Filtra las vocales del input");
-	load_command(phylo, 0, "phylo", "         Implementa el problema de los filosofos comensales");
+	load_command(philo, 0, "philo", "         Implementa el problema de los filosofos comensales");
 	load_command(testioe, 0, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, 0, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(testmm, 0, "testmm", "        Test memory manager");
@@ -226,6 +227,7 @@ switchcolors(int argc, char** argv)
 static int
 mem(int argc, char** argv)
 {
+	asm_meminfo(color.output);
 	return 0;
 }
 
@@ -289,9 +291,9 @@ filter(int argc, char** argv)
 }
 
 static int
-phylo(int argc, char** argv)
+philo(int argc, char** argv)
 {
-	return 0;
+	return init_philo_dilemma(argc, argv);
 }
 
 static int

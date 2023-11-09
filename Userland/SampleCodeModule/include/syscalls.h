@@ -47,6 +47,7 @@ extern int asm_sem_wait(int sem);
 extern int asm_sem_post(int sem);
 extern int asm_sem_close(int sem);
 
+extern void asm_meminfo(uint32_t color);
 extern void* asm_malloc(size_t size);
 extern void asm_free(void* ptr);
 extern void* asm_realloc(void* ptr, size_t size);

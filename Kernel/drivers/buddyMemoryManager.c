@@ -238,7 +238,7 @@ mm_realloc(void* ptr, size_t size)
 	return new_ptr;
 }
 
-static void
+void
 mm_state(MemState* mem_state)
 {
 	mem_state->total = total_mem;

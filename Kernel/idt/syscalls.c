@@ -45,6 +45,7 @@ static uint64_t sem_wait_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 static uint64_t sem_post_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t sem_close_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 
+static uint64_t meminfo_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t malloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t free_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
 static uint64_t realloc_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9);
@@ -58,7 +59,8 @@ static SyscallHandler syscalls[] = {
 	[21] = ps_handler,          [34] = nice_handler,          [37] = kill_handler,        [38] = block_handler,
 	[42] = pipe_create_handler, [43] = pipe_open_handler,     [44] = pipe_unlink_handler, [45] = pipe_status_handler,
 	[50] = sem_open_handler,    [51] = sem_wait_handler,      [52] = sem_post_handler,    [53] = sem_close_handler,
-	[90] = malloc_handler,      [91] = free_handler,          [92] = realloc_handler,     [158] = yield_handler,
+	[89] = meminfo_handler,     [90] = malloc_handler,        [91] = free_handler,        [92] = realloc_handler,
+	[158] = yield_handler,
 };
 
 uint64_t
@@ -306,6 +308,40 @@ static uint64_t
 pipe_status_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
 	return pipe_status((PipeStatus*)rsi, rdx);
+}
+
+static uint64_t
+meminfo_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
+{
+	MemState state;
+	char buf[MAX_NAME_LEN];
+
+	mm_state(&state);
+
+	tx_put_word("TYPE:   ", rsi);
+	switch (state.type) {
+		case FREE_LIST: {
+			tx_put_word("free list", rsi);
+		} break;
+
+		case BUDDY: {
+			tx_put_word("buddy", rsi);
+		} break;
+	}
+
+	tx_put_word("\nTOTAL:  ", rsi);
+	uint_to_base(state.total, buf, DEC);
+	tx_put_word(buf, rsi);
+
+	tx_put_word("\nUSED:   ", rsi);
+	uint_to_base(state.used, buf, DEC);
+	tx_put_word(buf, rsi);
+
+	tx_put_word("\nCHUNKS: ", rsi);
+	uint_to_base(state.chunks, buf, DEC);
+	tx_put_word(buf, rsi);
+	tx_put_char('\n', rsi);
+	return 0;
 }
 
 static uint64_t

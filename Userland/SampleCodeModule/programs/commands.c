@@ -227,6 +227,7 @@ switchcolors(int argc, char** argv)
 static int
 mem(int argc, char** argv)
 {
+	asm_meminfo(color.output);
 	return 0;
 }
 

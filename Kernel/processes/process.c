@@ -3,7 +3,8 @@
 #include <process.h>
 #include <queue.h>
 #include <scheduler.h>
-
+#include <text.h>
+#define WHITE 0xffffff
 typedef struct
 {
 	ReadCallback read_callback;
@@ -103,6 +104,15 @@ proc_kill(int pid, uint8_t status)
 
 	for (int i = 0; i < process->argc; i++)
 		mm_free(process->argv[i]);
+
+	// close all fds
+	// tx_put_word("killing process", WHITE);
+	for (int i = 0; i < MAX_FDS; i++) {
+		if (process->fds[i].close_callback != NULL) {
+			// tx_put_word("Closing fd: ", WHITE);
+			process->fds[i].close_callback(pid, i);
+		}
+	}
 	mm_free(process->argv);
 	mm_free(process->name);
 	mm_free(process->stack_end);

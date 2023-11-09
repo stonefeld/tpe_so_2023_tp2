@@ -53,7 +53,7 @@ static int read_callback(int pid, int fd, char* buf, uint32_t count);
 static int write_callback(int pid, int fd, char* buf, uint32_t count, uint32_t color);
 static int close_callback(int pid, int fd);
 static int dup_callback(int pid_from, int pid_to, int fd_from, int fd_to);
-
+static void empty_fd_table(int pipe_id, int pid, int fd);
 static Pipe* pipe_table[MAX_PIPES];
 static PipeFd* pipe_fd_table[PIPE_MAX_FD];
 
@@ -96,6 +96,9 @@ pipe_free(PipeId id)
 	if (pipe == NULL)
 		return -1;
 
+	// empty all fd table with this pipe
+	// empty_fd_table(id, -1);
+
 	pipe_table[id] = NULL;
 
 	mm_free(pipe->buffer);
@@ -115,13 +118,26 @@ pipe_open(char* name)
 			return -1;
 
 		pipe_id = pipe_create();
+		pipe_table[pipe_id]->name = name;
 		if (pipe_id == -1)
 			return -1;
 	}
 
 	return pipe_id;
 }
-
+static void
+empty_fd_table(int pipe_id, int pid, int fd)
+{
+	//  we empty all fd table entries with this pipe_id, pid, fd, if fd ==-1 then we empty all fd table entries with
+	//  this pipe_id, pid
+	for (int i = 0; i < PIPE_MAX_FD; i++) {
+		PipeFd* pipe_fd = pipe_fd_table[i];
+		if (pipe_fd != NULL && pipe_fd->pipe_id == pipe_id && pipe_fd->pid == pid && (fd == -1 || pipe_fd->fd == fd)) {
+			pipe_fd_table[i] = NULL;
+			mm_free(pipe_fd);
+		}
+	}
+}
 int
 pipe_unlink(char* name)
 {
@@ -184,6 +200,7 @@ pipe_map_fd(int pid, int fd, PipeId pipe_id, int allow_rd, int allow_wr)
 	pipe_fd->pipe_id = pipe_id;
 	pipe_fd->allow_rd = allow_rd;
 	pipe_fd->allow_wr = allow_wr;
+	pipe_fd->pid = pid;
 
 	pipe_fd_table[pipe_fd_idx] = pipe_fd;
 
@@ -192,7 +209,10 @@ pipe_map_fd(int pid, int fd, PipeId pipe_id, int allow_rd, int allow_wr)
 	if (allow_wr)
 		pipe->writers++;
 
-	return proc_map_fd(pid, fd, read_callback, write_callback, close_callback, dup_callback);
+	fd = proc_map_fd(pid, fd, read_callback, write_callback, close_callback, dup_callback);
+	pipe_fd->fd = fd;
+
+	return fd;
 }
 
 int
@@ -253,7 +273,11 @@ find_named_pipe(const char* name)
 	if (name == NULL)
 		return -1;
 
+	Pipe* pipe;
+	char* pipe_name;
 	for (int i = 0; i < MAX_PIPES; i++) {
+		pipe = pipe_table[i];
+		pipe_name = pipe->name;
 		if (pipe_table[i] != NULL && pipe_table[i]->name != NULL && strcmp(pipe_table[i]->name, name) == 0)
 			return i;
 	}
@@ -437,18 +461,22 @@ close_callback(int pid, int fd)
 
 	if (pipe_fd->allow_rd) {
 		pipe->readers--;
+		empty_fd_table(pipe_fd->pipe_id, pid, fd);
 		if (pipe->readers == 0)
 			queue_unblock_all(pipe->wr_q);
 	}
 
 	if (pipe_fd->allow_wr) {
 		pipe->writers--;
+		empty_fd_table(pipe_fd->pipe_id, pid, fd);
 		if (pipe->writers == 0)
 			queue_unblock_all(pipe->rd_q);
 	}
 
 	if (pipe->readers == 0 && pipe->writers == 0) {
-		pipe_free(pipe_fd->pipe_id);
+		empty_fd_table(pipe_fd->pipe_id, pid, -1);
+		if (pipe->bytes_to_read == 0)
+			pipe_free(pipe_fd->pipe_id);
 		pipe_fd_table[fd] = NULL;
 		mm_free(pipe_fd);
 	}

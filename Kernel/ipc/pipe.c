@@ -54,6 +54,7 @@ static int write_callback(int pid, int fd, char* buf, uint32_t count, uint32_t c
 static int close_callback(int pid, int fd);
 static int dup_callback(int pid_from, int pid_to, int fd_from, int fd_to);
 static void empty_fd_table(int pipe_id, int pid, int fd);
+
 static Pipe* pipe_table[MAX_PIPES];
 static PipeFd* pipe_fd_table[PIPE_MAX_FD];
 
@@ -140,6 +141,7 @@ empty_fd_table(int pipe_id, int pid, int fd)
 		}
 	}
 }
+
 int
 pipe_unlink(char* name)
 {
@@ -151,16 +153,13 @@ pipe_unlink(char* name)
 
 	pipe->name = NULL;
 
-	if (pipe->readers == 0 && pipe->writers == 0) {
+	if (pipe->readers == 0 && pipe->writers == 0)
 		return pipe_free(pipe_id);
-	}
-
-	if (pipe->readers == 0) {
+	if (pipe->readers == 0)
 		queue_unblock_all(pipe->wr_q);
-	}
-	if (pipe->writers == 0) {
+	if (pipe->writers == 0)
 		queue_unblock_all(pipe->rd_q);
-	}
+
 	return 0;
 }
 
@@ -460,8 +459,10 @@ close_callback(int pid, int fd)
 	if (pipe_fd->allow_wr) {
 		pipe->writers--;
 		empty_fd_table(pipe_fd->pipe_id, pid, fd);
-		if (pipe->writers == 0)
+		if (pipe->writers == 0) {
+			write_callback(pid, fd, "\e", 1, 0);
 			queue_unblock_all(pipe->rd_q);
+		}
 	}
 
 	if (pipe->readers == 0 && pipe->writers == 0) {

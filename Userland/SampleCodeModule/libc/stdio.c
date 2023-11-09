@@ -10,12 +10,6 @@ gets(char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 }
 
 uint32_t
-fgetst(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color)
-{
-	return asm_read(fd, buf, size);
-}
-
-uint32_t
 fgets(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 {
 	char c;

@@ -176,10 +176,13 @@ cmd_execute(char* buf, uint32_t len)
 		pname = strcat((char*)create_info1.name, buf);
 
 		asm_pipe_open(pid1, pname, pipes);
-		asm_dup(pid1, STDOUT, pipes[0]);
-		asm_pipe_open(pid2, pname, pipes);
-		asm_dup(pid2, STDIN, pipes[1]);
+		asm_dup(pid1, STDOUT, pipes[1]);
 		asm_close(pid1, pipes[0]);
+		asm_close(pid1, pipes[1]);
+
+		asm_pipe_open(pid2, pname, pipes);
+		asm_dup(pid2, STDIN, pipes[0]);
+		asm_close(pid2, pipes[0]);
 		asm_close(pid2, pipes[1]);
 	}
 

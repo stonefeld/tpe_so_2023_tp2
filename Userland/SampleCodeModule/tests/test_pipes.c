@@ -16,7 +16,7 @@ reader()
 
 	int pipe_fd[2];
 
-	if (asm_pipe_open(asm_getpid(), PIPE_NAME, pipe_fd) < 0) {
+	if (asm_pipe_open(pid, PIPE_NAME, pipe_fd) < 0) {
 		printf_color(color.error, "ERROR opening pipe \n");
 		return;
 	}
@@ -38,7 +38,7 @@ writer()
 
 	int pipe_fd[2];
 	printf_color(color.output, "Process %d opening pipe \"%s\" \n", pid, PIPE_NAME);
-	if (asm_pipe_open(asm_getpid(), PIPE_NAME, pipe_fd) < 0) {
+	if (asm_pipe_open(pid, PIPE_NAME, pipe_fd) < 0) {
 		fputs(STDERR, "ERROR opening pipe \n", color.error);
 		return;
 	}
@@ -54,7 +54,12 @@ test_pipes(int argc, char* argv[])
 	printf_color(color.output, "Main process with pid %d created \n", p);
 
 	ProcessCreateInfo pci = {
-		.name = "writeProcess", .is_fg = 1, .priority = 0, .entry_point = (EntryPoint)writer, .argc = 0, .argv = NULL
+		.name = "writeProcess",
+		.is_fg = 1,
+		.priority = 0,
+		.entry_point = (EntryPoint)writer,
+		.argc = 0,
+		.argv = NULL,
 	};
 
 	printf_color(color.output, "Process %d creating the process that will open and write the pipe \n", p);
@@ -68,7 +73,12 @@ test_pipes(int argc, char* argv[])
 	printf_color(color.output, "Process %d finished \n", wpid);
 
 	ProcessCreateInfo pci2 = {
-		.name = "readingProcess", .is_fg = 1, .priority = 0, .entry_point = (EntryPoint)reader, .argc = 0, .argv = NULL
+		.name = "readingProcess",
+		.is_fg = 1,
+		.priority = 0,
+		.entry_point = (EntryPoint)reader,
+		.argc = 0,
+		.argv = NULL,
 	};
 
 	printf_color(color.output, "\nProcess %d creating the process that will read and close the pipe \n", p);

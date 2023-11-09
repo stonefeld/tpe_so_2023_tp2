@@ -44,8 +44,8 @@ static int get_eating_time();
 
 static void philosopher(int argc, char* argv[]);
 
-static void philo_think(int phyloIdx);
-static void philo_eat(int phyloIdx);
+static void philo_think(int idx);
+static void philo_eat(int idx);
 
 static int add_philo();
 static int add_fork();
@@ -84,7 +84,7 @@ init_philo_dilemma(int argc, char* argv[])
 		}
 	}
 
-	sem_big_fork = asm_sem_open("semPickSticks", 1);
+	sem_big_fork = asm_sem_open("sem_big_fork", 1);
 
 	if (sem_big_fork == -1) {
 		puts("Could not initialized semaphore\n", color.error);
@@ -137,14 +137,14 @@ philo_eat(int idx)
 	asm_sem_wait(forks[idx]);
 	asm_sem_wait(forks[neighbour_idx]);
 	// ??????????????
-	asm_sem_wait(sem_big_fork);
+	asm_sem_post(sem_big_fork);
 
 	print_state();
 	philos[idx].philo_state = EATING;
 	asm_sleep(get_eating_time());
 
-	asm_sem_post(forks[neighbour_idx]);  // Right chopstick
-	asm_sem_post(forks[idx]);            // Left chopstick
+	asm_sem_post(forks[neighbour_idx]);
+	asm_sem_post(forks[idx]);
 }
 
 static int

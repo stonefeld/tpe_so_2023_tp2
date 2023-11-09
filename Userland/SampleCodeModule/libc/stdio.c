@@ -3,18 +3,18 @@
 #include <syscalls.h>
 
 uint32_t
-gets(char* buf, uint32_t size, uint32_t color)
+gets(char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 {
-	return fgets(STDIN, buf, size, color);
+	return fgets(STDIN, buf, size, eof, color);
 }
 
 uint32_t
-fgets(int fd, char* buf, uint32_t size, uint32_t color)
+fgets(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 {
 	char c;
 	uint32_t len = 0;
 
-	while ((c = fgetchar(fd)) >= 0 && c != '\n') {
+	while ((c = fgetchar(fd)) >= 0 && c != '\n' && c != '\e') {
 		if (c != '\b') {
 			if (len < size - 1) {
 				putchar(c, color);
@@ -29,7 +29,11 @@ fgets(int fd, char* buf, uint32_t size, uint32_t color)
 		}
 	}
 
-	putchar('\n', color);
+	*eof = c == '\e';
+
+	if (len != 0)
+		putchar('\n', color);
+
 	buf[len] = 0;
 	return len;
 }

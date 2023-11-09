@@ -1,5 +1,6 @@
 #include <commands.h>
 #include <shell.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <syscalls.h>
 
@@ -21,9 +22,11 @@ shell_init()
 	running = 1;
 
 	int32_t len, status = 0;
-	while (running) {
+	uint8_t eof;
+
+	while (running && !eof) {
 		prompt(status);
-		len = gets(input_buffer, INPUT_SIZE, color.fg);
+		len = gets(input_buffer, INPUT_SIZE, &eof, color.fg);
 		status = cmd_execute(input_buffer, len);
 	}
 

@@ -77,6 +77,9 @@ keyboard_handler()
 		if (key >= 0 && key < keys && code != 0) {
 			if (control && code == 'd')
 				put_buffer('\e');
+			else if (control && code == 'c')
+				// TODO: manejar el CTRL+C
+				continue;
 			else
 				put_buffer(code);
 		}

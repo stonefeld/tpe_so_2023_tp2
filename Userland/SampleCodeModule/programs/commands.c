@@ -58,29 +58,28 @@ extern Color color;
 void
 cmd_init()
 {
-	// TODO: revisar idiomas
 	load_command(help, 0, "help", "          Displays this help message");
 	load_command(datetime, 0, "datetime", "      Prints the current datetime");
 	load_command(setcolor, 0, "setcolor", "      Sets foreground, background, prompt, output or error colors");
 	load_command(switchcolors, 0, "switchcolors", "  Inverts the background and foreground colors");
 	load_command(clear_scr, -20, "clear", "         Clears the screen");
-	load_command(mem, -5, "mem", "           Imprime estado de la memoria");
-	load_command(ps, -5, "ps", "            Imprime la lista de todos los procesos con sus propiedades");
-	load_command(kill, -5, "kill", "          Mata un proceso dado su ID");
-	load_command(nice, -5, "nice", "          Cambia la prioridad de un proceso dado su ID y la nueva prioridad");
-	load_command(block, -5, "block", "         Cambia el estado de un proceso entre bloqueado y listo dado su ID");
-	load_command(loop, 0, "loop", "          Imprime su ID con un saludo cada una determinada cantidad de segundos");
-	load_command(cat, 0, "cat", "           Imprime el stdin tal como lo recibe");
-	load_command(wc, 0, "wc", "            Cuenta la cantidad de lineas del input");
-	load_command(filter, 0, "filter", "        Filtra las vocales del input");
-	load_command(philo, 0, "philo", "         Implementa el problema de los filosofos comensales");
+	load_command(mem, -5, "mem", "           Prints the current memory state");
+	load_command(ps, -5, "ps", "            Prints a list of all running processes");
+	load_command(kill, -5, "kill", "          Kills a process submitting his PID");
+	load_command(nice, -5, "nice", "          Changes the priority a processes submitting his PID and new priority");
+	load_command(block, -5, "block", "         Toggles the state of a process between BLOCKED and READY");
+	load_command(loop, 0, "loop", "          Prints his PID every given amount of seconds");
+	load_command(cat, 0, "cat", "           Prints what it reads from STDIN");
+	load_command(wc, 0, "wc", "            Counts the amount of lines from a given input");
+	load_command(filter, 0, "filter", "        Filters only the vowels from a given input");
+	load_command(philo, 0, "philo", "         A 'Dining Philosophers Problem' implementation");
 	load_command(testioe, 0, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, 0, "testzde", "       Tests the 'Zero Division Error Exception'");
-	load_command(testmm, 0, "testmm", "        Test memory manager");
-	load_command(testproc, 0, "testproc", "      Test processes");
-	load_command(testprio, 0, "testprio", "      Test priorities");
+	load_command(testmm, 0, "testmm", "        Test the memory manager");
+	load_command(testproc, 0, "testproc", "      Test processes manipulation");
+	load_command(testprio, 0, "testprio", "      Test the priorities");
 	load_command(testsync, 0, "testsync", "      Test semaphores");
-	load_command(testpipe, 0, "testpipe", "      Test pipe");
+	load_command(testpipe, 0, "testpipe", "      Test pipes");
 }
 
 int
@@ -399,11 +398,11 @@ cat(int argc, char** argv)
 			puts(buff, color.output);
 			putchar('\n', color.output);
 		}
-
 	} while (!eof);
 	return 0;
 }
 
+// TODO: wc cuenta lines no chars
 static int
 wc(int argc, char** argv)
 {
@@ -411,16 +410,14 @@ wc(int argc, char** argv)
 		return -1;
 
 	uint8_t eof;
-	int len;
+	int lines = 0;
 	do {
-		len = gets(buff, BUFF_SIZE, &eof, color.fg);
-		if (len != 0) {
-			int_to_str(len, buff);
-			puts(buff, color.output);
-			putchar('\n', color.output);
-		}
-
+		gets(buff, BUFF_SIZE, &eof, color.fg);
+		lines++;
 	} while (!eof);
+	int_to_str(lines, buff);
+	puts(buff, color.output);
+	putchar('\n', color.output);
 	return 0;
 }
 

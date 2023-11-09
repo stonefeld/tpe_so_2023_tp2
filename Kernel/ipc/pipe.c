@@ -273,11 +273,7 @@ find_named_pipe(const char* name)
 	if (name == NULL)
 		return -1;
 
-	Pipe* pipe;
-	char* pipe_name;
 	for (int i = 0; i < MAX_PIPES; i++) {
-		pipe = pipe_table[i];
-		pipe_name = pipe->name;
 		if (pipe_table[i] != NULL && pipe_table[i]->name != NULL && strcmp(pipe_table[i]->name, name) == 0)
 			return i;
 	}

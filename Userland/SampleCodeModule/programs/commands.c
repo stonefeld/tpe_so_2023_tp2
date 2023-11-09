@@ -292,6 +292,17 @@ ps(int argc, char** argv)
 static int
 loop(int argc, char** argv)
 {
+	if (argc != 0)
+		return -1;
+
+	int_to_str(asm_getpid(), buff);
+
+	while (1) {
+		asm_sleep(3000);
+		puts("Hi, I am loop a process with id = ", color.output);
+		puts(buff, color.output);
+		putchar('\n', color.output);
+	}
 	return 0;
 }
 

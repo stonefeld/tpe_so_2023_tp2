@@ -77,5 +77,5 @@ fputchar(int fd, char c, uint32_t color)
 void
 clear(uint32_t color)
 {
-	putchar('\e', color);
+	putchar('\v', color);
 }

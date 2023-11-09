@@ -75,7 +75,10 @@ keyboard_handler()
 		code = get_scancode(key);
 
 		if (key >= 0 && key < keys && code != 0) {
-			put_buffer(code);
+			if (control && code == 'd')
+				put_buffer('\e');
+			else
+				put_buffer(code);
 		}
 	}
 	return 0;

@@ -22,6 +22,9 @@ test_mm()
 	uint32_t total;
 	uint64_t max_memory = MAX_MEMORY;
 
+	printf("INIT TEST: \n\t");
+	asm_meminfo(0xffffff);
+
 	while (1) {
 		rq = 0;
 		total = 0;
@@ -35,7 +38,10 @@ test_mm()
 				rq++;
 			}
 		}
+		// print mem_state
 
+		printf("MEMORY STATE AFTER ALLOCATION: \n\t");
+		asm_meminfo(0xffffff);
 		// Set
 		uint32_t i;
 		for (i = 0; i < rq; i++)
@@ -54,6 +60,9 @@ test_mm()
 		for (i = 0; i < rq; i++)
 			if (mm_rqs[i].address)
 				free(mm_rqs[i].address);
+
+		printf("POST FREE: \n\t");
+		asm_meminfo(0xffffff);
 
 		puts("OK \n", 0xffffff);
 		return 0;

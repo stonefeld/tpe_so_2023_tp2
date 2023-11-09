@@ -25,6 +25,7 @@ extern uint32_t asm_exit();
 extern uint32_t asm_read(int fd, char* buf, uint32_t size);
 extern uint32_t asm_write(int fd, char* buf, uint32_t size, uint32_t color);
 extern uint32_t asm_close(int fd);
+extern uint32_t asm_dup(int fd_from, int fd_to);
 
 extern void asm_time(uint32_t color);
 extern void asm_sleep(uint32_t millis);

@@ -121,6 +121,10 @@ cmd_execute(char* buf, uint32_t len)
 		int pipe[2];
 		asm_pipe(pipe);
 
+		// TODO: create process 1 and dup fds to STDOUT
+
+		// TODO: create process 2 and dup fd to STDIN
+
 		printf("CLOSING PIPE \n");
 		asm_close(pipe[0]);
 		asm_close(pipe[1]);

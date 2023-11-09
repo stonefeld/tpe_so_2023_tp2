@@ -4,16 +4,16 @@
 #include <stdint.h>
 
 #define BLACK 0x000000
-#define RED 0xff0000
+#define RED   0xff0000
 #define GREEN 0x00ff00
-#define BLUE 0x0000ff
+#define BLUE  0x0000ff
 #define WHITE RED | GREEN | BLUE
 
-#define STDIN 0
+#define STDIN  0
 #define STDOUT 1
 #define STDERR 2
 
-#define printf(fmt, ...) printf_color(WHITE, fmt, ##__VA_ARGS__)
+#define printf(fmt, ...)      printf_color(WHITE, fmt, ##__VA_ARGS__)
 #define fprintf(fd, fmt, ...) fprintf_color(fd, WHITE, fmt, ##__VA_ARGS__)
 
 typedef struct
@@ -23,8 +23,8 @@ typedef struct
 
 uint64_t printf_color(uint32_t color, const char* fmt, ...);
 uint64_t fprintf_color(int fd, uint32_t color, const char* fmt, ...);
-uint32_t gets(char* buff, uint32_t size, uint32_t color);
-uint32_t fgets(int fd, char* buf, uint32_t size, uint32_t color);
+uint32_t gets(char* buff, uint32_t size, uint8_t* eof, uint32_t color);
+uint32_t fgets(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color);
 
 char getchar();
 char fgetchar(int fd);

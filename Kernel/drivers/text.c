@@ -7,9 +7,9 @@
 #include <text.h>
 #include <video.h>
 
-#define RED 0xff0000
+#define RED   0xff0000
 #define GREEN 0x00ff00
-#define BLUE 0x0000ff
+#define BLUE  0x0000ff
 #define WHITE RED | GREEN | BLUE
 
 static uint16_t width, height;
@@ -58,7 +58,7 @@ tx_put_char(char c, uint32_t color)
 			}
 		} break;
 
-		case '\e': {
+		case '\v': {
 			tx_clear(color);
 		} break;
 

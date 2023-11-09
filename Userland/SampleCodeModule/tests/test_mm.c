@@ -8,6 +8,8 @@
 #define MAX_BLOCKS 128
 #define MAX_MEMORY (4 * 1024 * 1024)
 
+extern Color color;
+
 typedef struct MM_rq
 {
 	void* address;
@@ -23,7 +25,7 @@ test_mm()
 	uint64_t max_memory = MAX_MEMORY;
 
 	printf("INIT TEST: \n\t");
-	asm_meminfo(0xffffff);
+	asm_meminfo(color.output);
 
 	while (1) {
 		rq = 0;
@@ -41,30 +43,34 @@ test_mm()
 		// print mem_state
 
 		printf("MEMORY STATE AFTER ALLOCATION: \n\t");
-		asm_meminfo(0xffffff);
+		asm_meminfo(color.output);
 		// Set
 		uint32_t i;
-		for (i = 0; i < rq; i++)
+		for (i = 0; i < rq; i++) {
 			if (mm_rqs[i].address)
 				setmem(mm_rqs[i].address, i, (size_t)mm_rqs[i].size);
+		}
 
 		// Check
-		for (i = 0; i < rq; i++)
-			if (mm_rqs[i].address)
+		for (i = 0; i < rq; i++) {
+			if (mm_rqs[i].address) {
 				if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
-					puts(" test_mm ERROR\n", 0xffffff);
+					puts("test_mm ERROR\n", color.error);
 					return -1;
 				}
+			}
+		}
 
 		// Free
-		for (i = 0; i < rq; i++)
+		for (i = 0; i < rq; i++) {
 			if (mm_rqs[i].address)
 				free(mm_rqs[i].address);
+		}
 
 		printf("POST FREE: \n\t");
-		asm_meminfo(0xffffff);
+		asm_meminfo(color.output);
 
-		puts("OK \n", 0xffffff);
+		puts("OK\n", color.output);
 		return 0;
 	}
 }

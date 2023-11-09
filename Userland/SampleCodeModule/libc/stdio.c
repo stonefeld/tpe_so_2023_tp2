@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <syscalls.h>
 uint32_t
-gets(char* buf, uint32_t size, uint32_t color)
+gets(char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 {
-	return fgets(STDIN, buf, size, color);
+	return fgets(STDIN, buf, size, eof, color);
 }
 uint64_t
 printf_color(uint32_t color, const char* fmt, ...)
@@ -74,12 +74,12 @@ fprintf_color(int fd, uint32_t color, const char* fmt, ...)
 	return i;
 }
 uint32_t
-fgets(int fd, char* buf, uint32_t size, uint32_t color)
+fgets(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 {
 	char c;
 	uint32_t len = 0;
 
-	while ((c = fgetchar(fd)) >= 0 && c != '\n') {
+	while ((c = fgetchar(fd)) >= 0 && c != '\n' && c != '\e') {
 		if (c != '\b') {
 			if (len < size - 1) {
 				putchar(c, color);
@@ -94,7 +94,11 @@ fgets(int fd, char* buf, uint32_t size, uint32_t color)
 		}
 	}
 
-	putchar('\n', color);
+	*eof = c == '\e';
+
+	if (len != 0)
+		putchar('\n', color);
+
 	buf[len] = 0;
 	return len;
 }
@@ -142,5 +146,5 @@ fputchar(int fd, char c, uint32_t color)
 void
 clear(uint32_t color)
 {
-	putchar('\e', color);
+	putchar('\v', color);
 }

@@ -1,12 +1,15 @@
 #include <commands.h>
 #include <libasm.h>
 #include <philosophers.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syscalls.h>
 #include <tests.h>
-#define MAX_ARGS 10
+
+#define MAX_ARGS     10
 #define MAX_COMMANDS 30
+#define BUFF_SIZE    64
 
 typedef struct
 {
@@ -25,10 +28,10 @@ static int setcolor(int argc, char** argv);
 static int switchcolors(int argc, char** argv);
 static int mem(int argc, char** argv);
 static int ps(int argc, char** argv);
-static int loop(int argc, char** argv);
 static int kill(int argc, char** argv);
 static int nice(int argc, char** argv);
 static int block(int argc, char** argv);
+static int loop(int argc, char** argv);
 static int cat(int argc, char** argv);
 static int wc(int argc, char** argv);
 static int filter(int argc, char** argv);
@@ -46,6 +49,8 @@ static uint16_t commands_len = 0;
 
 static char* args[MAX_ARGS];
 static uint8_t args_len;
+
+char buff[BUFF_SIZE];
 
 extern Color color;
 
@@ -321,18 +326,63 @@ block(int argc, char** argv)
 static int
 cat(int argc, char** argv)
 {
+	if (argc != 0)
+		return -1;
+
+	uint8_t eof;
+	int len;
+	do {
+		len = gets(buff, BUFF_SIZE, &eof, color.fg);
+		if (len != 0) {
+			puts(buff, color.output);
+			putchar('\n', color.output);
+		}
+
+	} while (!eof);
 	return 0;
 }
 
 static int
 wc(int argc, char** argv)
 {
+	if (argc != 0)
+		return -1;
+
+	uint8_t eof;
+	int len;
+	do {
+		len = gets(buff, BUFF_SIZE, &eof, color.fg);
+		if (len != 0) {
+			int_to_str(len, buff);
+			puts(buff, color.output);
+			putchar('\n', color.output);
+		}
+
+	} while (!eof);
 	return 0;
 }
 
 static int
 filter(int argc, char** argv)
 {
+	if (argc != 0)
+		return -1;
+
+	uint8_t eof;
+	int len;
+	do {
+		len = gets(buff, BUFF_SIZE, &eof, color.fg);
+		if (len != 0) {
+			for (int i = 0; i < len; i++) {
+				char c = buff[i];
+				if (c == 'a' || c == 'A' || c == 'e' || c == 'E' || c == 'i' || c == 'I' || c == 'o' || c == 'O' ||
+				    c == 'u' || c == 'U' || c == ' ') {
+					putchar(c, color.output);
+				}
+			}
+			putchar('\n', color.output);
+		}
+	} while (!eof);
 	return 0;
 }
 

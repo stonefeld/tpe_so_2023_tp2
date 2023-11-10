@@ -10,6 +10,9 @@
 #define REALTIME_PRIORITY -5
 #define MAX_PROCESSES     32
 
+#define KERNEL_PROC_PID -1
+#define KILLED_PROC_PID -2
+
 void sch_init();
 int sch_on_process_create(int pid,
                           ProcessEntryPoint entry_point,

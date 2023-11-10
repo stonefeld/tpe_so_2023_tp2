@@ -37,6 +37,9 @@ static uint8_t get_process_from_pid(int pid, ProcessContext** process);
 int
 proc_create(const ProcessCreateInfo* create_info)
 {
+	if (sch_get_current_pid() == KILLED_PROC_PID)
+		sch_yield();
+
 	int pid = 0;
 	for (; pid < MAX_PROCESSES && processes[pid].stack_end != NULL; pid++)
 		continue;

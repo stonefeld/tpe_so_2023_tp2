@@ -5,9 +5,6 @@
 #include <stdlib.h>
 #include <text.h>
 
-#define KERNEL_PROC_PID -1
-#define KILLED_PROC_PID -2
-
 typedef struct
 {
 	int8_t priority;

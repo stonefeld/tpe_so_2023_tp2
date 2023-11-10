@@ -147,60 +147,63 @@ ps_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
 	Process procs[MAX_PROCESSES];
 	int count = proc_list(procs, MAX_PROCESSES);
-	int len;
+	int len, pid = sch_get_current_pid();
 	char buf[MAX_NAME_LEN];
 
-	tx_put_word(
+	proc_write(
+	    pid,
+	    STDOUT,
 	    "PID            NAME            BACKGROUND      PRIORITY        STATUS          STACK START     STACK END\n",
+	    105,
 	    rsi);
 	for (int i = 0; i < count; i++) {
 		len = uint_to_base(procs[i].pid, buf, DEC);
-		tx_put_word(buf, rsi);
+		proc_write(pid, STDOUT, buf, len, rsi);
 		for (int j = len + 1; j < MAX_NAME_LEN; j++)
-			tx_put_char(' ', rsi);
+			proc_write(pid, STDOUT, " ", 1, rsi);
 
-		len = tx_put_word(procs[i].name, rsi);
+		len = proc_write(pid, STDOUT, procs[i].name, strlen(procs[i].name), rsi);
 		for (int j = len; j < MAX_NAME_LEN; j++)
-			tx_put_char(' ', rsi);
+			proc_write(pid, STDOUT, " ", 1, rsi);
 
-		len = tx_put_word(procs[i].is_fg ? "False           " : "True            ", rsi);
+		len = proc_write(pid, STDOUT, procs[i].is_fg ? "False           " : "True            ", 16, rsi);
 		for (int j = len; j < MAX_NAME_LEN; j++)
-			tx_put_char(' ', rsi);
+			proc_write(pid, STDOUT, " ", 1, rsi);
 
 		len = int_to_str(procs[i].priority, buf);
-		tx_put_word(buf, rsi);
+		proc_write(pid, STDOUT, buf, len, rsi);
 		for (int j = len; j < MAX_NAME_LEN; j++)
-			tx_put_char(' ', rsi);
+			proc_write(pid, STDOUT, " ", 1, rsi);
 
 		switch (procs[i].status) {
 			case RUNNING: {
-				tx_put_word("RUNNING         ", rsi);
+				proc_write(pid, STDOUT, "RUNNING         ", 16, rsi);
 			} break;
 
 			case BLOCKED: {
-				tx_put_word("BLOCKED         ", rsi);
+				proc_write(pid, STDOUT, "BLOCKED         ", 16, rsi);
 			} break;
 
 			case READY: {
-				tx_put_word("READY           ", rsi);
+				proc_write(pid, STDOUT, "READY           ", 16, rsi);
 			} break;
 
 			case KILLED: {
-				tx_put_word("KILLED          ", rsi);
+				proc_write(pid, STDOUT, "KILLED          ", 16, rsi);
 			} break;
 		}
 
-		len = tx_put_word("0x", rsi);
-		len += uint_to_base((uint64_t)procs[i].stack_start, buf, HEX);
-		tx_put_word(buf, rsi);
-		for (int j = len; j < MAX_NAME_LEN; j++)
-			tx_put_char(' ', rsi);
+		proc_write(pid, STDOUT, "0x", 2, rsi);
+		len = uint_to_base((uint64_t)procs[i].stack_start, buf, HEX);
+		proc_write(pid, STDOUT, buf, len, rsi);
+		for (int j = len + 2; j < MAX_NAME_LEN; j++)
+			proc_write(pid, STDOUT, " ", 1, rsi);
 
-		tx_put_word("0x", rsi);
+		proc_write(pid, STDOUT, "0x", 2, rsi);
 		uint_to_base((uint64_t)procs[i].stack_end, buf, HEX);
-		tx_put_word(buf, rsi);
+		proc_write(pid, STDOUT, buf, len, rsi);
 
-		tx_put_char('\n', rsi);
+		proc_write(pid, STDOUT, "\n", 1, rsi);
 	}
 
 	return count;
@@ -340,33 +343,33 @@ meminfo_handler(uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t 
 
 	mm_state(&state);
 
-	tx_put_word("TYPE:   ", rsi);
+	proc_write(sch_get_current_pid(), STDOUT, "TYPE:   ", 8, rsi);
 	switch (state.type) {
 		case FREE_LIST: {
-			tx_put_word("free list", rsi);
+			proc_write(sch_get_current_pid(), STDOUT, "free list", 9, rsi);
 		} break;
 
 		case BUDDY: {
-			tx_put_word("buddy", rsi);
+			proc_write(sch_get_current_pid(), STDOUT, "buddy", 5, rsi);
 		} break;
 	}
 
-	tx_put_word("\nTOTAL:  ", rsi);
-	uint_to_base(state.total, buf, DEC);
-	tx_put_word(buf, rsi);
+	proc_write(sch_get_current_pid(), STDOUT, "\nTOTAL:  ", 9, rsi);
+	int len = uint_to_base(state.total, buf, DEC);
+	proc_write(sch_get_current_pid(), STDOUT, buf, len, rsi);
 
-	tx_put_word("\nUSED:   ", rsi);
-	uint_to_base(state.used, buf, DEC);
-	tx_put_word(buf, rsi);
+	proc_write(sch_get_current_pid(), STDOUT, "\nUSED:   ", 9, rsi);
+	len = uint_to_base(state.used, buf, DEC);
+	proc_write(sch_get_current_pid(), STDOUT, buf, len, rsi);
 
-	tx_put_word("\nFREE:   ", rsi);
-	uint_to_base(state.total - state.used, buf, DEC);
-	tx_put_word(buf, rsi);
+	proc_write(sch_get_current_pid(), STDOUT, "\nFREE:   ", 9, rsi);
+	len = uint_to_base(state.total - state.used, buf, DEC);
+	proc_write(sch_get_current_pid(), STDOUT, buf, len, rsi);
 
-	tx_put_word("\nCHUNKS: ", rsi);
-	uint_to_base(state.chunks, buf, DEC);
-	tx_put_word(buf, rsi);
-	tx_put_char('\n', rsi);
+	proc_write(sch_get_current_pid(), STDOUT, "\nCHUNKS: ", 9, rsi);
+	len = uint_to_base(state.chunks, buf, DEC);
+	proc_write(sch_get_current_pid(), STDOUT, buf, len, rsi);
+	proc_write(sch_get_current_pid(), STDOUT, "\n", 1, rsi);
 	return 0;
 }
 

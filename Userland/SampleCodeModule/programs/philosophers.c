@@ -87,16 +87,22 @@ init_philo_dilemma(int argc, char* argv[])
 
 	if (sem_big_fork == -1) {
 		puts("Could not initialized semaphore\n", color.error);
-		terminate_philos();
-		terminate_forks();
+		philo_kill();
 		return -1;
 	}
 
 	for (int i = 0; i < philo_count; i++)
 		asm_waitpid(philos[i].philo_pid);
 
-	terminate_forks();
+	philo_kill();
 	return 0;
+}
+
+void
+philo_kill()
+{
+	terminate_philos();
+	terminate_forks();
 }
 
 static int
@@ -176,8 +182,7 @@ add_fork(int idx)
 	asm_free(sem_name);
 	if (forks[idx] == -1) {
 		puts("Could not initialize semaphore\n", color.error);
-		terminate_philos();
-		terminate_forks();
+		philo_kill();
 		return -1;
 	}
 

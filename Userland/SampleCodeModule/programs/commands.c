@@ -14,11 +14,12 @@
 typedef struct
 {
 	EntryPoint entry_point;
+	KillCallback kill_callback;
 	int priority;
 	char *name, *desc;
 } Command;
 
-static void load_command(EntryPoint entry_point, int priority, char* name, char* desc);
+static void load_command(EntryPoint entry_point, KillCallback kill_callback, int priority, char* name, char* desc);
 static int is_valid_command(char* command);
 
 // commands
@@ -58,28 +59,28 @@ extern Color color;
 void
 cmd_init()
 {
-	load_command(help, 0, "help", "          Displays this help message");
-	load_command(datetime, 0, "datetime", "      Prints the current datetime");
-	load_command(setcolor, 0, "setcolor", "      Sets foreground, background, prompt, output or error colors");
-	load_command(switchcolors, 0, "switchcolors", "  Inverts the background and foreground colors");
-	load_command(clear_scr, -20, "clear", "         Clears the screen");
-	load_command(mem, -5, "mem", "           Prints the current memory state");
-	load_command(ps, -5, "ps", "            Prints a list of all running processes");
-	load_command(kill, -5, "kill", "          Kills a process submitting his PID");
-	load_command(nice, -5, "nice", "          Changes the priority a processes submitting his PID and new priority");
-	load_command(block, -5, "block", "         Toggles the state of a process between BLOCKED and READY");
-	load_command(loop, 0, "loop", "          Prints his PID every given amount of seconds");
-	load_command(cat, 0, "cat", "           Prints what it reads from STDIN");
-	load_command(wc, 0, "wc", "            Counts the amount of lines from a given input");
-	load_command(filter, 0, "filter", "        Filters only the vowels from a given input");
-	load_command(philo, 0, "philo", "         A 'Dining Philosophers Problem' implementation");
-	load_command(testioe, 0, "testioe", "       Tests the 'Invalid Opcode Exception'");
-	load_command(testzde, 0, "testzde", "       Tests the 'Zero Division Error Exception'");
-	load_command(testmm, 0, "testmm", "        Test the memory manager");
-	load_command(testproc, 0, "testproc", "      Test processes manipulation");
-	load_command(testprio, 0, "testprio", "      Test the priorities");
-	load_command(testsync, 0, "testsync", "      Test semaphores");
-	load_command(testpipe, 0, "testpipe", "      Test pipes");
+	load_command(help, NULL, 0, "help", "          Displays this help message");
+	load_command(datetime, NULL, 0, "datetime", "      Prints the current datetime");
+	load_command(setcolor, NULL, 0, "setcolor", "      Sets foreground, background, prompt, output or error colors");
+	load_command(switchcolors, NULL, 0, "switchcolors", "  Inverts the background and foreground colors");
+	load_command(clear_scr, NULL, -20, "clear", "         Clears the screen");
+	load_command(mem, NULL, -5, "mem", "           Prints the current memory state");
+	load_command(ps, NULL, -5, "ps", "            Prints a list of all running processes");
+	load_command(kill, NULL, -5, "kill", "          Kills a process submitting his PID");
+	load_command(nice, NULL, -5, "nice", "          Changes the priority a processes giving a new priority");
+	load_command(block, NULL, -5, "block", "         Toggles the state of a process between BLOCKED and READY");
+	load_command(loop, NULL, 0, "loop", "          Prints his PID every given amount of seconds");
+	load_command(cat, NULL, 0, "cat", "           Prints what it reads from STDIN");
+	load_command(wc, NULL, 0, "wc", "            Counts the amount of lines from a given input");
+	load_command(filter, NULL, 0, "filter", "        Filters only the vowels from a given input");
+	load_command(philo, philo_kill, 0, "philo", "         A 'Dining Philosophers Problem' implementation");
+	load_command(testioe, NULL, 0, "testioe", "       Tests the 'Invalid Opcode Exception'");
+	load_command(testzde, NULL, 0, "testzde", "       Tests the 'Zero Division Error Exception'");
+	load_command(testmm, NULL, 0, "testmm", "        Test the memory manager");
+	load_command(testproc, NULL, 0, "testproc", "      Test processes manipulation");
+	load_command(testprio, NULL, 0, "testprio", "      Test the priorities");
+	load_command(testsync, NULL, 0, "testsync", "      Test semaphores");
+	load_command(testpipe, NULL, 0, "testpipe", "      Test pipes");
 }
 
 int
@@ -137,6 +138,7 @@ cmd_execute(char* buf, uint32_t len)
 		.argc = cmd1_args - 1,
 		.argv = args + 1,
 		.entry_point = commands[cmd1_idx].entry_point,
+		.kill_callback = commands[cmd1_idx].kill_callback,
 		.is_fg = is_fg,
 		.priority = commands[cmd1_idx].priority,
 	};
@@ -147,6 +149,7 @@ cmd_execute(char* buf, uint32_t len)
 			.argc = cmd2_args - 1,
 			.argv = args + cmd1_args + 2,
 			.entry_point = commands[cmd2_idx].entry_point,
+			.kill_callback = commands[cmd2_idx].kill_callback,
 			.is_fg = is_fg,
 			.priority = commands[cmd2_idx].priority,
 		};
@@ -200,11 +203,12 @@ cmd_execute(char* buf, uint32_t len)
 }
 
 static void
-load_command(EntryPoint entry_point, int priority, char* name, char* desc)
+load_command(EntryPoint entry_point, KillCallback kill_callback, int priority, char* name, char* desc)
 {
 	if (commands_len >= MAX_COMMANDS)
 		return;
 	commands[commands_len].entry_point = entry_point;
+	commands[commands_len].kill_callback = kill_callback;
 	commands[commands_len].priority = priority;
 	commands[commands_len].name = name;
 	commands[commands_len++].desc = desc;

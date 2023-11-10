@@ -27,6 +27,8 @@ typedef struct
 
 	int parent_pid;
 	Queue child_pids;
+
+	KillCallback kill_callback;
 } ProcessContext;
 
 static ProcessContext processes[MAX_PROCESSES];
@@ -85,6 +87,7 @@ proc_create(const ProcessCreateInfo* create_info)
 	process->name = name;
 	process->argv = argv;
 	process->argc = create_info->argc;
+	process->kill_callback = create_info->kill_callback;
 
 	sch_on_process_create(pid,
 	                      create_info->entry_point,
@@ -114,12 +117,12 @@ proc_create(const ProcessCreateInfo* create_info)
 int
 proc_kill(int pid, uint8_t status)
 {
-	sch_block(pid);
-
 	ProcessContext* process;
 	if (!get_process_from_pid(pid, &process))
 		return -1;
 
+	if (process->kill_callback != NULL)
+		process->kill_callback();
 	sch_on_process_killed(pid, status);
 
 	int child_pid;

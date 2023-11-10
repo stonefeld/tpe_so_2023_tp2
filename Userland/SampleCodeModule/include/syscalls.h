@@ -10,11 +10,13 @@
 #include <stdint.h>
 
 typedef int (*EntryPoint)(int argc, char* argv[]);
+typedef void (*KillCallback)();
 
 typedef struct
 {
 	const char* name;
 	EntryPoint entry_point;
+	KillCallback kill_callback;
 	uint8_t is_fg;
 	int8_t priority;
 	int argc;

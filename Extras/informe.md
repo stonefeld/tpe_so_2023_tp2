@@ -7,7 +7,7 @@ header-includes: |
   \usepackage{indentfirst}
   \usepackage{fancyhdr}
   \pagestyle{fancy}
-  \lhead{Construcción del Núcleo de un Sistema Operativo y estructuras de administración de recursos}
+  \lhead{Sistema Operativos}
   \rhead{Trabajo Práctico N° 2}
   \cfoot{\thepage}
   \renewcommand{\headrulewidth}{0.4pt}
@@ -22,15 +22,14 @@ header-includes: |
   \vspace{1cm}
   {\Large \textsc{Trabajo Práctico N° 2}\par}
   \vspace{1.5cm}
-  {\huge\bfseries Informe\par}
+  {\huge\bfseries Construcción del Núcleo de un Sistema Operativo y estructuras de administración de recursos\par}
   \vspace{2cm}
   {\Large\itshape Perez de Gracia, Mateo\\
   Quian Blanco, Francisco\\
   Stanfield, Theo\par}
   \vfill
-  Construcción del Núcleo de un Sistema Operativo y estructuras de administración de recursos
+  Sistema Operativos - 72.11
   \vfill
-  {\large Sistema Operativos - 72.11\par}
   {\large Segundo cuatrimestre 2023 - Grupo 7\par}
 \end{titlepage}
 ```

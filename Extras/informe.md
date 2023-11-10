@@ -75,12 +75,16 @@ Una vez ejecutado el comando `./compile.sh` se abrirá la terminal y se deberá 
 
 ### Comandos generales
 * `help`: muestra una lista con todos los comandos disponibles.
+* `datetime`: Imprime la fecha y hora del momento.
+* `setcolor`: Coloca los colores de la terminal. Como primer argumento recibe el componente a cambiar y como segundo argumento el color elegido (mensaje de ayuda al ejecutar sin argumentos). 
+* `switchcolors`: Invierte los colores del fondo de pantalla y del texto.
+* `clear`: Limpia la pantalla.
 
 ### Comandos de memoria
 * `mem`: Imprime el estado de la memoria.
 
 ### Comandos de procesos
-* `ps`: Imprime la lista de todos los procesos con sus propiedades: nombre, ID, prioridad, stack y base pointer, foreground y cualquier otra variable que consideren necesaria.
+* `ps`: Imprime la lista de todos los procesos con sus propiedades: nombre, ID, prioridad, stack y base pointer, foreground.
 * `loop`: Imprime su ID con un saludo cada una determinada cantidad de segundos.
 * `kill`: Mata un proceso dado su ID.
 * `nice`: Cambia la prioridad de un proceso dado su ID y la nueva prioridad.
@@ -90,7 +94,16 @@ Una vez ejecutado el comando `./compile.sh` se abrirá la terminal y se deberá 
 * `cat`: Imprime el stdin tal como lo recibe.
 * `wc`: Cuenta la cantidad de líneas del input.
 * `filter`: Filtra las vocales del input.
-* `phylo`: Implementa el problema de los filósofos comensales.
+* `phylo`: Implementa el problema de los filósofos comensales. Recibe un argumento el cual indica la cantidad de filósofos en la mesa.
+
+### Tests
+* `testioe`: Genera una `Invalid Op Code Error`.
+* `testzde`: Genera una `Zero Division Erro`.
+* `testmm`: Aloca memoria y la desaloca imprimiendo el estado de la misma en el proceso.
+* `testproc`: Crea un proceso, que crea y elimina múltiples procesos hijos hasta que se pare el proceso. Recibe la cantidad de procesos hijos que puede crear en simultaneo.
+* `testprio`: Genera tres procesos y le cambia la prioridad, imprime el id del proceso.
+* `testsync`: Crea pares de procesos, los cuales aumentan y disminuyen el valor de una variable. Su primer argumento es la cantidad de operaciones que realiza cada proceso (ya se aumentar la variable en 1 o disminuirla en 1) y su segunda parámetro es si se desea usar semáforo o no (0 para no utilizar semáforo y 1 para utilizar semáforo).
+* `testpipes`: Crea dos procesos y los conecta mediante un pipe para poder escribir y leer a través de él.
 
 \newpage
 # Decisiones tomadas

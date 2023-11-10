@@ -12,19 +12,19 @@ reader()
 {
 	int pid = asm_getpid();
 
-	printf_color(color.output, "Reading process with pid: %d \n", pid);
+	printf_color(color.output, "Reading process with pid: %d\n", pid);
 
 	int pipe_fd[2];
 
 	if (asm_pipe_open(pid, PIPE_NAME, pipe_fd) < 0) {
-		printf_color(color.error, "ERROR opening pipe \n");
+		printf_color(color.error, "ERROR opening pipe\n");
 		return;
 	}
 
 	char buffer[101] = { 0 };
-	size_t count = asm_read(pipe_fd[0], buffer, 100);
-	buffer[count] = '\0';
-	printf_color(color.output, "Process %d read from pipe \"%s\" the content is \"%s\" \n", pid, PIPE_NAME, buffer);
+	size_t count = asm_read(pipe_fd[0], buffer, sizeof(buffer));
+	buffer[count - 1] = '\0';
+	printf_color(color.output, "Process %d read from pipe \"%s\" the content is \"%s\"\n", pid, PIPE_NAME, buffer);
 	asm_pipe_unlink(PIPE_NAME);
 	printf_color(color.output, "unlinking pipe... \n");
 }
@@ -34,10 +34,10 @@ writer()
 {
 	int pid = asm_getpid();
 
-	printf_color(color.output, "Writing process with pid: %d \n", pid);
+	printf_color(color.output, "Writing process with pid: %d\n", pid);
 
 	int pipe_fd[2];
-	printf_color(color.output, "Process %d opening pipe \"%s\" \n", pid, PIPE_NAME);
+	printf_color(color.output, "Process %d opening pipe \"%s\"\n", pid, PIPE_NAME);
 	if (asm_pipe_open(pid, PIPE_NAME, pipe_fd) < 0) {
 		fputs(STDERR, "ERROR opening pipe \n", color.error);
 		return;
@@ -51,7 +51,7 @@ int
 test_pipes(int argc, char* argv[])
 {
 	int p = asm_getpid();
-	printf_color(color.output, "Main process with pid %d created \n", p);
+	printf_color(color.output, "Main process with pid %d created\n", p);
 
 	ProcessCreateInfo pci = {
 		.name = "writeProcess",
@@ -62,15 +62,15 @@ test_pipes(int argc, char* argv[])
 		.argv = NULL,
 	};
 
-	printf_color(color.output, "Process %d creating the process that will open and write the pipe \n", p);
+	printf_color(color.output, "Process %d creating the process that will open and write the pipe\n", p);
 	int wpid = asm_execve(&pci);
 	if (wpid < 0) {
-		printf_color(color.error, "Error while trying to create the writing process \n");
+		printf_color(color.error, "Error while trying to create the writing process\n");
 		return 0;
 	}
 
 	asm_waitpid(wpid);
-	printf_color(color.output, "Process %d finished \n", wpid);
+	printf_color(color.output, "Process %d finished\n", wpid);
 
 	ProcessCreateInfo pci2 = {
 		.name = "readingProcess",
@@ -81,11 +81,11 @@ test_pipes(int argc, char* argv[])
 		.argv = NULL,
 	};
 
-	printf_color(color.output, "\nProcess %d creating the process that will read and close the pipe \n", p);
+	printf_color(color.output, "\nProcess %d creating the process that will read and close the pipe\n", p);
 
 	int rpid = asm_execve(&pci2);
 	if (rpid < 0) {
-		printf_color(color.error, "Error while trying to create the reading process \n");
+		printf_color(color.error, "Error while trying to create the reading process\n");
 		return 0;
 	}
 

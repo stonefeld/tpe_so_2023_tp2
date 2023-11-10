@@ -5,12 +5,14 @@
 #include <semaphore.h>
 #include <stdint.h>
 
+#define MAX_NAME 32
+
 typedef struct
 {
 	uint8_t value;
 	int8_t lock;
 	uint8_t linked_processes;
-	const char* name;
+	char name[MAX_NAME];
 	Queue waiting_processes;
 } SemInfo;
 
@@ -49,7 +51,7 @@ sem_open(const char* name, uint8_t initial_value)
 		asm_unlock(&big_lock);
 		return -1;
 	}
-	semaphores[idx]->name = name;
+	strcpy(semaphores[idx]->name, name);
 	asm_unlock(&big_lock);
 	return (Semaphore)idx;
 }
@@ -62,16 +64,16 @@ sem_close(Semaphore sem)
 		asm_unlock(&big_lock);
 		return -1;
 	}
+
 	asm_lock(&(semaphores[sem]->lock));
 	asm_unlock(&big_lock);
 	if (semaphores[sem]->linked_processes == 1) {
 		semaphores[sem]->linked_processes = 0;
-		asm_unlock(&(semaphores[sem]->lock));
 		free(sem);
 		return 0;
 	}
 
-	semaphores[sem]->linked_processes -= 1;
+	semaphores[sem]->linked_processes--;
 	asm_unlock(&semaphores[sem]->lock);
 	return 0;
 }
@@ -110,6 +112,7 @@ sem_post(Semaphore sem)
 		asm_unlock(&big_lock);
 		return -1;
 	}
+
 	asm_lock(&semaphores[sem]->lock);
 	asm_unlock(&big_lock);
 
@@ -143,11 +146,11 @@ static int
 create(int idx, int initial_value)
 {
 	semaphores[idx] = mm_alloc(sizeof(SemInfo));
-	if (semaphores[idx] == NULL) {
+	if (semaphores[idx] == NULL)
 		return -1;
-	}
 
 	semaphores[idx]->value = initial_value;
+	semaphores[idx]->lock = 0;
 	semaphores[idx]->linked_processes = 1;
 	semaphores[idx]->waiting_processes = queue_create();
 
@@ -164,6 +167,7 @@ static void
 free(Semaphore sem)
 {
 	queue_free(semaphores[sem]->waiting_processes);
+	asm_unlock(&semaphores[sem]->lock);
 	mm_free(semaphores[sem]);
 	semaphores[sem] = NULL;
 }

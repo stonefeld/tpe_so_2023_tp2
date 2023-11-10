@@ -94,7 +94,6 @@ init_philo_dilemma(int argc, char* argv[])
 	for (int i = 0; i < philo_count; i++)
 		asm_waitpid(philos[i].philo_pid);
 
-	philo_kill();
 	return 0;
 }
 

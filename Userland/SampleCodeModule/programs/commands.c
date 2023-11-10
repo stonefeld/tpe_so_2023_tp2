@@ -422,6 +422,7 @@ wc(int argc, char** argv)
 		if (len != 0 || !eof)
 			lines++;
 	} while (!eof);
+	puts("Lines read: ", color.output);
 	int_to_str(lines, buff);
 	puts(buff, color.output);
 	putchar('\n', color.output);

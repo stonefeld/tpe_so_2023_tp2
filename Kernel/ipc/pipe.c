@@ -469,8 +469,8 @@ close_callback(int pid, int fd)
 		}
 	}
 
-	if(pipe->readers == 0 && pipe->writers == 0  && pipe->buffer != NULL){
-		char* c = (char*)pipe->buffer + pipe->read_idx -1;
+	if (pipe->readers == 0 && pipe->writers == 0 && pipe->buffer != NULL) {
+		char* c = (char*)pipe->buffer + pipe->read_idx - 1;
 		if (strncmp(c, "\e", 1) == 0) {
 			pipe_free(pipe_fd->pipe_id);
 		}
@@ -496,8 +496,8 @@ dup_callback(int pid_from, int pid_to, int fd_from, int fd_to)
 		return -1;
 
 	int i = find_free_pipe_fd();
-	
-	if(i == -1)
+
+	if (i == -1)
 		return -1;
 
 	new_pipe_fd->pipe_id = pipe_fd->pipe_id;
@@ -506,13 +506,12 @@ dup_callback(int pid_from, int pid_to, int fd_from, int fd_to)
 	new_pipe_fd->pid = pid_to;
 	new_pipe_fd->fd = fd_to;
 
-	if(new_pipe_fd->allow_rd)
+	if (new_pipe_fd->allow_rd)
 		pipe->readers++;
-	if(new_pipe_fd->allow_wr)
+	if (new_pipe_fd->allow_wr)
 		pipe->writers++;
 
 	pipe_fd_table[i] = new_pipe_fd;
 
 	return 0;
-
 }

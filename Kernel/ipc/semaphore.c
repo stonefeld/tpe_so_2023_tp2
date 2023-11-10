@@ -65,6 +65,8 @@ sem_close(Semaphore sem)
 	asm_lock(&(semaphores[sem]->lock));
 	asm_unlock(&big_lock);
 	if (semaphores[sem]->linked_processes == 1) {
+		semaphores[sem]->linked_processes = 0;
+		asm_unlock(&(semaphores[sem]->lock));
 		free(sem);
 		return 0;
 	}

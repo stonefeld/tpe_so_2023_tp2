@@ -170,7 +170,7 @@ sch_get_proc_info(int pid, Process* info)
 int
 sch_get_running_pid()
 {
-	for (int i = MAX_PROCESSES - 1; i >= 0; i--) {
+	for (int i = MAX_PROCESSES - 1; i > 0; i--) {
 		if (!is_active(i))
 			continue;
 		if (proc_is_fg(i))

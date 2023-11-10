@@ -6,7 +6,7 @@
 #include <test_util.h>
 #include <tests.h>
 
-#define SEM_ID "sem"
+#define SEM_ID               "sem"
 #define TOTAL_PAIR_PROCESSES 3
 
 int64_t global;  // shared memory
@@ -66,7 +66,6 @@ my_process_inc(int argc, char* argv[])
 int
 test_sync(int argc, char* argv[])
 {
-	//{n, use_sem, 0}
 	uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
 	if (argc != 2)

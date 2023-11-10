@@ -4,7 +4,7 @@
 
 struct node
 {
-	uint8_t elem;
+	int elem;
 	struct node* next;
 };
 
@@ -16,6 +16,7 @@ struct queue_adt
 };
 
 static void free_rec(struct node* current);
+static struct node* remove_rec(struct node* current, int elem);
 
 Queue
 queue_create()
@@ -40,7 +41,7 @@ queue_free(Queue queue)
 }
 
 int
-queue_add(Queue queue, uint8_t elem)
+queue_add(Queue queue, int elem)
 {
 	if (queue == NULL)
 		return -1;
@@ -86,6 +87,15 @@ queue_pop(Queue queue)
 }
 
 int
+queue_remove(Queue queue, int elem)
+{
+	if (queue == NULL)
+		return -1;
+	queue->first = remove_rec(queue->first, elem);
+	return 0;
+}
+
+int
 queue_unblock(Queue queue)
 {
 	if (queue == NULL)
@@ -123,4 +133,18 @@ free_rec(struct node* node)
 	free_rec(node->next);
 	sch_unblock(node->elem);
 	mm_free(node);
+}
+
+static struct node*
+remove_rec(struct node* current, int elem)
+{
+	if (current == NULL)
+		return NULL;
+	if (current->elem == elem) {
+		struct node* ret = current->next;
+		mm_free(current);
+		return ret;
+	}
+	current->next = remove_rec(current->next, elem);
+	return current;
 }

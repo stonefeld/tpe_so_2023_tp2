@@ -24,6 +24,8 @@ typedef struct
 
 	FileDescriptor fds[MAX_FDS];
 	Queue waiting_pids;
+
+	int parent_pid;
 	Queue child_pids;
 } ProcessContext;
 
@@ -89,6 +91,7 @@ proc_create(const ProcessCreateInfo* create_info)
 	                      (const char* const*)argv);
 
 	int parent_pid = sch_get_current_pid();
+	process->parent_pid = parent_pid;
 	if (parent_pid >= 0) {
 		ProcessContext* parent_proc = &processes[parent_pid];
 
@@ -108,6 +111,8 @@ proc_create(const ProcessCreateInfo* create_info)
 int
 proc_kill(int pid, uint8_t status)
 {
+	sch_block(pid);
+
 	ProcessContext* process;
 	if (!get_process_from_pid(pid, &process))
 		return -1;
@@ -119,6 +124,10 @@ proc_kill(int pid, uint8_t status)
 		proc_kill(child_pid, -1);
 	mm_free(process->child_pids);
 
+	ProcessContext* parent_proc;
+	if (get_process_from_pid(process->parent_pid, &parent_proc))
+		queue_remove(parent_proc->child_pids, pid);
+
 	if (process->waiting_pids != NULL)
 		queue_free(process->waiting_pids);
 
@@ -128,6 +137,7 @@ proc_kill(int pid, uint8_t status)
 	for (int i = 0; i < MAX_FDS; i++) {
 		if (process->fds[i].close_callback != NULL)
 			process->fds[i].close_callback(pid, i);
+
 		process->fds[i].read_callback = NULL;
 		process->fds[i].write_callback = NULL;
 		process->fds[i].close_callback = NULL;
@@ -249,15 +259,12 @@ proc_dup(int pid, int fd_original, int fd_final)
 	process->fds[fd_final].close_callback = process->fds[fd_original].close_callback;
 	process->fds[fd_final].dup_callback = process->fds[fd_original].dup_callback;
 
-	// if(process->fds[fd_original].close_callback != NULL)
-	// 	process->fds[fd_original].close_callback(pid, fd_original);
-
-	if(process->fds[fd_final].dup_callback != NULL)
+	if (process->fds[fd_final].dup_callback != NULL)
 		process->fds[fd_final].dup_callback(pid, pid, fd_original, fd_final);
 
 	return 0;
 }
-//0xf031e0,
+
 int
 proc_is_fg(int pid)
 {

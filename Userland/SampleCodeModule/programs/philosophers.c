@@ -71,10 +71,12 @@ init_philo_dilemma(int argc, char* argv[])
 		return -1;
 	}
 
-	for (int i = 0; i < MAX_PHILOSOPHERS; ++i)
+	for (int i = 0; i < philo_count; i++) {
+		philos[i].philo_name = NULL;
 		forks[i] = -1;
+	}
 
-	for (int i = 0; i < philo_count; ++i) {
+	for (int i = 0; i < philo_count; i++) {
 		if (add_philo(i) == -1)
 			return -1;
 		if (add_fork(i) == -1)
@@ -93,7 +95,6 @@ init_philo_dilemma(int argc, char* argv[])
 	for (int i = 0; i < philo_count; i++)
 		asm_waitpid(philos[i].philo_pid);
 
-	terminate_philos();
 	terminate_forks();
 	return 0;
 }
@@ -140,7 +141,7 @@ static int
 add_philo(int idx)
 {
 	if (philos[idx].philo_name != NULL) {
-		puts("Failed adding philosopher", color.error);
+		puts("Failed adding philosopher\n", color.error);
 		return -1;
 	}
 
@@ -148,7 +149,17 @@ add_philo(int idx)
 	philos[idx].philo_state = THINKING;
 	int_to_str(idx, buff);
 	char* argv[] = { buff };
-	philos[idx].philo_pid = my_create_process(philo_names[idx], philosopher, 1, argv);
+
+	ProcessCreateInfo create_info = {
+		.argc = 1,
+		.argv = argv,
+		.name = philo_names[idx],
+		.entry_point = philosopher,
+		.is_fg = 0,
+		.priority = 0,
+	};
+	philos[idx].philo_pid = asm_execve(&create_info);
+
 	return 0;
 }
 
@@ -164,7 +175,7 @@ add_fork(int idx)
 	forks[idx] = asm_sem_open(sem_name, 1);
 	asm_free(sem_name);
 	if (forks[idx] == -1) {
-		puts("Could not initialized semaphore\n", color.error);
+		puts("Could not initialize semaphore\n", color.error);
 		terminate_philos();
 		terminate_forks();
 		return -1;
@@ -176,7 +187,7 @@ add_fork(int idx)
 static void
 terminate_philos()
 {
-	for (int i = 0; i < philo_count; ++i) {
+	for (int i = 0; i < philo_count; i++) {
 		asm_kill(philos[i].philo_pid);
 		philos[i].philo_name = NULL;
 	}
@@ -185,12 +196,12 @@ terminate_philos()
 static void
 terminate_forks()
 {
-	for (int i = 0; i < MAX_PHILOSOPHERS && forks[i] >= -1; ++i)
+	for (int i = 0; i < MAX_PHILOSOPHERS && forks[i] >= -1; i++)
 		asm_sem_close(forks[i]);
 
 	asm_sem_close(sem_big_fork);
 
-	for (int i = 0; i < philo_count; ++i)
+	for (int i = 0; i < philo_count; i++)
 		forks[i] = -1;
 }
 

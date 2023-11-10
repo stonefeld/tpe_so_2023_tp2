@@ -30,5 +30,6 @@ int sch_get_current_pid();
 int sch_get_proc_info(int pid, Process* info);
 ProcessStatus sch_get_proc_status(int pid);
 int sch_get_proc_exit_status(int pid);
+int sch_get_running_pid();
 
 #endif

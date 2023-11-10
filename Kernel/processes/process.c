@@ -24,6 +24,7 @@ typedef struct
 
 	FileDescriptor fds[MAX_FDS];
 	Queue waiting_pids;
+	Queue child_pids;
 } ProcessContext;
 
 static ProcessContext processes[MAX_PROCESSES];
@@ -87,6 +88,20 @@ proc_create(const ProcessCreateInfo* create_info)
 	                      create_info->argc,
 	                      (const char* const*)argv);
 
+	int parent_pid = sch_get_current_pid();
+	if (parent_pid >= 0) {
+		ProcessContext* parent_proc = &processes[parent_pid];
+
+		if (parent_proc->child_pids == NULL && (parent_proc->child_pids = queue_create()) == NULL) {
+			proc_kill(pid, -1);
+			return -1;
+		}
+		if (queue_add(parent_proc->child_pids, pid) == -1) {
+			proc_kill(pid, -1);
+			return -1;
+		}
+	}
+
 	return pid;
 }
 
@@ -99,13 +114,17 @@ proc_kill(int pid, uint8_t status)
 
 	sch_on_process_killed(pid, status);
 
+	int child_pid;
+	while ((child_pid = queue_pop(process->child_pids)) != -1)
+		proc_kill(child_pid, -1);
+	mm_free(process->child_pids);
+
 	if (process->waiting_pids != NULL)
 		queue_free(process->waiting_pids);
 
 	for (int i = 0; i < process->argc; i++)
 		mm_free(process->argv[i]);
 
-	// close all fds
 	for (int i = 0; i < MAX_FDS; i++) {
 		if (process->fds[i].close_callback != NULL)
 			process->fds[i].close_callback(pid, i);

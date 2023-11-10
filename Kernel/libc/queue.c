@@ -67,6 +67,25 @@ queue_add(Queue queue, uint8_t elem)
 }
 
 int
+queue_pop(Queue queue)
+{
+	if (queue == NULL)
+		return -1;
+
+	if (queue->first != NULL) {
+		if (queue->first->next == NULL)
+			queue->last = NULL;
+		struct node* current = queue->first;
+		int pid = current->elem;
+		queue->first = queue->first->next;
+		mm_free(current);
+		queue->count--;
+		return pid;
+	}
+	return -1;
+}
+
+int
 queue_unblock(Queue queue)
 {
 	if (queue == NULL)

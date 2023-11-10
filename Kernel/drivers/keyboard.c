@@ -78,8 +78,7 @@ keyboard_handler()
 			if (control && code == 'd')
 				put_buffer('\e');
 			else if (control && code == 'c')
-				// TODO: manejar el CTRL+C
-				continue;
+				proc_kill(sch_get_running_pid(), -1);
 			else
 				put_buffer(code);
 		}

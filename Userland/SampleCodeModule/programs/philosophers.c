@@ -102,7 +102,6 @@ static int
 philosopher(int argc, char** argv)
 {
 	int philo_idx = str_to_int(argv[0]);
-	// ???????????????
 	philo_think(philo_idx);
 	philo_eat(philo_idx);
 	philos[philo_idx].philo_state = THINKING;

@@ -9,7 +9,7 @@
 
 #define MAX_ARGS     10
 #define MAX_COMMANDS 30
-#define BUFF_SIZE    64
+#define BUFF_SIZE    128
 
 typedef struct
 {
@@ -405,7 +405,6 @@ cat(int argc, char** argv)
 	return 0;
 }
 
-// TODO: wc cuenta lines no chars
 static int
 wc(int argc, char** argv)
 {
@@ -413,10 +412,11 @@ wc(int argc, char** argv)
 		return -1;
 
 	uint8_t eof;
-	int lines = 0;
+	int lines = 0, len;
 	do {
-		gets(buff, BUFF_SIZE, &eof, color.fg);
-		lines++;
+		len = gets(buff, BUFF_SIZE, &eof, color.fg);
+		if (len != 0 || !eof)
+			lines++;
 	} while (!eof);
 	int_to_str(lines, buff);
 	puts(buff, color.output);

@@ -175,13 +175,12 @@ cmd_execute(char* buf, uint32_t len)
 		int_to_str(pid2, buf);
 		pname = strcat((char*)create_info1.name, buf);
 
-		asm_pipe_open(pid1, pname, pipes);
-		asm_dup(pid1, STDOUT, pipes[1]);
+		asm_pipe_open(pid1, pname ,pipes);
+		asm_dup(pid1, pipes[1], STDOUT);
 		asm_close(pid1, pipes[0]);
 		asm_close(pid1, pipes[1]);
-
-		asm_pipe_open(pid2, pname, pipes);
-		asm_dup(pid2, STDIN, pipes[0]);
+		asm_pipe_open(pid2, pname ,pipes);
+		asm_dup(pid2, pipes[0], STDIN);
 		asm_close(pid2, pipes[0]);
 		asm_close(pid2, pipes[1]);
 	}
@@ -191,7 +190,7 @@ cmd_execute(char* buf, uint32_t len)
 		ret1 = asm_waitpid(pid1);
 		if (is_piped) {
 			ret2 = asm_waitpid(pid2);
-			asm_pipe_unlink(pname);
+			//asm_pipe_unlink(pname);
 			asm_free(pname);
 		}
 		return ret1 || ret2;

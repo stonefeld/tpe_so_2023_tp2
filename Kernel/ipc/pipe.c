@@ -458,30 +458,21 @@ close_callback(int pid, int fd)
 		empty_fd_table(pipe_fd->pipe_id, pid, fd);
 		if (pipe->readers == 0) {
 			queue_unblock_all(pipe->wr_q);
-
-			if (pipe->writers == 0) {
-				char* c = (char*)pipe->buffer + pipe->read_idx;
-				if (strncmp(c, "\e", 1) == 0) {
-					empty_fd_table(pipe_fd->pipe_id, -1, -1);
-					pipe_free(pipe_fd->pipe_id);
-				}
-			}
 		}
 	}
-
 	if (pipe_fd->allow_wr) {
 		pipe->writers--;
 		empty_fd_table(pipe_fd->pipe_id, pid, fd);
 		if (pipe->writers == 0) {
 			write_callback(pid, fd, "\e", 1, 0);
 			queue_unblock_all(pipe->rd_q);
-			if (pipe->readers == 0) {
-				char* c = (char*)pipe->buffer + pipe->read_idx;
-				if (strncmp(c, "\e", 1) == 0) {
-					empty_fd_table(pipe_fd->pipe_id, -1, -1);
-					pipe_free(pipe_fd->pipe_id);
-				}
-			}
+		}
+	}
+
+	if(pipe->readers == 0 && pipe->writers == 0  && pipe->buffer != NULL){
+		char* c = (char*)pipe->buffer + pipe->read_idx -1;
+		if (strncmp(c, "\e", 1) == 0) {
+			pipe_free(pipe_fd->pipe_id);
 		}
 	}
 
@@ -499,5 +490,29 @@ dup_callback(int pid_from, int pid_to, int fd_from, int fd_to)
 	if (pipe == NULL)
 		return -1;
 
-	return pipe_map_fd(pid_to, fd_to, pipe_fd->pipe_id, pipe_fd->allow_rd, pipe_fd->allow_wr);
+	PipeFd* new_pipe_fd = mm_alloc(sizeof(PipeFd));
+
+	if (new_pipe_fd == NULL)
+		return -1;
+
+	int i = find_free_pipe_fd();
+	
+	if(i == -1)
+		return -1;
+
+	new_pipe_fd->pipe_id = pipe_fd->pipe_id;
+	new_pipe_fd->allow_rd = pipe_fd->allow_rd;
+	new_pipe_fd->allow_wr = pipe_fd->allow_wr;
+	new_pipe_fd->pid = pid_to;
+	new_pipe_fd->fd = fd_to;
+
+	if(new_pipe_fd->allow_rd)
+		pipe->readers++;
+	if(new_pipe_fd->allow_wr)
+		pipe->writers++;
+
+	pipe_fd_table[i] = new_pipe_fd;
+
+	return 0;
+
 }

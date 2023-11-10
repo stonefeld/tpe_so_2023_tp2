@@ -1,6 +1,7 @@
 ---
 output: pdf_document
 numbersections: true
+colorlinks: true
 indent: true
 header-includes: |
   \usepackage{graphicx}
@@ -32,22 +33,66 @@ header-includes: |
   \vfill
   {\large Segundo cuatrimestre 2023 - Grupo 7\par}
 \end{titlepage}
+
+\renewcommand{\contentsname}{Tabla de contenidos}
+\tableofcontents
 ```
-# Tabla de contenidos
 
-* [Introducción](#introducción)
-* [Decisiones tomadas](#decisiones-tomadas)
-* [Instrucciones de compilación y ejecución](#instrucciones-de-compilación-y-ejecución)
-* [Pasos a seguir](#pasos-a-seguir)
-* [Limitaciones](#limitaciones)
-* [Problemas encontrados](#problemas-encontrados)
-* [Citas de fragmentos de código reutilizados](#citas-de-fragmentos-de-código-reutilizados)
-* [Modificaciones realizadas a tests provistos](#modificaciones-realizadas-a-tests-provistos)
-
+\newpage
 # Introducción
 
 A lo largo de nuestro recorrido en la materia, hemos explorado el manejo de la API de sistemas operativos UNIX, adquiriendo valiosas destrezas en el proceso. Ahora, nos embarcamos en la tarea de crear nuestro propio kernel, basándonos en el proyecto final de la asignatura Arquitectura de Computadoras. Este desafío implica la implementación integral de aspectos clave, como la administración de memoria, la gestión de procesos, la planificación (scheduling) eficiente, así como la integración de mecanismos de Comunicación entre Procesos (IPC) y estrategias de sincronización.
 
+\newpage
+# Instrucciones de compilación y ejecución
+
+El comando `./compile.sh` realizará las siguientes tareas:
+
+* Descargará la imágen de `agodio/itba-so:2.0` de docker donde se compilará el proyecto.
+* Creará un nuevo contenedor preparado para compilar el proyecto como si fuéramos nosotros porque crea un usuario con nuestro mismo **uid** y **gid**.
+* Iniciará el contenedor para que siempre esté corriendo.
+* Enviará los comandos necesarios para limpiar y compilar el proyecto completo.
+
+Esa es la funcionalidad base del comando `./compile.sh`. A su vez, cuenta con dos flags que pueden ser enviados:
+
+* `-d`: Compila el proyecto con información de debugging para poder utilizar gdb y ejecutar paso a paso el código.
+* `-r`: Una vez compilado el proyecto completo, si no ocurrió ningún error durante el proceso, se ejecuta el comando `./run.sh`, es decir, una vez compilado el proyecto, lo ejecuta.
+
+> **Nota:** Si se corre el comando con ambos flags en simultáneo, es decir, `./compile.sh -d -r`, el proyecto se compilará y ejecutará en modo debugging. Si solo se utiliza el flag `-r`, se compilará en modo normal y se ejecutará en modo normal, sin información de debugging.
+
+Para cambiar el `memory manager` utilizado, debe ir a el archivo `Makefile.inc` dentro de la carpeta `Kernel` y debajo del todo podra observar el comando `MEMORY_MANAGER`. Utilice la primer opcion para elegir el memory manager de listas y el segundo para utilizar el memory manager buddy
+
+```make
+MEMORY_MANAGER=USE_LIST
+MEMORY_MANAGER=USE_BUDDY
+```
+
+# Pasos a seguir
+
+Una vez ejecutado el comando `./compile.sh` se abrirá la terminal y se deberá ejecutar el comando `help` para poder apreciar todos los distintos comandos que ofrecemos, los cuales son:
+
+## Comandos
+
+### Comandos generales
+* `help`: muestra una lista con todos los comandos disponibles.
+
+### Comandos de memoria
+* `mem`: Imprime el estado de la memoria.
+
+### Comandos de procesos
+* `ps`: Imprime la lista de todos los procesos con sus propiedades: nombre, ID, prioridad, stack y base pointer, foreground y cualquier otra variable que consideren necesaria.
+* `loop`: Imprime su ID con un saludo cada una determinada cantidad de segundos.
+* `kill`: Mata un proceso dado su ID.
+* `nice`: Cambia la prioridad de un proceso dado su ID y la nueva prioridad.
+* `block`: Cambia el estado de un proceso entre bloqueado y listo dado su ID
+
+### Comandos de IPC
+* `cat`: Imprime el stdin tal como lo recibe.
+* `wc`: Cuenta la cantidad de líneas del input.
+* `filter`: Filtra las vocales del input.
+* `phylo`: Implementa el problema de los filósofos comensales.
+
+\newpage
 # Decisiones tomadas
 
 ## Estructura
@@ -124,51 +169,6 @@ Aplicamos este mismo razonamiento para otras implementaciones, por ejemplo, para
 static Pipe* pipe_table[MAX_PIPES];
 static SemInfo* semaphores[MAX_SEMAPHORES];
 ```
-# Instrucciones de compilación y ejecución
-
-El comando `./compile.sh` realizará las siguientes tareas:
-
-* Descargará la imágen de `agodio/itba-so:1.0` de docker donde se compilará el proyecto.
-* Creará un nuevo contenedor preparado para compilar el proyecto como si fuéramos nosotros porque crea un usuario con nuestro mismo **uid** y **gid**.
-* Iniciará el contenedor para que siempre esté corriendo.
-* Enviará los comandos necesarios para limpiar y compilar el proyecto completo.
-
-Esa es la funcionalidad base del comando `./compile.sh`. A su vez, cuenta con dos flags que pueden ser enviados:
-
-* `-d`: Compila el proyecto con información de debugging para poder utilizar gdb y ejecutar paso a paso el código.
-* `-r`: Una vez compilado el proyecto completo, si no ocurrió ningún error durante el proceso, se ejecuta el comando `./run.sh`, es decir, una vez compilado el proyecto, lo ejecuta.
-
-> **Nota:** Si se corre el comando con ambos flags en simultáneo, es decir, `./compile.sh -d -r`, el proyecto se compilará y ejecutará en modo debugging. Si solo se utiliza el flag `-r`, se compilará en modo normal y se ejecutará en modo normal, sin información de debugging.
-
-Para cambiar el `memory manager` utilizado, debe ir a el archivo `Makefile.inc` dentro de la carpeta `Kernel` y debajo del todo podra observar el comando `MEMORY_MANAGER`. Utilice la primer opcion para elegir el memory manager de listas y el segundo para utilizar el memory manager buddy
-
-```make
-MEMORY_MANAGER=USE_LIST
-MEMORY_MANAGER=USE_BUDDY
-```
-
-# Pasos a seguir
-
-Una vez ejecutado el comando `./compile.sh` se abrirá la terminal y se deberá ejecutar el comando `help` para poder apreciar todos los distintos comandos que ofrecemos, los cuales son:
-
-### Comandos generales
-* `help`: muestra una lista con todos los comandos disponibles.
-
-### Comandos de memoria
-* `mem`: Imprime el estado de la memoria.
-
-### Comandos de procesos
-* `ps`: Imprime la lista de todos los procesos con sus propiedades: nombre, ID, prioridad, stack y base pointer, foreground y cualquier otra variable que consideren necesaria.
-* `loop`: Imprime su ID con un saludo cada una determinada cantidad de segundos.
-* `kill`: Mata un proceso dado su ID.
-* `nice`: Cambia la prioridad de un proceso dado su ID y la nueva prioridad.
-* `block`: Cambia el estado de un proceso entre bloqueado y listo dado su ID
-
-### Comandos de IPC
-* `cat`: Imprime el stdin tal como lo recibe.
-* `wc`: Cuenta la cantidad de líneas del input.
-* `filter`: Filtra las vocales del input.
-* `phylo`: Implementa el problema de los filósofos comensales.
 
 # Limitaciones
 
@@ -178,6 +178,9 @@ Como se mencionó en las decisiones tomadas, una gran limitación del código qu
 
 ## `CTRL+C` en dilema de filósofos
 
+Al abortar el programa de filosofos a la mitad, no se realiza el free de los semaforos y no se los elimina del array estatico. Por lo cual en cualquier programa que utilice muchos semaforos y se cancele al medio, ocupara mucho espacio en los semaforos. Lo que llevara a que no se puedan crear mas en cierto momento.
+
+Si se ejecuta el programa `philo` y se lo aborta varias veces, se obtendra un error que indica que no hay mas espacio para crear semaforos.
 
 # Problemas encontrados
 
@@ -202,10 +205,6 @@ El `while` agarra un proceso hijo a la vez y lo mata, mientras que el `if` pregu
 
 Para poner un ejemplo, si se ejecuta `testproc` el cual crea muchos procesos, al eliminar este proceso, también se eliminan todos los procesos creados por el `testproc` y este mismo se elimina de la `queue` de su padre, el cual vendría a ser la `shell`.
 
-# Citas de fragmentos de código reutilizados
-
-Para las syscalls nos basamos en el código de las [syscalls de Linux](https://faculty.nps.edu/cseagle/assembly/sys_call.html). Esta lógica fue útil exceptuando para las syscalls de semáforos ya que Linux no tiene ID para estas, por lo cual decidimos poner estas syscalls a partir del ID número 50.
-
 # Modificaciones realizadas a tests provistos
 
 Las principales funcionalidades de los tests no fueron cambiadas, los resultados esperados siguen siendo los mismos. Algunos cambios fueron:
@@ -213,3 +212,8 @@ Las principales funcionalidades de los tests no fueron cambiadas, los resultados
 * Junto con la inclusión del `puts`, incluimos nuestros colores para poder imprimir por pantalla con los colores correctos, por ejemplo, imprimir los errores de color rojo.
 * Las syscalls denominadas `my_sys` en el archivo `syscalls.c` fueron adaptadas a nuestro código, haciendo la llamada a assembler correspondiente y retornando el valor correcto.
 * Creamos un test para comprobar el buen funcionamiento de los pipes.
+
+\newpage
+# Citas de fragmentos de código reutilizados
+
+Para las syscalls nos basamos en el código de las [syscalls de Linux](https://faculty.nps.edu/cseagle/assembly/sys_call.html). Esta lógica fue útil exceptuando para las syscalls de semáforos ya que Linux no tiene ID para estas, por lo cual decidimos poner estas syscalls a partir del ID número 50.

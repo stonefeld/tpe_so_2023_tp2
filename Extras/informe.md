@@ -135,6 +135,8 @@ typedef struct
 
 	int parent_pid;
 	Queue child_pids;
+
+	KillCallback kill_callback;
 } ProcessContext;
 ```
 
@@ -176,15 +178,25 @@ static SemInfo* semaphores[MAX_SEMAPHORES];
 
 Como se mencionó en las decisiones tomadas, una gran limitación del código que se deicidio escribir, es la elección de arrays estáticos. Al tomar esta decisión hay una máxima cantidad de procesos que el usuario puede crear, el cual es la principal limitación del código. También hay una máxima cantidad de semáforos y pipes que se pueden crear, lo cual añaden a las limitaciones de nuestro código.
 
-## `CTRL+C` en dilema de filósofos
-
-Al abortar el programa de filosofos a la mitad, no se realiza el free de los semaforos y no se los elimina del array estatico. Por lo cual en cualquier programa que utilice muchos semaforos y se cancele al medio, ocupara mucho espacio en los semaforos. Lo que llevara a que no se puedan crear mas en cierto momento.
-
-Si se ejecuta el programa `philo` y se lo aborta varias veces, se obtendra un error que indica que no hay mas espacio para crear semaforos.
-
 # Problemas encontrados
 
-## 
+## `CTRL+C` en dilema de filósofos
+
+Al abortar el programa de filósofos a la mitad, no se realiza el free de los semáforos y no se los elimina del array estático. Por lo cual en cualquier programa que utilice muchos semáforos y se cancele al medio, ocupara mucho espacio en los semáforos. Lo que llevara a que no se puedan crear más en cierto momento. Si se ejecutaba el programa `philo` y se lo aborta varias veces, se obtendrá un error que indica que no hay más espacio para crear semáforos.
+
+La solución planteada es el agregado de un `kill callback`, el cual es un puntero a función que se debe correr cada vez que se mata a un proceso. En caso de que se asigne una función `kill callback` esta se llama cuando el proceso muere.
+
+```c
+if (process->kill_callback != NULL)
+		process->kill_callback();
+```
+Por eso, si se interrumpe un proceso el cual aloco memoria, este proceso llama a una función que haga el free de la memoria. En el caso de los filósofos, esta función realiza el free de los semáforos y de los nombres de los filósofos para que la función `philo` pueda ser llamada nuevamente.
+
+## Creado de queue
+
+Un problema grande que tuvimos fue con el creado del queue. Al crear el archivo por primera vez, creamos muchas funciones que podíamos llegar a usar. El problema surgió al testear la memoria utilizando el comando `mem`. Podíamos observar con ambos memory manager un `memory leak` de distintos tamaños (para ambos memory manager) cada vez que se creaba un proceso. Por esta razón, estuvimos mucho tiempo debbugeando hasta concluir que la liberación de memoria de las `queues` estaba mal.
+
+Si se ejecutan dos `mem` seguidos se puede ver como aumenta la memoria, lo cual podría parecer un memory leak, pero esto es incorrecto ya que si seguimos ejecutándolo deja de aumentar la memoria usada. Esto es debido a la creación de las `queues`, especialmente la `queue` que guarda los id de los proceses hijos. En el creado del proceso no se inicializa la `queue` de los procesos hijos, sino que es el primer hijo el cual crea esta `queue` a su padre. Se decidió realizarlo de esta manera porque muchos procesos no tienen proceso hijos, por lo cual asignar ese espacio de memoria en la creación de un proceso nos pareció innecesario. Por ende, el aumento en memoria que aparece en los primeros dos `mem` es esta `queue` siendo creada por primera vez, por su primer hijo.
 
 ## Al matar un proceso, matar a los hijos
 

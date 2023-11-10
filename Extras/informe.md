@@ -7,7 +7,7 @@ header-includes: |
   \usepackage{indentfirst}
   \usepackage{fancyhdr}
   \pagestyle{fancy}
-  \lhead{Sistema Operativos}
+  \lhead{Sistemas Operativos - 72.11}
   \rhead{Trabajo Práctico N° 2}
   \cfoot{\thepage}
   \renewcommand{\headrulewidth}{0.4pt}
@@ -28,7 +28,7 @@ header-includes: |
   Quian Blanco, Francisco\\
   Stanfield, Theo\par}
   \vfill
-  Sistema Operativos - 72.11
+  Sistemas Operativos - 72.11
   \vfill
   {\large Segundo cuatrimestre 2023 - Grupo 7\par}
 \end{titlepage}
@@ -179,7 +179,6 @@ Como se mencionó en las decisiones tomadas, una gran limitación del código qu
 ## `CTRL+C` en dilema de filósofos
 
 
-
 # Problemas encontrados
 
 ## 
@@ -205,9 +204,7 @@ Para poner un ejemplo, si se ejecuta `testproc` el cual crea muchos procesos, al
 
 # Citas de fragmentos de código reutilizados
 
-Para las syscalls nos basamos en el código de las syscalls de Linux, la cual se puede encontrar en el siguiente link: https://faculty.nps.edu/cseagle/assembly/sys_call.html
-
-Esta lógica fue útil exceptuando para las syscalls de semáforos ya que Linux no tiene ID para estas, por lo cual decidimos poner estas syscalls a partir del ID número 50.
+Para las syscalls nos basamos en el código de las [syscalls de Linux](https://faculty.nps.edu/cseagle/assembly/sys_call.html). Esta lógica fue útil exceptuando para las syscalls de semáforos ya que Linux no tiene ID para estas, por lo cual decidimos poner estas syscalls a partir del ID número 50.
 
 # Modificaciones realizadas a tests provistos
 

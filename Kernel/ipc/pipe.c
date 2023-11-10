@@ -97,7 +97,7 @@ pipe_free(PipeId id)
 		return -1;
 
 	// empty all fd table with this pipe
-	// empty_fd_table(id, -1);
+	empty_fd_table(id,-1, -1);
 
 	pipe_table[id] = NULL;
 
@@ -105,6 +105,7 @@ pipe_free(PipeId id)
 	queue_free(pipe->wr_q);
 	queue_free(pipe->rd_q);
 
+	mm_free(pipe);
 	return 0;
 }
 
@@ -132,9 +133,11 @@ empty_fd_table(int pipe_id, int pid, int fd)
 {
 	//  we empty all fd table entries with this pipe_id, pid, fd, if fd ==-1 then we empty all fd table entries with
 	//  this pipe_id, pid
+	// if pid == -1 then we empty all fd table entries with this pipe_id
 	for (int i = 0; i < PIPE_MAX_FD; i++) {
 		PipeFd* pipe_fd = pipe_fd_table[i];
-		if (pipe_fd != NULL && pipe_fd->pipe_id == pipe_id && pipe_fd->pid == pid && (fd == -1 || pipe_fd->fd == fd)) {
+		if (pipe_fd != NULL && pipe_fd->pipe_id == pipe_id && (pid == -1 || pipe_fd->pid == pid) &&
+		    (fd == -1 || pipe_fd->fd == fd)) {
 			pipe_fd_table[i] = NULL;
 			mm_free(pipe_fd);
 		}

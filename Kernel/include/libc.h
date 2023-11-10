@@ -20,6 +20,7 @@ uint32_t uint_to_base(uint64_t value, char* buff, uint32_t base);
 uint32_t int_to_str(int64_t value, char* buff);
 
 int strcmp(const char* str1, const char* str2);
+int strncmp(const char* str1, const char* str2, uint64_t n);
 
 int isalpha(char c);
 int isalnum(char c);

@@ -98,7 +98,7 @@ pipe_free(PipeId id)
 		return -1;
 
 	// empty all fd table with this pipe
-	empty_fd_table(id,-1, -1);
+	empty_fd_table(id, -1, -1);
 
 	pipe_table[id] = NULL;
 
@@ -162,6 +162,8 @@ pipe_unlink(char* name)
 		queue_unblock_all(pipe->wr_q);
 	if (pipe->writers == 0)
 		queue_unblock_all(pipe->rd_q);
+
+	pipe_free(pipe_id);
 
 	return 0;
 }
@@ -375,10 +377,9 @@ write_pipe_buffer(Pipe* pipe, char* buf, size_t count)
 		pipe->buffer = new_buf;
 		pipe->size = new_size;
 	}
-
-	if (pipe->bytes_to_read == 0)
-		pipe->read_idx = 0;
-
+	// 	if (pipe->bytes_to_read == 0)
+	// 		pipe->read_idx = 0;
+	// }
 	size_t write_idx = (pipe->read_idx + pipe->bytes_to_read) % pipe->size;
 	size_t avail_space = pipe->size - pipe->bytes_to_read;
 
@@ -455,8 +456,17 @@ close_callback(int pid, int fd)
 	if (pipe_fd->allow_rd) {
 		pipe->readers--;
 		empty_fd_table(pipe_fd->pipe_id, pid, fd);
-		if (pipe->readers == 0)
+		if (pipe->readers == 0) {
 			queue_unblock_all(pipe->wr_q);
+
+			if (pipe->writers == 0) {
+				char* c = (char*)pipe->buffer + pipe->read_idx;
+				if (strncmp(c, "\e", 1) == 0) {
+					empty_fd_table(pipe_fd->pipe_id, -1, -1);
+					pipe_free(pipe_fd->pipe_id);
+				}
+			}
+		}
 	}
 
 	if (pipe_fd->allow_wr) {
@@ -465,15 +475,14 @@ close_callback(int pid, int fd)
 		if (pipe->writers == 0) {
 			write_callback(pid, fd, "\e", 1, 0);
 			queue_unblock_all(pipe->rd_q);
+			if (pipe->readers == 0) {
+				char* c = (char*)pipe->buffer + pipe->read_idx;
+				if (strncmp(c, "\e", 1) == 0) {
+					empty_fd_table(pipe_fd->pipe_id, -1, -1);
+					pipe_free(pipe_fd->pipe_id);
+				}
+			}
 		}
-	}
-
-	if (pipe->readers == 0 && pipe->writers == 0) {
-		empty_fd_table(pipe_fd->pipe_id, pid, -1);
-		if (pipe->bytes_to_read == 0)
-			pipe_free(pipe_fd->pipe_id);
-		pipe_fd_table[fd] = NULL;
-		mm_free(pipe_fd);
 	}
 
 	return 0;

@@ -244,24 +244,20 @@ proc_dup(int pid, int fd_original, int fd_final)
 	    !get_process_from_pid(pid, &process))
 		return -1;
 
-	ReadCallback raux = process->fds[fd_original].read_callback;
-	WriteCallback waux = process->fds[fd_original].write_callback;
-	CloseCallback caux = process->fds[fd_original].close_callback;
-	DupCallback daux = process->fds[fd_original].dup_callback;
+	process->fds[fd_final].read_callback = process->fds[fd_original].read_callback;
+	process->fds[fd_final].write_callback = process->fds[fd_original].write_callback;
+	process->fds[fd_final].close_callback = process->fds[fd_original].close_callback;
+	process->fds[fd_final].dup_callback = process->fds[fd_original].dup_callback;
 
-	process->fds[fd_original].read_callback = process->fds[fd_final].read_callback;
-	process->fds[fd_original].write_callback = process->fds[fd_final].write_callback;
-	process->fds[fd_original].close_callback = process->fds[fd_final].close_callback;
-	process->fds[fd_original].dup_callback = process->fds[fd_final].dup_callback;
+	// if(process->fds[fd_original].close_callback != NULL)
+	// 	process->fds[fd_original].close_callback(pid, fd_original);
 
-	process->fds[fd_final].read_callback = raux;
-	process->fds[fd_final].write_callback = waux;
-	process->fds[fd_final].close_callback = caux;
-	process->fds[fd_final].dup_callback = daux;
+	if(process->fds[fd_final].dup_callback != NULL)
+		process->fds[fd_final].dup_callback(pid, pid, fd_original, fd_final);
 
 	return 0;
 }
-
+//0xf031e0,
 int
 proc_is_fg(int pid)
 {

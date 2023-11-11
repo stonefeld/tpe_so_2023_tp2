@@ -26,8 +26,6 @@ static void setup_idt_entry(int index, uint64_t offset);
 void
 idt_loader()
 {
-	asm_cli();
-
 	// irqs
 	setup_idt_entry(0x20, (uint64_t)&asm_irq00_handler);  // tick handler
 	setup_idt_entry(0x21, (uint64_t)&asm_irq01_handler);  // keyboard handler
@@ -38,12 +36,11 @@ idt_loader()
 
 	// syscall handler
 	setup_idt_entry(0x80, (uint64_t)&asm_syscall_handler);
+	setup_idt_entry(0x81, (uint64_t)&asm_scheduler_handler);
 
 	// solo interrupción timer tick habilitadas
 	asm_pic_master_mask(0xFC);
 	asm_pic_slave_mask(0xFF);
-
-	asm_sti();
 }
 
 static void

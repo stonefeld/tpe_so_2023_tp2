@@ -1,14 +1,15 @@
 ---
 output: pdf_document
 numbersections: true
+colorlinks: true
 indent: true
 header-includes: |
   \usepackage{graphicx}
   \usepackage{indentfirst}
   \usepackage{fancyhdr}
   \pagestyle{fancy}
-  \lhead{Arquitectura de Computadoras - 72.08}
-  \rhead{Trabajo Práctico Especial}
+  \lhead{Sistemas Operativos - 72.11}
+  \rhead{Trabajo Práctico N° 2}
   \cfoot{\thepage}
   \renewcommand{\headrulewidth}{0.4pt}
   \renewcommand{\footrulewidth}{0.4pt}
@@ -20,161 +21,239 @@ header-includes: |
   \includegraphics[width=0.30\textwidth]{itba_logo}\par\vspace{1cm}
   {\textsc{Instituto Tecnológico de Buenos Aires} \par}
   \vspace{1cm}
-  {\Large \textsc{Trabajo Práctico Especial}\par}
+  {\Large \textsc{Trabajo Práctico N° 2}\par}
   \vspace{1.5cm}
-  {\huge\bfseries Informe\par}
+  {\huge\bfseries Construcción del Núcleo de un Sistema Operativo y estructuras de administración de recursos\par}
   \vspace{2cm}
   {\Large\itshape Perez de Gracia, Mateo\\
   Quian Blanco, Francisco\\
-  Stanfield, Theo\\
-  Ves Losada, Tobías\par}
+  Stanfield, Theo\par}
   \vfill
-  Arquitectura de Computadoras - 72.08
+  Sistemas Operativos - 72.11
   \vfill
-  {\large Primer cuatrimestre 2023\par}
+  {\large Segundo cuatrimestre 2023 - Grupo 7\par}
 \end{titlepage}
+
+\renewcommand{\contentsname}{Tabla de contenidos}
+\tableofcontents
 ```
+
+\newpage
 
 # Introducción
 
-El objetivo del presente informe es explicar y comentar las distintas decisiones y caminos tomados a la hora de realizar el TPE. La consigna consistía en desarrollar un Kernel booteable, tomando como base el Pure64 provisto por la cátedra.
-
-El mismo debe administrar recursos de hardware y proveer una API para los usuarios basada en la de Linux.
-
-El Kernel Space se encargará de interactuar de manera directa con el hardware y la memoria, implementando drivers que luego se utilizaran para manejar las excepciones e interrupciones.
-
-El User Space podrá hacer uso de algunas rutinas del Kernel Space mediante la interrupción de software 69h, manteniendo los límites trazados. El User Space nunca tiene acceso directo a los recursos, sino mediante dichas interrupciones (system calls).
+A lo largo de nuestro recorrido en la materia, hemos explorado el manejo de la API de sistemas operativos UNIX, adquiriendo valiosas destrezas en el proceso. Ahora, nos embarcamos en la tarea de crear nuestro propio kernel, basándonos en el proyecto final de la asignatura Arquitectura de Computadoras. Este desafío implica la implementación integral de aspectos clave, como la administración de memoria, la gestión de procesos, la planificación (scheduling) eficiente, así como la integración de mecanismos de Comunicación entre Procesos (IPC) y estrategias de sincronización.
 
 \newpage
-# Metodología Empleada
 
-## Software utilizado
+# Instrucciones de compilación y ejecución
 
-* **Docker:** Para compilar el proyecto desde un entorno común para todos.
-* **Qemu:** Para correr la imágen compilada en una máquina virtual.
-* **GDB (GNU Debugger):** Para debuguear el código línea por línea y solucionar errores que hemos encontrado.
-* **Git + GitHub:** Para manejar el versionado del proyecto y contribuir sobre una misma base de código.
+El comando `./compile.sh` realizará las siguientes tareas:
 
-## Reglas de Estilo
+- Descargará la imágen de `agodio/itba-so:2.0` de docker donde se compilará el proyecto.
+- Creará un nuevo contenedor preparado para compilar el proyecto como si fuéramos nosotros porque crea un usuario con nuestro mismo **uid** y **gid**.
+- Iniciará el contenedor para que siempre esté corriendo.
+- Enviará los comandos necesarios para limpiar y compilar el proyecto completo.
 
-Para mantener un estilo acorde y consistente, decidimos preestablecer algunos estilos de código y utilizamos el programa `clang-format` que permite con un archivo de configuración (`.clang-format`) setear los estilos deseados y autoformatear el código para mantener la consistencia.
+Esa es la funcionalidad base del comando `./compile.sh`. A su vez, cuenta con dos flags que pueden ser enviados:
 
-Algunos de los estilos utilizados son los siguientes:
+- `-d`: Compila el proyecto con información de debugging para poder utilizar gdb y ejecutar paso a paso el código.
+- `-r`: Una vez compilado el proyecto completo, si no ocurrió ningún error durante el proceso, se ejecuta el comando `./run.sh`, es decir, una vez compilado el proyecto, lo ejecuta.
 
-* Para variables y funciones utilizamos `snake_case`.
-* Para archivos utilizamos `camelCase`.
-* Para carpetas principales (como `Kernel` o `Userland`) utilizamos `PascalCase`.
-* Los `typedef` a tipos de datos como `struct` o `enum` utilizan `PascalCase`, simulando nomenclatura estándar de clases.
-* Espacios entre todos los operadores.
-* El tipo de retorno en la definición de las funciones se escribe en una línea y en la siguiente el nombre de la función.
-* Las llaves van en una nueva línea única y exclusivamente si pertenecen a la definición de una función o de estructuras complejas como `struct` o `enum`, si no se escriben en la misma línea que el operador de control.
-* Todo archivo `.c` debe tener su `.h` correspondiente, pero no necesariamente todo `.h` debe tener un `.c`. Similar para un archivo `.asm`.
-* El largo máximo de caracteres por línea son 120 caracteres.
+> **Nota:** Si se corre el comando con ambos flags en simultáneo, es decir, `./compile.sh -d -r`, el proyecto se compilará y ejecutará en modo debugging. Si solo se utiliza el flag `-r`, se compilará en modo normal y se ejecutará en modo normal, sin información de debugging.
 
-Esos son algunos de los estilos utilizados para mantener consistencia a lo largo de todo el proyecto.
+Para cambiar el `memory manager` utilizado, debe ir a el archivo `Makefile.inc` dentro de la carpeta `Kernel` y debajo del todo podra observar el comando `MEMORY_MANAGER`. Utilice la primer opcion para elegir el memory manager de listas y el segundo para utilizar el memory manager buddy
 
-\newpage
-# Kernel Space
-
-Todo el código perteneciente al _kernel space_ se encuentra en el directorio `Kernel/`.
-
-##  Modo Video
-
-Luego de analizar la consigna y la documentación de **Pure64**, se decidió habilitar el modo gráfico.
-
-Se habilitó mediante el bit `cfg_vesa` en `sysvar.asm`. A partir de la dirección donde se encontraba el `VBEModeInfoBlock` (`0x0000000000005C00`) definimos en **C** una estructura para manipular adecuadamente los datos.
-
-Rápidamente notamos que todo lo implementado en modo texto, como
-`naive_console`, no funcionaba correctamente en modo video. Ahora teníamos, pixel por pixel, una pantalla de `1024x768`.
-
-Para escribir texto, se utilizó un bitmap de 8x16 como fuente y se implementó un driver reconstruyendo y ampliando las funcionalidades de `naive_console`.
-
-## Interrupciones
-
-Definimos implementar _dispatchers_ para manejar tanto interrupciones como excepciones. Estas rutinas son cargadas a la IDT (_**I**nterrupt **D**escriptor **T**able_). La IDT se encuentra en la dirección 0x0h y la cargamos declarando un arreglo de estructuras al iniciar el Kernel.
-
-`irq_dispatcher` se encarga de manejar las interrupciones de hardware, que provienen del Timer Tick y Teclado. Se encuentran en las entradas `0x20` y `0x21` de la **IDT** respectivamente.
-
-`syscall_dispatcher` se encarga de manejar las system calls, que permiten al usuario llamar a ciertas funciones de los drivers de texto, video, sonido, tiempo, teclado, entre otros.
-
-## Excepciones
-
-El Kernel maneja dos excepciones, _Zero Division Error_ e _Invalid Opcode_ que se encuentran en el índice `0x0` y `0x6` de la **IDT** respectivamente. Cuando alguna de ellas ocurre, el procesador lanza una excepción que interrumpe la ejecución, la misma es atendida por `exception_dispatcher`.
-
-En ambos casos se muestra un mensaje de error. Se decidió que a la hora de devolver el control al usuario, se restauren los registros, el puntero al stack y se reinicie el `shell`.
-
-## Drivers
-
-* `text`: El driver de texto hace uso de funciones del driver de video para declarar funciones que permiten la impresión de texto en pantalla y funciones para el manejo de un cursor.
-* `sound`: Provee una función que permite reproducir sonidos de frecuencias y duraciones específicas.
-* `time`: Permite un cierto control sobre el tiempo como saber la cantidad o segundos que han pasado desde que corrió el programa y configurar sentencias de _sleep_, para demorar una ejecución por alguna razón.
-* `video`: Su función es todo lo relacionado al modo vídeo, dibujar píxeles (compuestos de 3 bytes, red, green y blue) y renderizar caracteres o imágenes/wallpapers.
-* `rtc`: Este driver se encarga de obtener el tiempo real del sistema y asignarle el formato correcto para ser llamado por la system call datetime.
-* `keyboard`: Este driver es el encargado de recibir los códigos de las teclas presionadas, convertirlos en sus correspondientes caracteres ASCII y guardarlos hasta que sean pedidos por el programa.
-
-\newpage
-# User Space
-
-Todo el código relacionado al User Space se encuentra en `Userland/SampleCodeModule/`.
-
-## Shell
-
-Una implementación modesta de un shell interactivo, similar a los disponibles en Linux. La misma permite interactuar con un set de comandos preestablecidos que demuestran la funcionalidad del sistema completo.
-
-### Comandos disponibles:
-
-* `help`: Imprime un mensaje de ayuda, mostrando todos los comandos disponibles y sus respectivas descripciones breves.
-* `datetime`: Imprime fecha y hora del sistema actual (en formato GMT-3).
-* `printreg`: Imprime los valores de los registros del procesador, capturados en algún momento de la ejecución al presionar la combinación de teclas `Ctrl+r`.
-* `pong`: El clásico juego _pong_. Permite realizar partidas de dos jugadores a 5 puntos.
-* `setcolor`: Permite setear los colores del shell en tiempo real.
-* `switchcolors`: Invierte el color de foreground, con el color de background.
-* `clear`: Limpia la pantalla completa.
-* `testioe`: **Test Invalid Opcode Exception**. Al ejecutarlo genera una excepción de tipo _Invalid Opcode_ asignando un valor al registro `cr6`.
-* `testzde`: **Test Zero Division Error Exception**. Al ejecutarlo genera una excepción de tipo _Zero Division Error_ simplemente intentando dividir por cero.
-* `exit`: Finaliza la ejecución del shell. Para demostrarlo se decidió poner dos mensajes por fuera del shell una vez que finaliza su ejecución, uno en _Userland_ al retornar del shell y otro en _Kernel_ al retornar de _Userland_. Se soluciona de esta manera pues al finalizar el programa, `qemu` no finaliza su ejecución, por lo que no quedaba claro si el comando `exit` cumplía lo pedido.
-
-## Pong
-
-El clásico juego Pong, permite jugar una partida de dos jugadores a 5 puntos.
-
-No hay mucho que decir del mismo más que tuvimos que realizar muchas optimizaciones en cuanto al dibujado de las figuras para evitar imágenes flasheantes por redibujar la pantalla completa. Por lo que se optó por dibujar únicamente las partes necesarias y “borrar” en las que las imágenes no están más (que era simplemente dibujar el mismo área con el color de fondo).
-
-Otro inconveniente más relevante se explica más adelante en la sección de “Problemas encontrados”.
-
-## Librería estándar
-
-Se puede encontrar la API en el archivo `stdlib.c` que cuenta con las siguientes funciones:
-
-```c
-uint8_t getchar(uint8_t* state);
-uint32_t gets(char* buff, uint32_t size, uint32_t color);
-void putchar(char c, uint32_t color);
-void puts(char* str, uint32_t color);
-uint64_t strlen(char* buff);
-uint32_t strtok(char* buff, uint8_t token, char** args, uint32_t size);
-uint32_t strcmp(char* s1, char* s2);
-uint32_t uint_to_base(uint64_t value, char* buff, uint32_t base);
-uint8_t is_hex_color_code(char* code);
-uint32_t hex_to_uint(char* code);
+```make
+MEMORY_MANAGER=USE_LIST
+MEMORY_MANAGER=USE_BUDDY
 ```
 
+# Pasos a seguir
+
+Una vez ejecutado el comando `./compile.sh` se abrirá la terminal y se deberá ejecutar el comando `help` para poder apreciar todos los distintos comandos que ofrecemos, los cuales son:
+
+## Comandos
+
+### Comandos generales
+
+- `help`: muestra una lista con todos los comandos disponibles.
+- `datetime`: Imprime la fecha y hora del momento.
+- `setcolor`: Coloca los colores de la terminal. Como primer argumento recibe el componente a cambiar y como segundo argumento el color elegido (mensaje de ayuda al ejecutar sin argumentos).
+- `switchcolors`: Invierte los colores del fondo de pantalla y del texto.
+- `clear`: Limpia la pantalla.
+
+### Comandos de memoria
+
+- `mem`: Imprime el estado de la memoria.
+
+### Comandos de procesos
+
+- `ps`: Imprime la lista de todos los procesos con sus propiedades: nombre, ID, prioridad, stack y base pointer, foreground.
+- `loop`: Imprime su ID con un saludo cada una determinada cantidad de segundos.
+- `kill`: Mata un proceso dado su ID.
+- `nice`: Cambia la prioridad de un proceso dado su ID y la nueva prioridad.
+- `block`: Cambia el estado de un proceso entre bloqueado y listo dado su ID
+
+### Comandos de IPC
+
+- `cat`: Imprime el stdin tal como lo recibe.
+- `wc`: Cuenta la cantidad de líneas del input.
+- `filter`: Filtra las vocales del input.
+- `phylo`: Implementa el problema de los filósofos comensales. Recibe un argumento el cual indica la cantidad de filósofos en la mesa.
+
+### Tests
+
+- `testioe`: Genera una `Invalid Op Code Error`.
+- `testzde`: Genera una `Zero Division Erro`.
+- `testmm`: Aloca memoria y la desaloca imprimiendo el estado de la misma en el proceso.
+- `testproc`: Crea un proceso, que crea y elimina múltiples procesos hijos hasta que se pare el proceso. Recibe la cantidad de procesos hijos que puede crear en simultaneo.
+- `testprio`: Genera tres procesos y le cambia la prioridad, imprime el id del proceso.
+- `testsync`: Crea pares de procesos, los cuales aumentan y disminuyen el valor de una variable. Su primer argumento es la cantidad de operaciones que realiza cada proceso (ya se aumentar la variable en 1 o disminuirla en 1) y su segunda parámetro es si se desea usar semáforo o no (0 para no utilizar semáforo y 1 para utilizar semáforo).
+- `testpipes`: Crea dos procesos y los conecta mediante un pipe para poder escribir y leer a través de él.
+
 \newpage
-# Diseno y Problemas
 
-## Diseño elegido
+# Decisiones tomadas
 
-Para elegir el diseño nos centramos en la simplicidad para el agregado de drivers y su implementación. Al dividir todo correctamente en carpetas para ser más organizado, el agregado de drivers puede ser más sencillo y esto lo comprobamos durante la realización del trabajo. Para el agregado de un driver se debe crear el archivo `.c` correspondiente en la carpeta drivers y luego su `.h` correspondiente en la carpeta `include/`. Este diseño también se separa en una carpeta `idt` (_**I**nterrupt **D**escriptor **T**able_). Dentro de esta se encuentra todo lo relacionado a las llamadas al sistema que realiza nuestro trabajo. Por ende, para agregar una llamada al sistema se debe actualizar el archivo `syscalls.c` e introducir la nueva llamada al sistema e indicar que se debe ejecutar una vez obtenida esa llamada.
+## Estructura
 
-Este diseño del **Kernel** también facilita la implementación de las funciones assembler en **Userland**, ya que simplemente se realiza la interrupción y el idt se ocupa de llamar a las funciones desde el Kernel.
+En cuanto a la estructura de los archivos en Kernel, utilizamos la estructura que ya habíamos definido en Arquitectura de Computadores. Decidimos crear una carpeta llamada ipc para los mecanismos de comunicación, una carpeta de processes para los procesos y el scheduler y por último decidimos incluir los archivos de memoria en la carpeta denominada drivers.
 
-El lado negativo de este diseño es también la implementación de nuevos drivers. Aunque sea verdad que se puede volver más sencillo y organizado de esta manera, también se vuelve muy tedioso el agregado de un driver. Esto se debe a los diversos archivos a crear y los distintos archivos a los cual hay que aplicar el nombre del archivo para que pueda correr adecuadamente.
+Mirando Userland creamos la carpeta tests para incluir los tests provistos por la cátedra y la carpeta programas para incluir todos los programas creados.
 
-## Problemas encontrados
+## Código
 
-* El primer problema encontrado fue el paso al modo video. Esto resultó en un problema ya que los ejercicios propuestos en el pre TP estaban todos basados en el modo texto. Por esta razón, tuvimos que investigar cómo funcionaba este nuevo modo y reiniciar el aprendizaje desde cero para aprender y poder entender este nuevo modo.
-* Una vez arrancado el proyecto tuvimos que organizar todos los archivos provistos por la cátedra para adaptarlos a nuestro diseño. Esto concluye en un problema porque al modificar la carpeta donde se encontraban ciertos archivos estos ya no eran encontrados por el compilador. Por lo tanto luego de debugear, pudimos reconstruir el buildsystem para que pueda compilar todos los archivos, tanto actuales como futuros.
-* Un error que tuvimos desarrollando el proyecto fue la errónea inclusión de un wallpaper en una primera instancia. Cuando quisimos incluir un wallpaper por primera vez, al ejecutar se rompía el código y no funcionaba. Concluimos que el tamaño de la imagen era lo que estaba causando el error. Al almacenar la imagen, el tamaño de esta misma era muy grande por lo cual terminaba pisando memoria del Userland. Para arreglar esto tuvimos que encontrar el tamaño máximo de imagen que podíamos almacenar, y luego encontrar una imagen que sea igual o menor al tamaño encontrado para que luego pueda ser utilizada correctamente.
-* Otro contratiempo que tuvimos fue que no éramos capaces de verificar el orden en el que los registros se cargan al stack al momento de alguna excepción. Lo pudimos arreglar debugeando con `gdb` y corroborar un orden lógico que habíamos pensado posible.
-* A la hora de implementar el movimiento de los jugadores en **Pong**, resultaba que una implementación “normal” donde se verifique que tecla se presionó durante cada tick generaría el problema de movimiento asincrónicos y trabados. Para solucionar esto declaramos un array de variables de estado que en el game loop verifica la tecla presionada y setea en el array el estado de la tecla presionada y cuando salta el tick ya se conoce el estado de movimiento de cada jugador para actualizar sus posiciones y dibujarlos. Sin embargo, para poder cambiar estos estados, no solo necesitábamos conocer la tecla presionada, sino también la tecla soltada para saber cuando un jugador se mueve o deja de moverse. Para eso hubo que reescribir el driver de teclado de manera tal que al pedir un caracter, devuelva también su estado.
-* Otro problema que nos encontramos cerca de la finalización del proyecto, fue la implementación del sonido para el juego **pong**. Este problema ocurre a ciertos compañeros que no podían escuchar el sonido debido a lo que creíamos que era un problema con Ubuntu. Concluimos que Ubuntu y el pulseaudio no se comunican bien lo cual llevaba a un error. Aunque no hayamos podido encontrar la causa del problema, lo pudimos solucionar ajustando los flags del `run.sh`.
+A la hora de crear un proceso, para guardar los files descriptors, el contexto del proceso, y el estado del proceso (para el scheduler), decidimos usar distintos structs con la intención de agrupar datos que se asignan a un proceso en específico.
+
+```c
+typedef struct
+{
+	int8_t priority;
+	uint8_t exit_status;
+	ProcessStatus status;
+	void* rsp;
+} ProcessState;
+
+typedef struct
+{
+	ReadCallback read_callback;
+	WriteCallback write_callback;
+	CloseCallback close_callback;
+	DupCallback dup_callback;
+} FileDescriptor;
+
+typedef struct
+{
+	void *stack_end, *stack_start;
+	uint8_t is_fg;
+	char* name;
+
+	int argc;
+	char** argv;
+
+	FileDescriptor fds[MAX_FDS];
+	Queue waiting_pids;
+
+	int parent_pid;
+	Queue child_pids;
+
+	KillCallback kill_callback;
+} ProcessContext;
+```
+
+Otra decisión tomada fue la de crear una `queue` de ID de procesos. Al tener que juntar procesos en distintas partes del código, decidimos realizar una cola de `uint8_t` para poder acceder a esta cola y poder agregar, eliminar u bloquear procesos adjuntos.
+
+```c
+struct node
+{
+	uint8_t elem;
+	struct node* next;
+};
+
+struct queue_adt
+{
+	struct node* first;
+	struct node* last;
+	int count;
+};
+```
+
+## Código estático
+
+Para ahorrar mucho trabajo y como bien menciono la catedra decidimos hacer las cosas estáticas, es decir, hay una cantidad de procesos máximos que se pueden tener creados al mismo tiempo.
+
+```c
+static ProcessContext processes[MAX_PROCESSES];
+```
+
+Aplicamos este mismo razonamiento para otras implementaciones, por ejemplo, para pipes y semáforos, los cuales existen una máxima cantidad que se pueden crear, lo cual lleva a una de las limitaciones de nuestro código.
+
+```c
+static Pipe* pipe_table[MAX_PIPES];
+static SemInfo* semaphores[MAX_SEMAPHORES];
+```
+
+# Limitaciones
+
+## Código estático
+
+Como se mencionó en las decisiones tomadas, una gran limitación del código que se deicidio escribir, es la elección de arrays estáticos. Al tomar esta decisión hay una máxima cantidad de procesos que el usuario puede crear, el cual es la principal limitación del código. También hay una máxima cantidad de semáforos y pipes que se pueden crear, lo cual añaden a las limitaciones de nuestro código.
+
+# Problemas encontrados
+
+## `CTRL+C` en dilema de filósofos
+
+Al abortar el programa de filósofos a la mitad, no se realiza el free de los semáforos y no se los elimina del array estático. Por lo cual en cualquier programa que utilice muchos semáforos y se cancele al medio, ocupara mucho espacio en los semáforos. Lo que llevara a que no se puedan crear más en cierto momento. Si se ejecutaba el programa `philo` y se lo aborta varias veces, se obtendrá un error que indica que no hay más espacio para crear semáforos.
+
+La solución planteada es el agregado de un `kill callback`, el cual es un puntero a función que se debe correr cada vez que se mata a un proceso. En caso de que se asigne una función `kill callback` esta se llama cuando el proceso muere.
+
+```c
+if (process->kill_callback != NULL)
+		process->kill_callback();
+```
+
+Por eso, si se interrumpe un proceso el cual aloco memoria, este proceso llama a una función que haga el free de la memoria. En el caso de los filósofos, esta función realiza el free de los semáforos y de los nombres de los filósofos para que la función `philo` pueda ser llamada nuevamente.
+
+## Creado de queue
+
+Un problema grande que tuvimos fue con el creado del queue. Al crear el archivo por primera vez, creamos muchas funciones que podíamos llegar a usar. El problema surgió al testear la memoria utilizando el comando `mem`. Podíamos observar con ambos memory manager un `memory leak` de distintos tamaños (para ambos memory manager) cada vez que se creaba un proceso. Por esta razón, estuvimos mucho tiempo debbugeando hasta concluir que la liberación de memoria de las `queues` estaba mal.
+
+Si se ejecutan dos `mem` seguidos se puede ver como aumenta la memoria, lo cual podría parecer un memory leak, pero esto es incorrecto ya que si seguimos ejecutándolo deja de aumentar la memoria usada. Esto es debido a la creación de las `queues`, especialmente la `queue` que guarda los id de los proceses hijos. En el creado del proceso no se inicializa la `queue` de los procesos hijos, sino que es el primer hijo el cual crea esta `queue` a su padre. Se decidió realizarlo de esta manera porque muchos procesos no tienen proceso hijos, por lo cual asignar ese espacio de memoria en la creación de un proceso nos pareció innecesario. Por ende, el aumento en memoria que aparece en los primeros dos `mem` es esta `queue` siendo creada por primera vez, por su primer hijo.
+
+## Al matar un proceso, matar a los hijos
+
+Un problema que encontramos al final del trabajo fue con las `syscall kill`. Al matar un proceso, ya sea a su finalización o con el `CTRL+C` mientras está corriendo, si el proceso tiene hijos estos también deber morir, ya que no serán utilizados. Por esta razón decidimos incluir en el `struct` del proceso la cola `Queue child_pids` y el entero `parent_pid`, con propósito de poder almacenar los hijos y el pid del padre para que, al matar el proceso, también podamos matar a los hijos.
+
+Por lo tanto, una vez que decidimos matar un proceso aparte de eliminar este mismo proceso también se corre el siguiente código:
+
+```c
+int child_pid;
+while ((child_pid = queue_pop(process->child_pids)) != -1)
+	proc_kill(child_pid, -1);
+mm_free(process->child_pids);
+
+ProcessContext* parent_proc;
+if (get_process_from_pid(process->parent_pid, &parent_proc))
+	queue_remove(parent_proc->child_pids, pid);
+```
+
+El `while` agarra un proceso hijo a la vez y lo mata, mientras que el `if` pregunta si este proceso tiene un padre, y se lo tienen se elimina de la lista del padre.
+
+Para poner un ejemplo, si se ejecuta `testproc` el cual crea muchos procesos, al eliminar este proceso, también se eliminan todos los procesos creados por el `testproc` y este mismo se elimina de la `queue` de su padre, el cual vendría a ser la `shell`.
+
+# Modificaciones realizadas a tests provistos
+
+Las principales funcionalidades de los tests no fueron cambiadas, los resultados esperados siguen siendo los mismos. Algunos cambios fueron:
+
+- Los `printf` fueron mayormente reemplazados por `putchar` o `puts` según el caso de uso
+- Junto con la inclusión del `puts`, incluimos nuestros colores para poder imprimir por pantalla con los colores correctos, por ejemplo, imprimir los errores de color rojo.
+- Las syscalls denominadas `my_sys` en el archivo `syscalls.c` fueron adaptadas a nuestro código, haciendo la llamada a assembler correspondiente y retornando el valor correcto.
+- Creamos un test para comprobar el buen funcionamiento de los pipes.
+
+\newpage
+
+# Citas de fragmentos de código reutilizados
+
+Para las syscalls nos basamos en el código de las [syscalls de Linux](https://faculty.nps.edu/cseagle/assembly/sys_call.html). Esta lógica fue útil exceptuando para las syscalls de semáforos ya que Linux no tiene ID para estas, por lo cual decidimos poner estas syscalls a partir del ID número 50.
+

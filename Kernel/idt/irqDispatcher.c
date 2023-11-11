@@ -14,7 +14,6 @@ irq_dispatcher(uint64_t irq)
 	switch (irq) {
 		case TIMER: {
 			timer_handler();
-			return 0;
 		} break;
 
 		case KEYBOARD: {

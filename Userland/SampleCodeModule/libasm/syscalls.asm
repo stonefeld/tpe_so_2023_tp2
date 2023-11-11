@@ -1,38 +1,41 @@
 ; i/o interaction
-global asm_getchar
-global asm_putchar
-sys_read         equ 1
-sys_write        equ 2
-
-; drawing
-global asm_draw
-global asm_clear
-global asm_cursor
-global asm_show_cursor
-sys_draw         equ 3
-sys_clear        equ 4
-sys_cursor       equ 5
-sys_show_cursor  equ 6
-
-; properties
-global asm_winprops
-sys_winprops     equ 7
-
+global asm_exit
+global asm_read
+global asm_write
+global asm_close
+global asm_dup
 ; system
-global asm_ticked
+global asm_time
 global asm_sleep
-global asm_printreg
-global asm_datetime
-global asm_sound
+
+; processes
+global asm_execve
+global asm_waitpid
+global asm_getpid
+global asm_ps
+global asm_nice
+global asm_kill
+global asm_block
+global asm_yield
+
+; pipes
+global asm_pipe
+global asm_pipe_open
+global asm_pipe_unlink
+global asm_pipe_status
+
+; semaphores
+global asm_sem_open
+global asm_sem_wait
+global asm_sem_post
+global asm_sem_close
+
+; memory
+global asm_meminfo
 global asm_malloc
-global asm_freeAll
-sys_ticks        equ 8
-sys_sleep        equ 9
-sys_regs         equ 10
-sys_rtc          equ 11
-sys_sound        equ 12
-sys_malloc       equ 13
-sys_freeAll      equ 14
+global asm_free
+global asm_realloc
+
 %macro syscall_handler 1
     push rbp
     mov rbp,rsp
@@ -47,43 +50,35 @@ sys_freeAll      equ 14
     ret
 %endmacro
 
-asm_getchar:
-    syscall_handler sys_read
+asm_exit: syscall_handler 1
+asm_read: syscall_handler 3
+asm_write: syscall_handler 4
+asm_close: syscall_handler 6
+asm_dup: syscall_handler 41
 
-asm_putchar:
-    syscall_handler sys_write
+asm_time: syscall_handler 13
+asm_sleep: syscall_handler 14
 
-asm_draw:
-    syscall_handler sys_draw
+asm_execve: syscall_handler 2
+asm_waitpid: syscall_handler 7
+asm_getpid: syscall_handler 20
+asm_ps: syscall_handler 21
+asm_nice: syscall_handler 34
+asm_kill: syscall_handler 37
+asm_block: syscall_handler 38
+asm_yield: syscall_handler 158
 
-asm_clear:
-    syscall_handler sys_clear
+asm_pipe: syscall_handler 42
+asm_pipe_open: syscall_handler 43
+asm_pipe_unlink: syscall_handler 44
+asm_pipe_status: syscall_handler 45
 
-asm_cursor:
-    syscall_handler sys_cursor
+asm_sem_open: syscall_handler 50
+asm_sem_wait: syscall_handler 51
+asm_sem_post: syscall_handler 52
+asm_sem_close: syscall_handler 53
 
-asm_show_cursor:
-    syscall_handler sys_show_cursor
-
-asm_winprops:
-    syscall_handler sys_winprops
-
-asm_ticked:
-    syscall_handler sys_ticks
-
-asm_sleep:
-    syscall_handler sys_sleep
-
-asm_printreg:
-    syscall_handler sys_regs
-
-asm_datetime:
-    syscall_handler sys_rtc
-
-asm_sound:
-    syscall_handler sys_sound
-
-asm_malloc:
-    syscall_handler sys_malloc
-asm_freeAll:
-    syscall_handler sys_freeAll
+asm_meminfo: syscall_handler 89
+asm_malloc: syscall_handler 90
+asm_free: syscall_handler 91
+asm_realloc: syscall_handler 92

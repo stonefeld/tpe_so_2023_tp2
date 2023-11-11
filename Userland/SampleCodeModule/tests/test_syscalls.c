@@ -1,6 +1,6 @@
-#include "test_syscalls.h"
-
 #include <stdint.h>
+#include <syscalls.h>
+#include <test_syscalls.h>
 
 int64_t
 my_getpid()
@@ -9,67 +9,63 @@ my_getpid()
 }
 
 int64_t
-my_create_process(char* name, uint64_t argc, char* argv[])
+my_create_process(char* name, EntryPoint entry_point, uint64_t argc, char* argv[])
 {
-	return 0;
+	ProcessCreateInfo create_info = {
+		.argc = argc,
+		.argv = argv,
+		.name = name,
+		.entry_point = entry_point,
+		.is_fg = 0,
+		.priority = 0,
+	};
+	return asm_execve(&create_info);
 }
 
 int64_t
-my_nice(uint64_t pid, uint64_t newPrio)
+my_nice(uint64_t pid, uint64_t nice)
 {
-	return 0;
+	return asm_nice(nice, pid);
 }
 
 int64_t
 my_kill(uint64_t pid)
 {
-	return 0;
+	return asm_kill(pid);
 }
 
 int64_t
 my_block(uint64_t pid)
 {
-	return 0;
+	return asm_block(pid);
+}
+
+int
+my_sem_open(char* name, uint64_t init_value)
+{
+	return asm_sem_open(name, init_value);
 }
 
 int64_t
-my_unblock(uint64_t pid)
+my_sem_wait(int sem)
 {
-	return 0;
+	return asm_sem_wait(sem);
 }
 
 int64_t
-my_sem_open(char* sem_id, uint64_t initialValue)
+my_sem_post(int sem)
 {
-	return 0;
+	return asm_sem_post(sem);
 }
 
 int64_t
-my_sem_wait(char* sem_id)
+my_sem_close(int sem)
 {
-	return 0;
-}
-
-int64_t
-my_sem_post(char* sem_id)
-{
-	return 0;
-}
-
-int64_t
-my_sem_close(char* sem_id)
-{
-	return 0;
+	return asm_sem_close(sem);
 }
 
 int64_t
 my_yield()
 {
-	return 0;
-}
-
-int64_t
-my_wait(int64_t pid)
-{
-	return 0;
+	return asm_yield();
 }

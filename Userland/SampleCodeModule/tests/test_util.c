@@ -1,11 +1,20 @@
-#include "test_syscalls.h"
-
+#include <libasm.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <syscalls.h>
+#include <test_syscalls.h>
+#include <test_util.h>
+
+#define BUFSIZE 16
 
 // Random
 static uint32_t m_z = 362436069;
 static uint32_t m_w = 521288629;
+
+static char buf[BUFSIZE];
+
+extern Color color;
 
 uint32_t
 GetUint()
@@ -34,6 +43,17 @@ memcheck(void* start, uint8_t value, uint32_t size)
 			return 0;
 
 	return 1;
+}
+
+void*
+setmem(void* destiation, int32_t c, size_t length)
+{
+	uint8_t chr = (uint8_t)c;
+	char* dst = (char*)destiation;
+	while (length--) {
+		dst[length] = chr;
+	}
+	return destiation;
 }
 
 // Parameters
@@ -67,23 +87,29 @@ bussy_wait(uint64_t n)
 {
 	uint64_t i;
 	for (i = 0; i < n; i++)
-		;
+		continue;
 }
 
-void
-endless_loop()
+int
+endless_loop(int argc, char** argv)
 {
 	while (1)
-		;
+		asm_hlt();
 }
 
-void
-endless_loop_print(uint64_t wait)
+int
+endless_loop_print(int argc, char** argv)
 {
-	int64_t pid = my_getpid();
+	if (argc != 0)
+		return -1;
+
+	int pid = asm_getpid();
 
 	while (1) {
-		// printf("%d ", pid);
-		bussy_wait(wait);
+		puts("PID: ", color.output);
+		uint_to_base(pid, buf, DEC);
+		puts(buf, color.output);
+		puts("  ", color.output);
+		bussy_wait(9000000);
 	}
 }

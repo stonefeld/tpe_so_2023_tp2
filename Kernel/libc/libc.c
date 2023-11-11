@@ -56,6 +56,28 @@ strlen(char* str)
 	return len - 1;
 }
 
+int
+isalnum(char c)
+{
+	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+int
+isalpha(char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+char*
+strcpy(char* destination, const char* source)
+{
+	char* w;
+	for (w = destination; *source != '\0'; *(w++) = *(source++))
+		continue;
+	*w = '\0';
+	return destination;
+}
+
 uint32_t
 uint_to_base(uint64_t value, char* buff, uint32_t base)
 {
@@ -81,4 +103,48 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	}
 
 	return digits;
+}
+
+uint32_t
+int_to_str(int64_t value, char* buff)
+{
+	char buff_aux[64];
+	uint8_t is_neg = 0;
+	if (value < 0) {
+		is_neg = 1;
+		value = -value;
+	}
+
+	uint32_t digits = uint_to_base(value, buff_aux, DEC);
+	memcpy(buff + (is_neg == 1), buff_aux, digits + 1);
+	if (is_neg)
+		buff[0] = '-';
+
+	return digits + (is_neg == 1);
+}
+
+int
+strcmp(const char* str1, const char* str2)
+{
+	while (*str1 != '\0' || *str2 != '\0') {
+		if (*str1 != *str2)
+			return -1;
+		str1++;
+		str2++;
+	}
+	return 0;
+}
+
+int
+strncmp(const char* str1, const char* str2, uint64_t n)
+{
+	while ((*str1 != '\0' || *str2 != '\0') && n > 0) {
+		if (*str1 != *str2) {
+			return -1;
+		}
+		str1++;
+		str2++;
+		n--;
+	}
+	return 0;
 }

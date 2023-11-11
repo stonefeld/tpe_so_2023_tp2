@@ -2,57 +2,39 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-void
-sleep(int time)
+void*
+memcpy(void* destination, const void* source, uint64_t length)
 {
-	asm_sleep(time);
-}
+	uint64_t i;
 
-uint32_t
-gets(char* buff, uint32_t size, uint32_t color)
-{
-	uint8_t c, state;
-	uint32_t len = 0;
+	if ((uint64_t)destination % sizeof(uint32_t) == 0 && (uint64_t)source % sizeof(uint32_t) == 0 &&
+	    length % sizeof(uint32_t) == 0) {
+		uint32_t* d = (uint32_t*)destination;
+		const uint32_t* s = (const uint32_t*)source;
 
-	while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
-		if (c && state == PRESSED) {
-			if (c != '\b') {
-				if (len < size - 1) {
-					putchar(c, color);
-					buff[len++] = c;
-				}
-			} else if (len > 0 && c != '\n') {
-				if (buff[len - 1] == '\t')
-					for (int i = 0; i < 7; i++)
-						putchar(c, color);
-				putchar(c, color);
-				len--;
-			}
-		}
+		for (i = 0; i < length / sizeof(uint32_t); i++)
+			d[i] = s[i];
+	} else {
+		uint8_t* d = (uint8_t*)destination;
+		const uint8_t* s = (const uint8_t*)source;
+
+		for (i = 0; i < length; i++)
+			d[i] = s[i];
 	}
-	putchar('\n', color);
-	buff[len] = 0;
-	return len;
+
+	return destination;
 }
 
-uint8_t
-getchar(uint8_t* state)
+void*
+memset(void* destination, int32_t c, uint64_t length)
 {
-	return asm_getchar(state);
-}
+	uint8_t chr = (uint8_t)c;
+	char* dst = (char*)destination;
 
-void
-puts(char* str, uint32_t color)
-{
-	uint64_t len = strlen(str);
-	for (int i = 0; i < len; i++)
-		putchar(str[i], color);
-}
+	while (length--)
+		dst[length] = chr;
 
-void
-putchar(char c, uint32_t color)
-{
-	asm_putchar(c, color);
+	return destination;
 }
 
 uint64_t
@@ -124,6 +106,24 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	return digits;
 }
 
+uint32_t
+int_to_str(int64_t value, char* buff)
+{
+	char buff_aux[64];
+	uint8_t is_neg = 0;
+	if (value < 0) {
+		is_neg = 1;
+		value = -value;
+	}
+
+	uint32_t digits = uint_to_base(value, buff_aux, DEC);
+	memcpy(buff + (is_neg == 1), buff_aux, digits + 1);
+	if (is_neg)
+		buff[0] = '-';
+
+	return digits + (is_neg == 1);
+}
+
 uint8_t
 is_hex_color_code(char* code)
 {
@@ -168,14 +168,47 @@ hex_to_uint(char* code)
 
 	return ret;
 }
-void*
-malloc(const uint32_t memoryToAllocate)
+
+int
+str_to_int(char* str)
 {
-	return asm_malloc(memoryToAllocate);
+	int result = 0;
+	int sign = 1;
+	int i = 0;
+
+	while (str[i] == ' ')
+		i++;
+
+	if (str[i] == '-') {
+		sign = -1;
+		i++;
+	} else if (str[i] == '+') {
+		i++;
+	}
+
+	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9') {
+		result = result * 10 + (str[i] - '0');
+		i++;
+	}
+
+	return result * sign;
 }
 
-void
-freeAll()
+char*
+strcat(char* s1, char* s2)
 {
-	asm_freeAll();
+	int i = 0, j = 0;
+	char* result = asm_malloc(strlen(s1) + strlen(s2) + 1);
+	while (s1[i] != '\0') {
+		result[i] = s1[i];
+		i++;
+	}
+	while (s2[j] != '\0') {
+		result[i] = s2[j];
+		j++;
+		i++;
+	}
+	result[i] = '\0';
+
+	return result;
 }

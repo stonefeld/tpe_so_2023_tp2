@@ -3,27 +3,13 @@
 
 #include <stdint.h>
 
-/*
- * Devuelve el caracter presionado por teclado y su estado
- * (presionado o soltado).
- */
-uint8_t getchar(uint8_t* state);
+#define BIN 2
+#define OCT 8
+#define DEC 10
+#define HEX 16
 
-/*
- * Carga en buff los caracteres recibidos por teclado y los
- * imprime por pantalla.
- */
-uint32_t gets(char* buff, uint32_t size, uint32_t color);
-
-/*
- * Imprime un caracter por pantalla.
- */
-void putchar(char c, uint32_t color);
-
-/*
- * Imprime un string por pantalla.
- */
-void puts(char* str, uint32_t color);
+void* memcpy(void* destination, const void* source, uint64_t length);
+void* memset(void* destination, int32_t c, uint64_t length);
 
 /*
  * Devuelve el largo de un string.
@@ -44,6 +30,7 @@ uint32_t strcmp(char* s1, char* s2);
  * Transforma un entero en un string formateado en cierta base.
  */
 uint32_t uint_to_base(uint64_t value, char* buff, uint32_t base);
+uint32_t int_to_str(int64_t value, char* buff);
 
 /*
  * Devuelve si un string es un código hexadecimal válido.
@@ -55,8 +42,8 @@ uint8_t is_hex_color_code(char* code);
  */
 uint32_t hex_to_uint(char* code);
 
-void* malloc(const uint32_t memoryToAllocate);
-void freeAll();
+int str_to_int(char* str);
 
-void sleep(int time);
+char* strcat(char* s1, char* s2);
+
 #endif

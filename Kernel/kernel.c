@@ -5,17 +5,16 @@
 #include <keyboard.h>
 #include <libasm.h>
 #include <libc.h>
+#include <memoryManager.h>
 #include <moduleLoader.h>
+#include <process.h>
+#include <scheduler.h>
 #include <sound.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-#define BLACK 0x000000
-#define WHITE 0xffffff
-
-typedef int (*EntryPoint)();
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -28,8 +27,8 @@ static const uint64_t page_size = 0x1000;
 static void* const sample_code_module_addr = (void*)0x400000;
 static void* const sample_data_module_addr = (void*)0x500000;
 
-static void* const startHeapAddres = (void*)0xF00000;
-static void* const endHeapAddres = (void*)0x2000000;
+static void* const heap_start_addr = (void*)0xF00000;
+static void* const heap_end_addr = (void*)0x2000000;
 
 void
 clear_bss(void* bss_addr, uint64_t bss_size)
@@ -56,29 +55,46 @@ init_kernel_binary()
 	return get_stack_base();
 }
 
+void
+init_shell()
+{
+	ProcessCreateInfo info = {
+		.name = "shell",
+		.entry_point = (ProcessEntryPoint)sample_code_module_addr,
+		.is_fg = 1,
+		.priority = MAX_PRIORITY,
+		.argc = 0,
+		.argv = NULL,
+	};
+	int pid = proc_create(&info);
+	kb_map_fd(pid, STDIN);
+	tx_map_fd(pid, STDOUT);
+	tx_map_fd(pid, STDERR);
+}
+
 int
 main()
 {
+	// dehabilito las interrupciones
+	asm_cli();
+
 	idt_loader();
+	mm_init(heap_start_addr, (heap_end_addr - heap_start_addr));
+	sch_init();
+	kb_init();
+	tx_init();
 
-	mm_init(startHeapAddres, (size_t)(endHeapAddres - startHeapAddres));
-	// print intro wallpaper and loading message
-	// vd_wallpaper(2);
+	// inicializamos la shell
+	init_shell();
 
-	// // play some nice sound
-	// ti_sleep(1 * 18);
-	// sd_play(800, 0.1 * 18);
-	// ti_sleep(0.2 * 18);
-	// sd_play(800, 0.1 * 18);
-	// ti_sleep(0.1 * 18);
-	// sd_play(1000, 0.3 * 18);
-	// ti_sleep(1 * 18);
-	tx_clear(BLACK);
+	// vuelvo a habilitar las interrupciones
+	asm_sti();
 
-	// set the restore point in case of exceptions
-	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp(), asm_getbp());
+	while (1) {
+		// el proceso kernel no debe hacer mas nada
+		sch_yield();
+		asm_hlt();
+	}
 
-	uint32_t status = ((EntryPoint)sample_code_module_addr)();
-	tx_put_word("Exit from Userland. Back in Kernel.", WHITE);
-	return status;
+	return 0;
 }

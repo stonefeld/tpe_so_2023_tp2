@@ -1,12 +1,14 @@
 #include <libasm.h>
 #include <libc.h>
+#include <process.h>
 #include <rtc.h>
+#include <scheduler.h>
 #include <stdint.h>
 #include <text.h>
 
 #define ARG_TIMEZONE -3
-#define DATE_SIZE 4
-#define MONTHS 12
+#define DATE_SIZE    4
+#define MONTHS       12
 
 enum time_fmt
 {
@@ -51,41 +53,42 @@ rtc_datetime(uint32_t color)
 		}
 	}
 
-	tx_put_word("Datetime: ", color);
-	len = uint_to_base(day, buff, DEC);
-	if (len == 1)
-		tx_put_char('0', color);
-	tx_put_word(buff, color);
-	tx_put_char('/', color);
+	int pid = sch_get_current_pid();
+
+	len = uint_to_base(year, buff, DEC);
+	proc_write(pid, STDOUT, "20", 2, color);
+	proc_write(pid, STDOUT, buff, len, color);
+	proc_write(pid, STDOUT, "/", 1, color);
 
 	len = uint_to_base(month, buff, DEC);
 	if (len == 1)
-		tx_put_char('0', color);
-	tx_put_word(buff, color);
-	tx_put_char('/', color);
+		proc_write(pid, STDOUT, "0", 1, color);
+	proc_write(pid, STDOUT, buff, len, color);
+	proc_write(pid, STDOUT, "/", 1, color);
 
-	uint_to_base(year, buff, DEC);
-	tx_put_word("20", color);
-	tx_put_word(buff, color);
-	tx_put_char(' ', color);
+	len = uint_to_base(day, buff, DEC);
+	if (len == 1)
+		proc_write(pid, STDOUT, "0", 1, color);
+	proc_write(pid, STDOUT, buff, len, color);
+	proc_write(pid, STDOUT, " ", 1, color);
 
 	len = uint_to_base(hours, buff, DEC);
 	if (len == 1)
-		tx_put_char('0', color);
-	tx_put_word(buff, color);
-	tx_put_char(':', color);
+		proc_write(pid, STDOUT, "0", 1, color);
+	proc_write(pid, STDOUT, buff, len, color);
+	proc_write(pid, STDOUT, ":", 1, color);
 
 	len = uint_to_base(minutes, buff, DEC);
 	if (len == 1)
-		tx_put_char('0', color);
-	tx_put_word(buff, color);
-	tx_put_char(':', color);
+		proc_write(pid, STDOUT, "0", 1, color);
+	proc_write(pid, STDOUT, buff, len, color);
+	proc_write(pid, STDOUT, ":", 1, color);
 
 	len = uint_to_base(seconds, buff, DEC);
 	if (len == 1)
-		tx_put_char('0', color);
-	tx_put_word(buff, color);
-	tx_put_char('\n', color);
+		proc_write(pid, STDOUT, "0", 1, color);
+	proc_write(pid, STDOUT, buff, len, color);
+	proc_write(pid, STDOUT, "\n", 1, color);
 }
 
 static int

@@ -10,10 +10,8 @@
  */
 int keyboard_handler();
 
-/*
- * Devuelve el siguiente caracter del buffer y el estado del mismo (presionado
- * o soltado).
- */
-char kb_getchar(uint8_t* state);
+void kb_init();
+int kb_read_chars(char* buf, uint32_t size);
+int kb_map_fd(int pid, int fd);
 
 #endif

@@ -11,4 +11,6 @@ extern void asm_testioe();
  */
 extern void asm_testzde();
 
+extern void asm_hlt();
+
 #endif

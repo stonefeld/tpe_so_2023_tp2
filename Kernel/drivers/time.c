@@ -1,7 +1,8 @@
 #include <interrupts.h>
+#include <scheduler.h>
 #include <time.h>
 
-static uint64_t ticks = 0, last_ticks = 0;
+static uint64_t ticks = 0;
 
 void
 timer_handler()
@@ -9,31 +10,18 @@ timer_handler()
 	ticks++;
 }
 
-uint64_t
-ti_ticks()
+uint32_t
+ti_millis()
 {
-	return ticks;
-}
-
-uint64_t
-ti_seconds()
-{
-	return ticks / 18;
-}
-
-uint8_t
-ti_ticked()
-{
-	if (last_ticks == ticks)
-		return 0;
-	last_ticks = ticks;
-	return 1;
+	return ticks * 5000 / 91;
 }
 
 void
-ti_sleep(uint32_t ticks_wanted)
+ti_sleep(uint64_t millis)
 {
-	uint32_t last = ticks;
-	while (ticks - last < ticks_wanted)
+	uint32_t start = ti_millis();
+	while (ti_millis() - start < millis) {
 		asm_hlt();
+		sch_yield();
+	}
 }

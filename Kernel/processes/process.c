@@ -222,7 +222,7 @@ int
 proc_unmap_fd(int pid, int fd)
 {
 	ProcessContext* process;
-	if (!get_process_from_pid(pid, &process) || fd > MAX_FDS || fd < 0)
+	if (!get_process_from_pid(pid, &process) || fd < 0 || fd >= MAX_FDS)
 		return -1;
 	int r = 0;
 	if (process->fds[fd].close_callback != NULL && (r = process->fds[fd].close_callback(pid, fd)) != 0)
@@ -238,7 +238,7 @@ int
 proc_read(int pid, int fd, char* buf, uint32_t size)
 {
 	ProcessContext* process;
-	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].read_callback == NULL)
+	if (fd < 0 || fd >= MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].read_callback == NULL)
 		return -1;
 	return process->fds[fd].read_callback(pid, fd, buf, size);
 }
@@ -247,7 +247,7 @@ int
 proc_write(int pid, int fd, char* buf, uint32_t size, uint32_t color)
 {
 	ProcessContext* process;
-	if (fd < 0 || fd > MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].write_callback == NULL)
+	if (fd < 0 || fd >= MAX_FDS || !get_process_from_pid(pid, &process) || process->fds[fd].write_callback == NULL)
 		return -1;
 	return process->fds[fd].write_callback(pid, fd, buf, size, color);
 }
@@ -256,7 +256,7 @@ int
 proc_dup(int pid, int fd_original, int fd_final)
 {
 	ProcessContext* process;
-	if (fd_original < 0 || fd_original > MAX_FDS || fd_final < 0 || fd_final > MAX_FDS ||
+	if (fd_original < 0 || fd_original >= MAX_FDS || fd_final < 0 || fd_final >= MAX_FDS ||
 	    !get_process_from_pid(pid, &process))
 		return -1;
 

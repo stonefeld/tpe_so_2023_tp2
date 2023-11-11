@@ -9,7 +9,6 @@ int64_t my_create_process(char* name, EntryPoint entry_point, uint64_t argc, cha
 int64_t my_nice(uint64_t pid, uint64_t nice);
 int64_t my_kill(uint64_t pid);
 int64_t my_block(uint64_t pid);
-int64_t my_unblock(uint64_t pid);
 int64_t my_yield();
 
 int my_sem_open(char* name, uint64_t init_value);

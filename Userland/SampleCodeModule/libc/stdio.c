@@ -21,7 +21,7 @@ fgets(int fd, char* buf, uint32_t size, uint8_t* eof, uint32_t color)
 				putchar(c, color);
 				buf[len++] = c;
 			}
-		} else if (len > 0 && c != '\n') {
+		} else if (len > 0) {
 			if (buf[len - 1] == '\t')
 				for (int i = 0; i < 7; i++)
 					putchar(c, color);

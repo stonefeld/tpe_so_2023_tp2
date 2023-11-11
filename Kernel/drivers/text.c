@@ -84,7 +84,7 @@ tx_put_word(char* str, uint32_t color)
 void
 tx_set_cursor(uint32_t x, uint32_t y, uint32_t color)
 {
-	if (x >= width || x < 0 || y >= height || y < 0)
+	if (x >= width || y >= height)
 		return;
 	if (show_cursor)
 		vd_put_char(' ', curr_x * CHAR_WIDTH, curr_y * CHAR_HEIGHT, color);

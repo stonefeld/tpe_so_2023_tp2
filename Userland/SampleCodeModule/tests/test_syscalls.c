@@ -40,12 +40,6 @@ my_block(uint64_t pid)
 	return asm_block(pid);
 }
 
-int64_t
-my_unblock(uint64_t pid)
-{
-	return asm_block(pid);
-}
-
 int
 my_sem_open(char* name, uint64_t init_value)
 {

@@ -81,7 +81,7 @@ test_processes(int argc, char* argv[])
 			// Randomly unblocks processes
 			for (rq = 0; rq < max_processes; rq++) {
 				if (p_rqs[rq].state == BLOCKED && GetUniform(100) % 2) {
-					if (my_unblock(p_rqs[rq].pid) == -1) {
+					if (my_block(p_rqs[rq].pid) == -1) {
 						puts("test_processes: ERROR unblocking process\n", color.error);
 						return -1;
 					}

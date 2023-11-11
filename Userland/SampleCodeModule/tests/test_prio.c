@@ -8,9 +8,9 @@
 #define WAIT 1000000000
 
 #define TOTAL_PROCESSES 3
-#define LOWEST 19
-#define MEDIUM 0
-#define HIGHEST -20
+#define LOWEST          19
+#define MEDIUM          0
+#define HIGHEST         -20
 
 static int64_t prio[TOTAL_PROCESSES] = { LOWEST, MEDIUM, HIGHEST };
 
@@ -54,7 +54,7 @@ test_prio(int argc, char** argv)
 
 	puts("UNBLOCKING...\n", color.output);
 	for (i = 0; i < TOTAL_PROCESSES; i++)
-		my_unblock(pids[i]);
+		my_block(pids[i]);
 
 	asm_ps(color.output);
 	bussy_wait(WAIT);

@@ -21,8 +21,8 @@ shell_init()
 	cmd_init();
 	running = 1;
 
-	int32_t len, status = 0;
-	uint8_t eof;
+	int32_t len = 0, status = 0;
+	uint8_t eof = 0;
 
 	while (running && (len != 0 || !eof)) {
 		prompt(status);

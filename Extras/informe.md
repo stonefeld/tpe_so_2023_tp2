@@ -39,24 +39,26 @@ header-includes: |
 ```
 
 \newpage
+
 # Introducción
 
 A lo largo de nuestro recorrido en la materia, hemos explorado el manejo de la API de sistemas operativos UNIX, adquiriendo valiosas destrezas en el proceso. Ahora, nos embarcamos en la tarea de crear nuestro propio kernel, basándonos en el proyecto final de la asignatura Arquitectura de Computadoras. Este desafío implica la implementación integral de aspectos clave, como la administración de memoria, la gestión de procesos, la planificación (scheduling) eficiente, así como la integración de mecanismos de Comunicación entre Procesos (IPC) y estrategias de sincronización.
 
 \newpage
+
 # Instrucciones de compilación y ejecución
 
 El comando `./compile.sh` realizará las siguientes tareas:
 
-* Descargará la imágen de `agodio/itba-so:2.0` de docker donde se compilará el proyecto.
-* Creará un nuevo contenedor preparado para compilar el proyecto como si fuéramos nosotros porque crea un usuario con nuestro mismo **uid** y **gid**.
-* Iniciará el contenedor para que siempre esté corriendo.
-* Enviará los comandos necesarios para limpiar y compilar el proyecto completo.
+- Descargará la imágen de `agodio/itba-so:2.0` de docker donde se compilará el proyecto.
+- Creará un nuevo contenedor preparado para compilar el proyecto como si fuéramos nosotros porque crea un usuario con nuestro mismo **uid** y **gid**.
+- Iniciará el contenedor para que siempre esté corriendo.
+- Enviará los comandos necesarios para limpiar y compilar el proyecto completo.
 
 Esa es la funcionalidad base del comando `./compile.sh`. A su vez, cuenta con dos flags que pueden ser enviados:
 
-* `-d`: Compila el proyecto con información de debugging para poder utilizar gdb y ejecutar paso a paso el código.
-* `-r`: Una vez compilado el proyecto completo, si no ocurrió ningún error durante el proceso, se ejecuta el comando `./run.sh`, es decir, una vez compilado el proyecto, lo ejecuta.
+- `-d`: Compila el proyecto con información de debugging para poder utilizar gdb y ejecutar paso a paso el código.
+- `-r`: Una vez compilado el proyecto completo, si no ocurrió ningún error durante el proceso, se ejecuta el comando `./run.sh`, es decir, una vez compilado el proyecto, lo ejecuta.
 
 > **Nota:** Si se corre el comando con ambos flags en simultáneo, es decir, `./compile.sh -d -r`, el proyecto se compilará y ejecutará en modo debugging. Si solo se utiliza el flag `-r`, se compilará en modo normal y se ejecutará en modo normal, sin información de debugging.
 
@@ -74,41 +76,48 @@ Una vez ejecutado el comando `./compile.sh` se abrirá la terminal y se deberá 
 ## Comandos
 
 ### Comandos generales
-* `help`: muestra una lista con todos los comandos disponibles.
-* `datetime`: Imprime la fecha y hora del momento.
-* `setcolor`: Coloca los colores de la terminal. Como primer argumento recibe el componente a cambiar y como segundo argumento el color elegido (mensaje de ayuda al ejecutar sin argumentos). 
-* `switchcolors`: Invierte los colores del fondo de pantalla y del texto.
-* `clear`: Limpia la pantalla.
+
+- `help`: muestra una lista con todos los comandos disponibles.
+- `datetime`: Imprime la fecha y hora del momento.
+- `setcolor`: Coloca los colores de la terminal. Como primer argumento recibe el componente a cambiar y como segundo argumento el color elegido (mensaje de ayuda al ejecutar sin argumentos).
+- `switchcolors`: Invierte los colores del fondo de pantalla y del texto.
+- `clear`: Limpia la pantalla.
 
 ### Comandos de memoria
-* `mem`: Imprime el estado de la memoria.
+
+- `mem`: Imprime el estado de la memoria.
 
 ### Comandos de procesos
-* `ps`: Imprime la lista de todos los procesos con sus propiedades: nombre, ID, prioridad, stack y base pointer, foreground.
-* `loop`: Imprime su ID con un saludo cada una determinada cantidad de segundos.
-* `kill`: Mata un proceso dado su ID.
-* `nice`: Cambia la prioridad de un proceso dado su ID y la nueva prioridad.
-* `block`: Cambia el estado de un proceso entre bloqueado y listo dado su ID
+
+- `ps`: Imprime la lista de todos los procesos con sus propiedades: nombre, ID, prioridad, stack y base pointer, foreground.
+- `loop`: Imprime su ID con un saludo cada una determinada cantidad de segundos.
+- `kill`: Mata un proceso dado su ID.
+- `nice`: Cambia la prioridad de un proceso dado su ID y la nueva prioridad.
+- `block`: Cambia el estado de un proceso entre bloqueado y listo dado su ID
 
 ### Comandos de IPC
-* `cat`: Imprime el stdin tal como lo recibe.
-* `wc`: Cuenta la cantidad de líneas del input.
-* `filter`: Filtra las vocales del input.
-* `phylo`: Implementa el problema de los filósofos comensales. Recibe un argumento el cual indica la cantidad de filósofos en la mesa.
+
+- `cat`: Imprime el stdin tal como lo recibe.
+- `wc`: Cuenta la cantidad de líneas del input.
+- `filter`: Filtra las vocales del input.
+- `phylo`: Implementa el problema de los filósofos comensales. Recibe un argumento el cual indica la cantidad de filósofos en la mesa.
 
 ### Tests
-* `testioe`: Genera una `Invalid Op Code Error`.
-* `testzde`: Genera una `Zero Division Erro`.
-* `testmm`: Aloca memoria y la desaloca imprimiendo el estado de la misma en el proceso.
-* `testproc`: Crea un proceso, que crea y elimina múltiples procesos hijos hasta que se pare el proceso. Recibe la cantidad de procesos hijos que puede crear en simultaneo.
-* `testprio`: Genera tres procesos y le cambia la prioridad, imprime el id del proceso.
-* `testsync`: Crea pares de procesos, los cuales aumentan y disminuyen el valor de una variable. Su primer argumento es la cantidad de operaciones que realiza cada proceso (ya se aumentar la variable en 1 o disminuirla en 1) y su segunda parámetro es si se desea usar semáforo o no (0 para no utilizar semáforo y 1 para utilizar semáforo).
-* `testpipes`: Crea dos procesos y los conecta mediante un pipe para poder escribir y leer a través de él.
+
+- `testioe`: Genera una `Invalid Op Code Error`.
+- `testzde`: Genera una `Zero Division Erro`.
+- `testmm`: Aloca memoria y la desaloca imprimiendo el estado de la misma en el proceso.
+- `testproc`: Crea un proceso, que crea y elimina múltiples procesos hijos hasta que se pare el proceso. Recibe la cantidad de procesos hijos que puede crear en simultaneo.
+- `testprio`: Genera tres procesos y le cambia la prioridad, imprime el id del proceso.
+- `testsync`: Crea pares de procesos, los cuales aumentan y disminuyen el valor de una variable. Su primer argumento es la cantidad de operaciones que realiza cada proceso (ya se aumentar la variable en 1 o disminuirla en 1) y su segunda parámetro es si se desea usar semáforo o no (0 para no utilizar semáforo y 1 para utilizar semáforo).
+- `testpipes`: Crea dos procesos y los conecta mediante un pipe para poder escribir y leer a través de él.
 
 \newpage
+
 # Decisiones tomadas
 
 ## Estructura
+
 En cuanto a la estructura de los archivos en Kernel, utilizamos la estructura que ya habíamos definido en Arquitectura de Computadores. Decidimos crear una carpeta llamada ipc para los mecanismos de comunicación, una carpeta de processes para los procesos y el scheduler y por último decidimos incluir los archivos de memoria en la carpeta denominada drivers.
 
 Mirando Userland creamos la carpeta tests para incluir los tests provistos por la cátedra y la carpeta programas para incluir todos los programas creados.
@@ -203,6 +212,7 @@ La solución planteada es el agregado de un `kill callback`, el cual es un punte
 if (process->kill_callback != NULL)
 		process->kill_callback();
 ```
+
 Por eso, si se interrumpe un proceso el cual aloco memoria, este proceso llama a una función que haga el free de la memoria. En el caso de los filósofos, esta función realiza el free de los semáforos y de los nombres de los filósofos para que la función `philo` pueda ser llamada nuevamente.
 
 ## Creado de queue
@@ -216,6 +226,7 @@ Si se ejecutan dos `mem` seguidos se puede ver como aumenta la memoria, lo cual 
 Un problema que encontramos al final del trabajo fue con las `syscall kill`. Al matar un proceso, ya sea a su finalización o con el `CTRL+C` mientras está corriendo, si el proceso tiene hijos estos también deber morir, ya que no serán utilizados. Por esta razón decidimos incluir en el `struct` del proceso la cola `Queue child_pids` y el entero `parent_pid`, con propósito de poder almacenar los hijos y el pid del padre para que, al matar el proceso, también podamos matar a los hijos.
 
 Por lo tanto, una vez que decidimos matar un proceso aparte de eliminar este mismo proceso también se corre el siguiente código:
+
 ```c
 int child_pid;
 while ((child_pid = queue_pop(process->child_pids)) != -1)
@@ -226,6 +237,7 @@ ProcessContext* parent_proc;
 if (get_process_from_pid(process->parent_pid, &parent_proc))
 	queue_remove(parent_proc->child_pids, pid);
 ```
+
 El `while` agarra un proceso hijo a la vez y lo mata, mientras que el `if` pregunta si este proceso tiene un padre, y se lo tienen se elimina de la lista del padre.
 
 Para poner un ejemplo, si se ejecuta `testproc` el cual crea muchos procesos, al eliminar este proceso, también se eliminan todos los procesos creados por el `testproc` y este mismo se elimina de la `queue` de su padre, el cual vendría a ser la `shell`.
@@ -233,12 +245,15 @@ Para poner un ejemplo, si se ejecuta `testproc` el cual crea muchos procesos, al
 # Modificaciones realizadas a tests provistos
 
 Las principales funcionalidades de los tests no fueron cambiadas, los resultados esperados siguen siendo los mismos. Algunos cambios fueron:
-* Los `printf` fueron mayormente reemplazados por `putchar` o `puts` según  el caso de uso
-* Junto con la inclusión del `puts`, incluimos nuestros colores para poder imprimir por pantalla con los colores correctos, por ejemplo, imprimir los errores de color rojo.
-* Las syscalls denominadas `my_sys` en el archivo `syscalls.c` fueron adaptadas a nuestro código, haciendo la llamada a assembler correspondiente y retornando el valor correcto.
-* Creamos un test para comprobar el buen funcionamiento de los pipes.
+
+- Los `printf` fueron mayormente reemplazados por `putchar` o `puts` según el caso de uso
+- Junto con la inclusión del `puts`, incluimos nuestros colores para poder imprimir por pantalla con los colores correctos, por ejemplo, imprimir los errores de color rojo.
+- Las syscalls denominadas `my_sys` en el archivo `syscalls.c` fueron adaptadas a nuestro código, haciendo la llamada a assembler correspondiente y retornando el valor correcto.
+- Creamos un test para comprobar el buen funcionamiento de los pipes.
 
 \newpage
+
 # Citas de fragmentos de código reutilizados
 
 Para las syscalls nos basamos en el código de las [syscalls de Linux](https://faculty.nps.edu/cseagle/assembly/sys_call.html). Esta lógica fue útil exceptuando para las syscalls de semáforos ya que Linux no tiene ID para estas, por lo cual decidimos poner estas syscalls a partir del ID número 50.
+
